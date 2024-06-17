@@ -22,8 +22,8 @@ export default function Model(props) {
   const group = useRef();
   const powerBankRef = useRef();
   const camera = useRef()
-  const { nodes, materials, animations } = useGLTF("https://wlr9xd-5173.csb.app/src/Model/dopo444.glb");
-  /project/workspace/src/Model/dopo444.glb
+  const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/dopo444.glb");
+
   const { ref, mixer, names, actions, clips } = useAnimations(
     animations,
     group
@@ -283,7 +283,8 @@ return (
   )
 }
 
-useGLTF.preload('https://wlr9xd-5173.csb.app/src/Model/dopo444.glb')
+useGLTF.preload('http://localhost:5173/src/assets/dopo444.glb')
+
 
 
 /*
