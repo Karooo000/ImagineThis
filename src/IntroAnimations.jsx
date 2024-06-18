@@ -98,27 +98,6 @@ export default function IntroAnimations
      .to(".hero-oval.first", {opacity: 0, yPercent: -25, duration: 0.2}, "sameTime")
 
 
-     /* SECOND Enter Animations */
-     /*
-
-     let secondEnterAnim = gsap.timeline({
-        ease: "power4.out",
-        scrollTrigger: {
-          trigger: "#section-2",
-          start: "top bottom",
-          end: "bottom 20%",
-          scrub: 1,
-        },
-      })
-
-      secondEnterAnim
-      .to(".line.left", {xPercent: 0, duration: 1})
-
-      gsap.registerPlugin(ScrollTrigger);
-      */
-
-
-
 // I set opacity: 0 in the CSS to avoid the flash of unstyled content. Also, it's always best to set your transforms directly via GSAP instead of just in the CSS. Faster performance and more accurate.
         gsap.set(".line.left", { xPercent: 110, opacity: 0 });
 
@@ -497,7 +476,7 @@ export default function IntroAnimations
                   duration: 0.5,
                 })
 
-                gsap.set(".text-comes.with.withh", { xPercent: 100});
+                gsap.set(".text-comes.with.withh", { xPercent: 100, opacity: 0});
         
               const tlWith = gsap.timeline({
                   scrollTrigger: {
@@ -509,11 +488,13 @@ export default function IntroAnimations
                   }
                 })
                 tlWith.to(".text-comes.with.withh", {
+                    opacity: 1,
                   xPercent: -5,
                   duration: 0.5,
                 })
                 tlWith.to(".text-comes.with.withh", {
                   xPercent: -25,
+                  opacity: 0,
                   duration: 0.5,
                 })
 
@@ -562,7 +543,7 @@ export default function IntroAnimations
                     })
        
 
-                    gsap.set(".text-comes.sleeve", { xPercent: 75, yPercent: 0, opacity: 1});
+                    gsap.set(".text-comes.sleeve", { xPercent: 75, yPercent: 0, opacity: 0});
         
                     const tlSleeve = gsap.timeline({
                         scrollTrigger: {

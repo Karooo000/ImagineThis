@@ -22,7 +22,7 @@ export default function Model(props) {
   const group = useRef();
   const powerBankRef = useRef();
   const camera = useRef()
-  const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/dopo444.glb");
+  const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/dopoTest.glb");
 
   const { ref, mixer, names, actions, clips } = useAnimations(
     animations,
@@ -172,120 +172,117 @@ grayCol.addEventListener("click", grayClick)
 
 
 return (
-    <group ref={group} {...props} dispose={null} scale={scaleFactorDesktop}>
-      <group name="Scene">
-        <group name="Empty" />
-        <group name="Empty_-_move_cover" position={[0, -0.847, 0]} scale={0.032}>
-          <mesh
-            name="stitch"
-            castShadow
-            receiveShadow
-            geometry={nodes.stitch.geometry}
-            material={materials['Cover material']}
-            position={[0, 0.313, 0]}
-            scale={31.309}
-          />
-        </group>
-        <group name="Empty_-_move_battery" rotation={[0.07, -0.098, 0.049]}>
-          <mesh
-            name="Battery_bank"
-            castShadow
-            receiveShadow
-            geometry={nodes.Battery_bank.geometry}
-            material={materials[pbMaterial]}
-          />
-          <spotLight
-            name="k_soft_shadow_light"
-            intensity={0.62866}
-            angle={0.323}
-            penumbra={0.15}
-            decay={2}
-            position={[0.565, -0.083, -0.489]}
-            rotation={[3.09, 0.89, 1.722]}>
-            <group position={[0, 0, -1]} />
-          </spotLight>
-          <spotLight
-            name="Keylight"
-            intensity={0.470288}
-            angle={0.277}
-            penumbra={0.15}
-            decay={2}
-            position={[0.638, 0.27, 0.07]}
-            rotation={[-1.431, 1.155, 0.056]}>
-            <group position={[0, 0, -1]} />
-          </spotLight>
-          <mesh
-            name="numbers_as_mesh"
-            castShadow
-            receiveShadow
-            geometry={nodes.numbers_as_mesh.geometry}
-            material={materials['numbers glow material']}
-            position={[0.0105, 0.062, 0.022]}
-            rotation={[0, 0, -Math.PI / 2]}
-            scale={0.009}
-          />
-        </group>
-        <spotLight
-          name="light-frame5"
-          intensity={0.4446}
-          angle={0.255}
-          penumbra={0.335}
-          decay={2}
-          position={[0.881, 0.15, 1.223]}
-          rotation={[-0.12, 0.628, -1.517]}
-          scale={0.714}>
-          <group position={[0, 0, -1]} />
-        </spotLight>
-        <spotLight
-          name="Spot_1"
-          intensity={0.6896}
-          angle={Math.PI / 8}
-          penumbra={0.15}
-          decay={2}
-          position={[0, 3.229, 0]}
-          rotation={[-Math.PI / 2, 0, 0]}>
-          <group position={[0, 0, -1]} />
-        </spotLight>
-        <group name="Empty-move_camera" position={[0, 0, -0.02]} scale={0.99}>
-          <PerspectiveCamera
-            name="Camera"
-            makeDefault={normalCameraTrue}
-            far={1000}
-            near={0.1}
-            fov={22.895}
-            position={[0.458, -0.146, -0.191]}
-            rotation={[2.628, 1.009, -2.527]}
-            scale={0.181}
-          />
-        </group>
-        <group name="Empty-intro_camera" position={[0.377, 0.191, -0.042]} scale={0.028}>
-          <PerspectiveCamera
-            name="Camera-Intro"
-            makeDefault={introCameraTrue}
-            far={1000}
-            near={0.1}
-            fov={22.895}
-            position={[16.094, -5.137, -7.411]}
-            rotation={[2.628, 1.009, -2.527]}
-            scale={6.381}
-          />
-        </group>
+  <group ref={group} {...props} dispose={null}>
+    <group name="Scene">
+      <group name="Empty_-_move_cover" position={[0, -0.847, 0]} scale={0.032}>
         <mesh
-          name="Plane_for_gray"
+          name="stitch"
           castShadow
           receiveShadow
-          geometry={nodes.Plane_for_gray.geometry}
-          material={materials['PB Gray']}
-          position={[16.174, -11.861, -62.359]}
+          geometry={nodes.stitch.geometry}
+          material={materials['Cover material']}
+          position={[0, 0.313, 0]}
+          scale={31.309}
         />
       </group>
+      <group name="Empty_-_move_battery" rotation={[0.07, -0.098, 0.049]}>
+        <mesh
+          name="Battery_bank"
+          castShadow
+          receiveShadow
+          geometry={nodes.Battery_bank.geometry}
+          material={materials[pbMaterial]}
+        />
+        <spotLight
+          name="k_soft_shadow_light"
+          intensity={0.62866}
+          angle={0.323}
+          penumbra={0.15}
+          decay={2}
+          position={[0.565, -0.083, -0.489]}
+          rotation={[3.09, 0.89, 1.722]}>
+          <group position={[0, 0, -1]} />
+        </spotLight>
+        <spotLight
+          name="Keylight"
+          intensity={0.470288}
+          angle={0.277}
+          penumbra={0.15}
+          decay={2}
+          position={[0.638, 0.27, 0.07]}
+          rotation={[-1.431, 1.155, 0.056]}>
+          <group position={[0, 0, -1]} />
+        </spotLight>
+        <mesh
+          name="numbers_as_mesh"
+          castShadow
+          receiveShadow
+          geometry={nodes.numbers_as_mesh.geometry}
+          material={materials['numbers glow material']}
+          position={[0.0105, 0.062, 0.022]}
+          rotation={[0, 0, -Math.PI / 2]}
+          scale={0.009}
+        />
+      </group>
+      <spotLight
+        name="light-frame5"
+        intensity={0.4446}
+        angle={0.255}
+        penumbra={0.335}
+        decay={2}
+        position={[0.881, 0.15, 1.223]}
+        rotation={[-0.12, 0.628, -1.517]}
+        scale={0.714}>
+        <group position={[0, 0, -1]} />
+      </spotLight>
+      <spotLight
+        name="Spot_1"
+        intensity={0.6896}
+        angle={Math.PI / 8}
+        penumbra={0.15}
+        decay={2}
+        position={[0, 3.229, 0]}
+        rotation={[-Math.PI / 2, 0, 0]}>
+        <group position={[0, 0, -1]} />
+      </spotLight>
+      <group name="Empty-move_camera" position={[0, 0, -0.02]} scale={0.99}>
+        <PerspectiveCamera
+          name="Camera001"
+          makeDefault={normalCameraTrue}
+          far={1000}
+          near={0.1}
+          fov={22.895}
+          position={[0.458, -0.146, -0.191]}
+          rotation={[2.628, 1.009, -2.527]}
+          scale={0.181}
+        />
+      </group>
+      <group name="Empty-intro_camera" position={[0.377, 0.191, -0.042]} scale={0.028}>
+        <PerspectiveCamera
+          name="Camera-Intro"
+          makeDefault={introCameraTrue}
+          far={1000}
+          near={0.1}
+          fov={22.895}
+          position={[16.094, -5.137, -7.411]}
+          rotation={[2.628, 1.009, -2.527]}
+          scale={6.381}
+        />
+      </group>
+      <mesh
+        name="Plane_for_gray"
+        castShadow
+        receiveShadow
+        geometry={nodes.Plane_for_gray.geometry}
+        material={materials['PB Gray']}
+        position={[16.174, -11.861, -62.359]}
+      />
     </group>
-  )
+  </group>
+)
 }
 
-useGLTF.preload('http://localhost:5173/src/assets/dopo444.glb')
-
-
+useGLTF.preload('http://localhost:5173/src/assets/dopoTest.glb')
 
 /*
 k_soft_shadow_light - 0.62866
@@ -295,3 +292,4 @@ Spot_1 - 0.6896
 normalCameraTrue
 introCameraTrue
 */
+
