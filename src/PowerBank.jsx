@@ -22,7 +22,7 @@ export default function Model(props) {
   const group = useRef();
   const powerBankRef = useRef();
   const camera = useRef()
-  const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/dopoTest.glb");
+  const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/dopo444.glb");
 
   const { ref, mixer, names, actions, clips } = useAnimations(
     animations,
@@ -282,7 +282,7 @@ return (
 )
 }
 
-useGLTF.preload('http://localhost:5173/src/assets/dopoTest.glb')
+useGLTF.preload('http://localhost:5173/src/assets/dopo444.glb')
 
 /*
 k_soft_shadow_light - 0.62866
