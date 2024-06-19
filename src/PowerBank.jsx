@@ -114,7 +114,6 @@ export default function Model(props) {
         endTrigger: "#scroll",
         scrub: 1,
         toggleActions: "restart restart reverse reverse",
-        markers: true,
         snap: 0.25,
       },
     });
@@ -162,12 +161,10 @@ grayCol.addEventListener("click", grayClick)
 
     function blueClick(){
         setIsBlueTrue(true)
-       
     }
 
     function grayClick(){
-        setIsBlueTrue(false)
-        
+        setIsBlueTrue(false)   
     }
 
 
