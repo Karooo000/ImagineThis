@@ -33,9 +33,6 @@ export default function Model(props) {
   const [introCameraTrue, setIntroCameraTrue] = useState(true);
   const [normalCameraTrue, setNormalCameraTrue] = useState(false);
 
-  //const bodyScroll = document.querySelector("html")
-
-  
 
   window.onbeforeunload = function () {
     window.scrollTo(0, 0);
