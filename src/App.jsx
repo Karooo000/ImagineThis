@@ -6,7 +6,6 @@ import { useThree } from "@react-three/fiber";
 
 import CustomLoader from "./CustomLoader";
 import IntroAnimations from "./IntroAnimations";
-//import whichOne from "./whichOne";
 
 
 
@@ -14,9 +13,7 @@ function App() {
 
   CustomLoader();
   IntroAnimations();
-  //whichOne()
 
-  
 
   return (
     <>

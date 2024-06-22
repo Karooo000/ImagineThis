@@ -19,6 +19,8 @@ export default function Model(props) {
 
   console.log(scaleFactorDesktop) 
 
+  let isMobileSize = window.innerWidth < 768
+
   const group = useRef();
   const powerBankRef = useRef();
   const camera = useRef()
@@ -65,7 +67,7 @@ export default function Model(props) {
     introClip.clampWhenFinished = true
     introClip.loop = false
     introClip.repetitions = 1
-    //introClip.timeScale = 0.5
+
 
     if(progress > 99){
         setTimeout(() => {
@@ -82,7 +84,6 @@ export default function Model(props) {
     const max = animationDuration - frame;
 
    
-
 
     clip.play();
 
@@ -128,6 +129,8 @@ export default function Model(props) {
   });
 
 
+  //make numbers glow
+
   nodes.numbers_as_mesh.material.color.r = 2;
   nodes.numbers_as_mesh.material.color.g = 2;
   nodes.numbers_as_mesh.material.color.b = 2;
@@ -137,9 +140,6 @@ export default function Model(props) {
   nodes.numbers_as_mesh.material.emissive.b = 1;
   nodes.numbers_as_mesh.material.emissiveIntensity = 1.1;
   nodes.numbers_as_mesh.material.toneMapped = false;
-
-
-
 
 
   //batterybank material swap
@@ -164,10 +164,13 @@ grayCol.addEventListener("click", grayClick)
         setIsBlueTrue(false)   
     }
 
+    console.log(group)
+
 
 return (
-  <group ref={group} {...props} dispose={null}>
-    <group name="Scene">
+ 
+  <group ref={group} {...props} dispose={null} scale={0.2}>
+    <group name="Scene" >
       <group name="Empty_-_move_cover" position={[0, -0.847, 0]} scale={0.032}>
         <mesh
           name="stitch"
@@ -273,6 +276,7 @@ return (
       />
     </group>
   </group>
+
 )
 }
 
