@@ -34,7 +34,7 @@ export default function Model(props) {
 
   const group = useRef();
   const camera = useRef()
-  const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/new test.glb");
+  const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/dopoMob3.glb");
 
   const { ref, mixer, names, actions, clips } = useAnimations(
     animations,
@@ -87,11 +87,12 @@ export default function Model(props) {
         }, "2900")
     }
 
+    console.log(actions)
   
-
-    const clip = actions.WholeAnim;
-    const animationDuration = actions.WholeAnim._clip.duration;
-    const frame = animationDuration / 120;
+//WholeAnim, MobCamera
+    const clip = actions.MobCamera;
+    const animationDuration = actions.MobCamera._clip.duration;
+    const frame = animationDuration / 150;
     // if it runs until the last frame, it will restart from frame 1, didn't found a solution for this yet.
     const max = animationDuration - frame;
 
@@ -178,11 +179,14 @@ grayCol.addEventListener("click", grayClick)
 
 
 
-
 return (
-  <group ref={group} {...props} dispose={null} scale={0.5}>
+  <group ref={group} {...props} dispose={null}>
     <group name="Scene">
-      <group name="Empty_-_move_cover" position={[0, -0.847, 0]} scale={0.032}>
+      <group
+        name="Empty_-_move_cover"
+        position={[0, -0.847, 0]}
+        rotation={[0, -0.001, 0]}
+        scale={0.032}>
         <mesh
           name="stitch"
           castShadow
@@ -203,7 +207,7 @@ return (
         />
         <spotLight
           name="k_soft_shadow_light"
-          intensity={0.62866}
+          intensity={ 0.62866}
           angle={0.323}
           penumbra={0.15}
           decay={2}
@@ -255,9 +259,8 @@ return (
       </spotLight>
       <group name="Empty-move_camera" position={[0, 0, -0.02]} scale={0.99}>
         <PerspectiveCamera
-          ref={camera}
           name="Camera001"
-          makeDefault={normalCameraTrue}
+          makeDefault={false}
           far={1000}
           near={0.1}
           fov={fovNew}
@@ -269,7 +272,7 @@ return (
       <group name="Empty-intro_camera" position={[0.377, 0.191, -0.042]} scale={0.028}>
         <PerspectiveCamera
           name="Camera-Intro"
-          makeDefault={introCameraTrue}
+          makeDefault={false}
           far={1000}
           near={0.1}
           fov={fovNew}
@@ -286,19 +289,38 @@ return (
         material={materials['PB Gray']}
         position={[16.174, -11.861, -62.359]}
       />
+    
+      <group
+        name="Empty_-_move_mob_camera"
+        position={[0.021, 0.028, 0.011]}
+        rotation={[1.508, -0.309, -2.193]}
+        scale={0.031}>
+        <PerspectiveCamera
+          name="MobCamera"
+          makeDefault={true}
+          far={1000}
+          near={0.1}
+          fov={22.895}
+          position={[0, 23.456, 0]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          scale={7.614}
+        />
+      </group>
     </group>
   </group>
 )
 }
 
-useGLTF.preload('http://localhost:5173/src/assets/new test.glb')
+useGLTF.preload('http://localhost:5173/src/assets/dopoMob3.glb')
 
 /*
+materials[pbMaterial]
 k_soft_shadow_light - 0.62866
 Keylight - 0.470288
 light-frame5 - 0.4446
 Spot_1 - 0.6896
 normalCameraTrue
 introCameraTrue
+fovNew
 */
 
