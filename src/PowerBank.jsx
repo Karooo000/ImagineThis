@@ -17,14 +17,24 @@ export default function Model(props) {
   const viewport = useThree((state) => state.viewport);
   const scaleFactorDesktop = window.innerWidth / 1512
 
-  console.log(scaleFactorDesktop) 
+  //console.log(scaleFactorDesktop) 
 
   let isMobileSize = window.innerWidth < 768
 
+ 
+
+  const fovOriginal = 22.895
+
+  let scaleCof = 1 - scaleFactorDesktop
+  let fovInBetween = scaleCof * scaleCof * fovOriginal
+  let fovNew = fovOriginal + fovInBetween
+
+  console.log(fovNew)
+
+
   const group = useRef();
-  const powerBankRef = useRef();
   const camera = useRef()
-  const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/dopo444.glb");
+  const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/new test.glb");
 
   const { ref, mixer, names, actions, clips } = useAnimations(
     animations,
@@ -56,6 +66,8 @@ export default function Model(props) {
  
 
   useEffect(() => {
+
+
 
 
     const rootDiv = document.getElementById("root")
@@ -164,13 +176,12 @@ grayCol.addEventListener("click", grayClick)
         setIsBlueTrue(false)   
     }
 
-    console.log(group)
+
 
 
 return (
- 
-  <group ref={group} {...props} dispose={null} scale={0.2}>
-    <group name="Scene" >
+  <group ref={group} {...props} dispose={null} scale={0.5}>
+    <group name="Scene">
       <group name="Empty_-_move_cover" position={[0, -0.847, 0]} scale={0.032}>
         <mesh
           name="stitch"
@@ -244,11 +255,12 @@ return (
       </spotLight>
       <group name="Empty-move_camera" position={[0, 0, -0.02]} scale={0.99}>
         <PerspectiveCamera
+          ref={camera}
           name="Camera001"
           makeDefault={normalCameraTrue}
           far={1000}
           near={0.1}
-          fov={22.895}
+          fov={fovNew}
           position={[0.458, -0.146, -0.191]}
           rotation={[2.628, 1.009, -2.527]}
           scale={0.181}
@@ -260,7 +272,7 @@ return (
           makeDefault={introCameraTrue}
           far={1000}
           near={0.1}
-          fov={22.895}
+          fov={fovNew}
           position={[16.094, -5.137, -7.411]}
           rotation={[2.628, 1.009, -2.527]}
           scale={6.381}
@@ -276,11 +288,10 @@ return (
       />
     </group>
   </group>
-
 )
 }
 
-useGLTF.preload('http://localhost:5173/src/assets/dopo444.glb')
+useGLTF.preload('http://localhost:5173/src/assets/new test.glb')
 
 /*
 k_soft_shadow_light - 0.62866
