@@ -15,26 +15,37 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Model(props) {
 
   const viewport = useThree((state) => state.viewport);
-  const scaleFactorDesktop = window.innerWidth / 1512
+ 
 
   //console.log(scaleFactorDesktop) 
 
   let isMobileSize = window.innerWidth < 768
 
- 
+ //Scale based on screensize ( responsive )
 
   const fovOriginal = 22.895
 
+  const scaleFactorDesktop = window.innerWidth / 1512
+
   let scaleCof = 1 - scaleFactorDesktop
   let fovInBetween = scaleCof * scaleCof * fovOriginal
+  
   let fovNew = fovOriginal + fovInBetween
 
-  console.log(fovNew)
+  const scaleFactorDesktopMob = window.innerWidth / 768
+
+  let scaleCofMob = 1 - scaleFactorDesktopMob
+  let fovInBetweenMob = scaleCofMob * scaleCofMob * fovOriginal
+  let fovNewMob = fovOriginal + fovInBetweenMob
+
+  console.log(fovNewMob)
+
+ 
 
 
   const group = useRef();
   const camera = useRef()
-  const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/dopoMob3.glb");
+  const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/dopoMob8.glb");
 
   const { ref, mixer, names, actions, clips } = useAnimations(
     animations,
@@ -300,7 +311,7 @@ return (
           makeDefault={true}
           far={1000}
           near={0.1}
-          fov={22.895}
+          fov={fovNewMob}
           position={[0, 23.456, 0]}
           rotation={[-Math.PI / 2, 0, 0]}
           scale={7.614}
@@ -311,7 +322,7 @@ return (
 )
 }
 
-useGLTF.preload('http://localhost:5173/src/assets/dopoMob3.glb')
+useGLTF.preload('http://localhost:5173/src/assets/dopoMob8.glb')
 
 /*
 materials[pbMaterial]
