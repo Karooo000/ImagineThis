@@ -5,15 +5,19 @@ import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { useThree } from "@react-three/fiber";
 
 import CustomLoader from "./CustomLoader";
+
 import IntroAnimations from "./IntroAnimations";
+import IntroAnimationsMob from "./IntroAnimationsMob";
+
 
 
 
 function App() {
 
-  CustomLoader();
+  
   IntroAnimations();
-
+  
+  CustomLoader();
 
   return (
     <>

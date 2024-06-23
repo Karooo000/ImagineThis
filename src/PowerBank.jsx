@@ -6,6 +6,9 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import * as THREE from "three";
 
 
+import IntroAnimations from "./IntroAnimations";
+import IntroAnimationsMob from "./IntroAnimationsMob";
+
 
 
 
@@ -14,12 +17,32 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function Model(props) {
 
+  
+
+/*
+  //let isMobileSize = window.innerWidth < 768
+
+  const [isMobileSize, setIsMobileSize] = useState(window.innerWidth < 768)
+  console.log(isMobileSize)
+
+  useLayoutEffect(() => {
+    if(isMobileSize) {
+      IntroAnimationsMob();
+      setIsMobileSize(true)
+    } else {
+      IntroAnimations();
+      setIsMobileSize(false)
+    }
+  }, [isMobileSize])
+  */
+ 
+
   const viewport = useThree((state) => state.viewport);
  
 
   //console.log(scaleFactorDesktop) 
 
-  let isMobileSize = window.innerWidth < 768
+  //let isMobileSize = window.innerWidth < 768
 
  //Scale based on screensize ( responsive )
 
@@ -38,14 +61,11 @@ export default function Model(props) {
   let fovInBetweenMob = scaleCofMob * scaleCofMob * fovOriginal
   let fovNewMob = fovOriginal + fovInBetweenMob
 
-  console.log(fovNewMob)
-
  
-
 
   const group = useRef();
   const camera = useRef()
-  const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/dopoMob9.glb");
+  const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/dopoMob2.glb");
 
   const { ref, mixer, names, actions, clips } = useAnimations(
     animations,
@@ -98,7 +118,7 @@ export default function Model(props) {
         }, "2900")
     }
 
-    console.log(actions)
+    //console.log(actions)
   
 //WholeAnim, MobCamera
     const clip = actions.MobCamera;
@@ -322,7 +342,7 @@ return (
 )
 }
 
-useGLTF.preload('http://localhost:5173/src/assets/dopoMob9.glb')
+useGLTF.preload('http://localhost:5173/src/assets/dopoMob2.glb')
 
 /*
 materials[pbMaterial]

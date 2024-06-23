@@ -12,6 +12,7 @@
     "format": "npm run lint -- --fix && npm run prettier -- --write"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.1",
     "@react-three/drei": "^9.51.24",
     "@react-three/fiber": "^8.10.0",
     "@react-three/postprocessing": "^2.16.2",
