@@ -45,7 +45,7 @@ export default function Model(props) {
 
   const group = useRef();
   const camera = useRef()
-  const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/dopoMob8.glb");
+  const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/dopoMob9.glb");
 
   const { ref, mixer, names, actions, clips } = useAnimations(
     animations,
@@ -322,7 +322,7 @@ return (
 )
 }
 
-useGLTF.preload('http://localhost:5173/src/assets/dopoMob8.glb')
+useGLTF.preload('http://localhost:5173/src/assets/dopoMob9.glb')
 
 /*
 materials[pbMaterial]
