@@ -2,7 +2,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useProgress } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
-
+import React, { useRef, useEffect, useLayoutEffect, useState } from "react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,6 +13,8 @@ export default function IntroAnimations() {
     const powerHeading = document.getElementById("powerHeading")
 
     let isMobileSize = window.innerWidth < 768
+
+    const viewport = useThree((state) => state.viewport);
 
     //console.log(isMobileSize)
 
@@ -714,7 +716,9 @@ export default function IntroAnimations() {
       
      
    
-
+                      return(
+                        <></>
+                      )
             
 
 

@@ -1,7 +1,7 @@
-import React, { useRef, useEffect, useLayoutEffect, useState } from "react";
+import React, { useRef, useEffect, useLayoutEffect, useState, useMemo } from "react";
 import { useGLTF, PerspectiveCamera, useAnimations, useProgress, useTexture } from "@react-three/drei";
 import gsap from "gsap";
-import { useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import * as THREE from "three";
 
@@ -18,36 +18,20 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function Model(props) {
 
+ // IntroAnimations();
+ const group = useRef();
+ const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/dopoMob2.glb");
 
-  const viewport = useThree((state) => state.viewport);
- 
+ const { ref, mixer, names, actions, clips } = useAnimations(
+   animations,
+   group
+ );
+ const { progress } = useProgress();
+ const viewport = useThree((state) => state.viewport);
+
 
 
   let isMobileSize = window.innerWidth < 768
-  //console.log(isMobileSize) 
-
-  const [mobSwitcher, setMobSwitcher] = useState(isMobileSize)
-  const [permenant, setPermenant] = useState(isMobileSize)
-
-  console.log(permenant)
-
-  
-
-  function reload(){
-    window.location.reload();
-  }
-
-
-useEffect(() => {
-
-
-  setMobSwitcher(mobSwitcher => !mobSwitcher);
-  ScrollTrigger.refresh();
-  this.forceUpdate()
-
-  
-}, [isMobileSize])
-
 
 
 
@@ -68,40 +52,133 @@ useEffect(() => {
   let fovInBetweenMob = scaleCofMob * scaleCofMob * fovOriginal
   let fovNewMob = fovOriginal + fovInBetweenMob
 
- 
+ // Scroll to top on reload
 
-  const group = useRef();
-  const camera = useRef()
-  const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/dopoMob2.glb");
+ window.onbeforeunload = function () {
+  window.scrollTo(0, 0);
+}
 
-  const { ref, mixer, names, actions, clips } = useAnimations(
-    animations,
-    group
-  );
-  const { progress } = useProgress();
+//Which camera is active
+
+let innitialNormalDesk = isMobileSize ? false : true
+let innitialNormalMob = isMobileSize ? true : false
+
   
-  const [introCameraTrue, setIntroCameraTrue] = useState(true);
+  const [introCameraTrue, setIntroCameraTrue] = useState(innitialNormalDesk);
   const [normalCameraTrue, setNormalCameraTrue] = useState(false);
 
+  const [mobNormalCameraTrue, setMobNormalCameraTrue] = useState(innitialNormalMob);
 
-  window.onbeforeunload = function () {
-    window.scrollTo(0, 0);
-  }
+  //const [camera] = useThree()
+  //console.log(camera)
+
 
 
   useLayoutEffect(() => {
     if(progress > 99){
         setTimeout(() => {
-            //console.log("camera swap")
-            setIntroCameraTrue(!introCameraTrue)
-            setNormalCameraTrue(!normalCameraTrue)
+            console.log("camera swap")
+            if(!isMobileSize){
+              setIntroCameraTrue(false)
+             setNormalCameraTrue(!normalCameraTrue)
+             setMobNormalCameraTrue(false)
+             ScrollTrigger.refresh()
+
+            }else{
+              setMobNormalCameraTrue(mobNormalCameraTrue)
+              ScrollTrigger.refresh()
+            }
+
+
+            
             document.querySelector("html").style.position = "relative"
         }, "4200")
     }
     
   }, [])
- 
- 
+
+  //console.log(isMobileSize + " isMobile size") 
+
+  const [mobSwitcher, setMobSwitcher] = useState(isMobileSize)
+  const [innitialIsMob, setInnitialIsMob] = useState(isMobileSize)
+
+  //console.log(introCameraTrue + " intro")
+ // console.log(normalCameraTrue + " normal")
+  //console.log(mobNormalCameraTrue + " mob")
+
+  useMemo(() => {
+    setMobSwitcher(isMobileSize)
+  }, [isMobileSize])
+
+  const mobCameraa = useRef()
+  const deskNormalCamera = useRef()
+
+  //console.log(mobSwitcher, innitialIsMob)
+  const { camera } = useThree()
+  console.log(camera)
+  
+
+  useEffect(() => {
+    if(mobSwitcher !== innitialIsMob){
+      setInnitialIsMob(prev => !prev)
+  
+      if(!isMobileSize){
+        if(!introCameraTrue){
+          setNormalCameraTrue(true)
+          setMobNormalCameraTrue(false)
+          //deskNormalCamera.updateProjectionMatrix()
+          //deskNormalCamera.matrixWorldNeedsUpdate = true
+          //PerspectiveCamera.render.makeDefault = true
+        }
+      }else{
+        setNormalCameraTrue(false)
+          setMobNormalCameraTrue(true)
+          //mobCameraa.updateProjectionMatrix()
+          //mobCameraa.matrixWorldNeedsUpdate = true
+          //PerspectiveCamera.render.makeDefault = true
+      }
+  
+      console.log("breakpoint has been swapped")
+    }
+    console.log("rerender")
+  }, [mobSwitcher])
+
+  //console.log(PerspectiveCamera)
+
+  const { scene, canvas } = useThree()
+  console.log(scene, canvas)
+
+  /*
+
+  const get = useThree((state) => state.get);
+	
+const onResize = () => {
+    const customProjectionMatrix = calculateCustomProjectionMatrix(get().size, spec);
+    camera.projectionMatrix.copy(customProjectionMatrix );
+};
+
+window.addEventListener('resize', onResize);
+
+*/
+  /*
+
+  const { get, set } = useThree(({ get, set }) => ({ get, set }));
+
+  useEffect(() => {
+    const changeView = () => {
+      if (get().camera.name === "MobCamera" && isMobileSize) {
+        set({ camera: mobCameraa.current });
+      } else {
+        set({ camera: deskNormalCamera.current });
+      }
+    };
+    changeView();
+
+    window.addEventListener("resize", changeView);
+    return () => window.removeEventListener("resize", changeView);
+  }, [get, set]);
+*/
+
 
   useEffect(() => {
 
@@ -125,15 +202,12 @@ useEffect(() => {
 
     //console.log(actions)
   
-//WholeAnim, MobCamera
 
-  
 
   });
 
   useGSAP(() => {
 
-      //let whichAction = isMobileSize ? "MobCamera" : "WholeAnim"
       let whichAnimLenght = isMobileSize ? 150 : 120
 
       const clipMob = actions.MobCamera
@@ -311,8 +385,9 @@ return (
       </spotLight>
       <group name="Empty-move_camera" position={[0, 0, -0.02]} scale={0.99}>
         <PerspectiveCamera
+          ref={deskNormalCamera}
           name="Camera001"
-          makeDefault={!isMobileSize ? normalCameraTrue : false}
+          makeDefault={normalCameraTrue}
           far={1000}
           near={0.1}
           fov={fovNew}
@@ -324,7 +399,7 @@ return (
       <group name="Empty-intro_camera" position={[0.377, 0.191, -0.042]} scale={0.028}>
         <PerspectiveCamera
           name="Camera-Intro"
-          makeDefault={!isMobileSize ? introCameraTrue : false}
+          makeDefault={introCameraTrue}
           far={1000}
           near={0.1}
           fov={fovNew}
@@ -348,8 +423,9 @@ return (
         rotation={[1.508, -0.309, -2.193]}
         scale={0.031}>
         <PerspectiveCamera
+          ref={mobCameraa}
           name="MobCamera"
-          makeDefault={isMobileSize}
+          makeDefault={mobNormalCameraTrue}
           far={1000}
           near={0.1}
           fov={fovNewMob}

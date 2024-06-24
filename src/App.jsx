@@ -15,10 +15,11 @@ import IntroAnimationsMob from "./IntroAnimationsMob";
 function App() {
 
   
-  IntroAnimations();
+//IntroAnimations()
   
   CustomLoader();
  
+
 
   return (
     <>
