@@ -14,7 +14,7 @@ export default function IntroAnimations() {
 
     let isMobileSize = window.innerWidth < 768
 
-    console.log(isMobileSize)
+    //console.log(isMobileSize)
 
     //console.log(scaleFactorDesktop) 
   /*

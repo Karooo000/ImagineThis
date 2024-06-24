@@ -18,6 +18,7 @@ function App() {
   IntroAnimations();
   
   CustomLoader();
+ 
 
   return (
     <>

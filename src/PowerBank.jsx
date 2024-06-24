@@ -8,6 +8,7 @@ import * as THREE from "three";
 
 import IntroAnimations from "./IntroAnimations";
 import IntroAnimationsMob from "./IntroAnimationsMob";
+import { useGSAP } from "@gsap/react";
 
 
 
@@ -17,32 +18,38 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function Model(props) {
 
-  
-
-/*
-  //let isMobileSize = window.innerWidth < 768
-
-  const [isMobileSize, setIsMobileSize] = useState(window.innerWidth < 768)
-  console.log(isMobileSize)
-
-  useLayoutEffect(() => {
-    if(isMobileSize) {
-      IntroAnimationsMob();
-      setIsMobileSize(true)
-    } else {
-      IntroAnimations();
-      setIsMobileSize(false)
-    }
-  }, [isMobileSize])
-  */
- 
 
   const viewport = useThree((state) => state.viewport);
  
 
-  //console.log(scaleFactorDesktop) 
 
-  //let isMobileSize = window.innerWidth < 768
+  let isMobileSize = window.innerWidth < 768
+  //console.log(isMobileSize) 
+
+  const [mobSwitcher, setMobSwitcher] = useState(isMobileSize)
+  const [permenant, setPermenant] = useState(isMobileSize)
+
+  console.log(permenant)
+
+  
+
+  function reload(){
+    window.location.reload();
+  }
+
+
+useEffect(() => {
+
+
+  setMobSwitcher(mobSwitcher => !mobSwitcher);
+  ScrollTrigger.refresh();
+  this.forceUpdate()
+
+  
+}, [isMobileSize])
+
+
+
 
  //Scale based on screensize ( responsive )
 
@@ -99,8 +106,6 @@ export default function Model(props) {
   useEffect(() => {
 
 
-
-
     const rootDiv = document.getElementById("root")
     rootDiv.childNodes[0].style.pointerEvents = "none"
 
@@ -121,30 +126,45 @@ export default function Model(props) {
     //console.log(actions)
   
 //WholeAnim, MobCamera
-    const clip = actions.MobCamera;
-    const animationDuration = actions.MobCamera._clip.duration;
-    const frame = animationDuration / 150;
-    // if it runs until the last frame, it will restart from frame 1, didn't found a solution for this yet.
-    const max = animationDuration - frame;
 
-   
+  
 
-    clip.play();
+  });
 
-    const mixer = clip.getMixer();
-    const proxy = {
-      get time() {
-        return mixer.time;
-      },
-      set time(value) {
-        clip.paused = false;
-        mixer.setTime(value);
-        clip.paused = true;
-      },
-    };
+  useGSAP(() => {
 
-    // for some reason must be set to 0 otherwise the clip will not be properly paused.
-    proxy.time = 0;
+      //let whichAction = isMobileSize ? "MobCamera" : "WholeAnim"
+      let whichAnimLenght = isMobileSize ? 150 : 120
+
+      const clipMob = actions.MobCamera
+      const clipDesktop = actions.WholeAnim;
+  
+      let clip = isMobileSize ? clipMob : clipDesktop
+  
+      const animationDuration = clip._clip.duration;
+      const frame = animationDuration / whichAnimLenght;
+      // if it runs until the last frame, it will restart from frame 1, didn't found a solution for this yet.
+      const max = animationDuration - frame;
+  
+     
+  
+      clip.play();
+  
+      const mixer = clip.getMixer();
+      const proxy = {
+        get time() {
+          return mixer.time;
+        },
+        set time(value) {
+          clip.paused = false;
+          mixer.setTime(value);
+          clip.paused = true;
+        },
+      };
+  
+      // for some reason must be set to 0 otherwise the clip will not be properly paused.
+      proxy.time = 0;
+  
 
     let tl = gsap.timeline({
       ease: "none",
@@ -160,18 +180,19 @@ export default function Model(props) {
       },
     });
     tl.set(proxy, { time: 0 });
-
+  
     tl.to(
       proxy,
-
+  
       {
         time: max,
         ease: "none",
         duration: 5,
       }
     );
-  });
+  })
 
+  
 
   //make numbers glow
 
@@ -291,7 +312,7 @@ return (
       <group name="Empty-move_camera" position={[0, 0, -0.02]} scale={0.99}>
         <PerspectiveCamera
           name="Camera001"
-          makeDefault={false}
+          makeDefault={!isMobileSize ? normalCameraTrue : false}
           far={1000}
           near={0.1}
           fov={fovNew}
@@ -303,7 +324,7 @@ return (
       <group name="Empty-intro_camera" position={[0.377, 0.191, -0.042]} scale={0.028}>
         <PerspectiveCamera
           name="Camera-Intro"
-          makeDefault={false}
+          makeDefault={!isMobileSize ? introCameraTrue : false}
           far={1000}
           near={0.1}
           fov={fovNew}
@@ -328,7 +349,7 @@ return (
         scale={0.031}>
         <PerspectiveCamera
           name="MobCamera"
-          makeDefault={true}
+          makeDefault={isMobileSize}
           far={1000}
           near={0.1}
           fov={fovNewMob}
