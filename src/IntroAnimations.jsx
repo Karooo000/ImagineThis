@@ -14,7 +14,7 @@ export default function IntroAnimations() {
 
     let isMobileSize = window.innerWidth < 768
 
-    const viewport = useThree((state) => state.viewport);
+    //const viewport = useThree((state) => state.viewport);
 
     //console.log(isMobileSize)
 

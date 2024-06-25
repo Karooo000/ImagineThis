@@ -97,14 +97,10 @@ let innitialNormalMob = isMobileSize ? true : false
     
   }, [])
 
-  //console.log(isMobileSize + " isMobile size") 
+
 
   const [mobSwitcher, setMobSwitcher] = useState(isMobileSize)
   const [innitialIsMob, setInnitialIsMob] = useState(isMobileSize)
-
-  //console.log(introCameraTrue + " intro")
- // console.log(normalCameraTrue + " normal")
-  //console.log(mobNormalCameraTrue + " mob")
 
   useMemo(() => {
     setMobSwitcher(isMobileSize)
@@ -112,11 +108,6 @@ let innitialNormalMob = isMobileSize ? true : false
 
   const mobCameraa = useRef()
   const deskNormalCamera = useRef()
-
-  //console.log(mobSwitcher, innitialIsMob)
-  const { camera } = useThree()
-  console.log(camera)
-  
 
   useEffect(() => {
     if(mobSwitcher !== innitialIsMob){
@@ -140,45 +131,12 @@ let innitialNormalMob = isMobileSize ? true : false
   
       console.log("breakpoint has been swapped")
     }
-    console.log("rerender")
+
   }, [mobSwitcher])
 
-  //console.log(PerspectiveCamera)
 
-  const { scene, canvas } = useThree()
-  console.log(scene, canvas)
 
-  /*
-
-  const get = useThree((state) => state.get);
-	
-const onResize = () => {
-    const customProjectionMatrix = calculateCustomProjectionMatrix(get().size, spec);
-    camera.projectionMatrix.copy(customProjectionMatrix );
-};
-
-window.addEventListener('resize', onResize);
-
-*/
-  /*
-
-  const { get, set } = useThree(({ get, set }) => ({ get, set }));
-
-  useEffect(() => {
-    const changeView = () => {
-      if (get().camera.name === "MobCamera" && isMobileSize) {
-        set({ camera: mobCameraa.current });
-      } else {
-        set({ camera: deskNormalCamera.current });
-      }
-    };
-    changeView();
-
-    window.addEventListener("resize", changeView);
-    return () => window.removeEventListener("resize", changeView);
-  }, [get, set]);
-*/
-
+  
 
   useEffect(() => {
 
@@ -199,9 +157,6 @@ window.addEventListener('resize', onResize);
             introClip.play()
         }, "2900")
     }
-
-    //console.log(actions)
-  
 
 
   });
