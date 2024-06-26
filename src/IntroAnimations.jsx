@@ -726,7 +726,7 @@ export default function IntroAnimations() {
 
   heroLeave
   .to(".oval-cover.bottom", {opacity: 0, yPercent: -100, scale: 0, duration: 0.5}, "sameTime")
-  .to(".oval-cover.upper", {opacity: 0, yPercent: 25, xPercent: 150, scale: 0, duration: 0.5}, "sameTime")
+  .to(".oval-cover.upper", {opacity: 0, yPercent: 25, xPercent: 0, scale: 4, duration: 0.5}, "sameTime")
   .to(".h1-like.power", {opacity: 0, xPercent: 100, duration: 0.5}, "sameTime")
   .to(".h1-like.border.bank", {opacity: 0, xPercent: -200, duration: 0.5}, "sameTime")
   .to(".h2-like.gray-border.large", {opacity: 0, yPercent: -10, duration: 0.2}, "sameTime")
@@ -736,23 +736,6 @@ export default function IntroAnimations() {
 
 
   // I set opacity: 0 in the CSS to avoid the flash of unstyled content. Also, it's always best to set your transforms directly via GSAP instead of just in the CSS. Faster performance and more accurate.
-  gsap.set(".line.left", { xPercent: 110, opacity: 0 });
-
-  gsap.to(".line.left", {
-      xPercent: 0,
-      opacity: 1,
-      ease: "expo",
-      duration: 0.5,
-      immediateRender: false, // otherwise scrollTrigger will force the render right away and the starting values that get locked in would be affected by the from() above
-      scrollTrigger: {
-          trigger: "#section-2",
-          start: "top 30%",
-          end: "bottom 45%",
-          scrub: 1,
-          
-      }
-  });
-
   gsap.set(".line.right", { xPercent: -110, opacity: 0 });
 
   gsap.to(".line.right", {
@@ -762,6 +745,24 @@ export default function IntroAnimations() {
       duration: 0.5,
       immediateRender: false, // otherwise scrollTrigger will force the render right away and the starting values that get locked in would be affected by the from() above
       scrollTrigger: {
+          trigger: "#section-2Mob",
+          start: "top 30%",
+          end: "bottom 45%",
+          scrub: 1,
+          
+      }
+  });
+  
+  
+  gsap.set(".line.left.Mob", { yPercent: 110, opacity: 0 });
+
+  gsap.to(".line.left.Mob", {
+      yPercent: 0,
+      opacity: 1,
+      ease: "expo",
+      duration: 0.5,
+      immediateRender: false, // otherwise scrollTrigger will force the render right away and the starting values that get locked in would be affected by the from() above
+      scrollTrigger: {
           trigger: "#section-2",
           start: "top 30%",
           end: "bottom 45%",
@@ -770,11 +771,13 @@ export default function IntroAnimations() {
       }
   });
 
+
+
   //circles-contain
 
-  gsap.set(".circles-contain", { scale: 0, opacity: 0 });
+  gsap.set(".circles-contain.upper", { scale: 0, opacity: 0 });
 
-  gsap.to(".circles-contain", {
+  gsap.to(".circles-contain.upper", {
       scale: 1,
       opacity: 1,
       ease: "expo",
@@ -790,14 +793,32 @@ export default function IntroAnimations() {
       }
   });
 
+  gsap.set(".circles-contain.lower", { scale: 0, opacity: 0 });
+
+  gsap.to(".circles-contain.lower", {
+      scale: 1,
+      opacity: 1,
+      ease: "expo",
+      duration: 0.5,
+      immediateRender: false, // otherwise scrollTrigger will force the render right away and the starting values that get locked in would be affected by the from() above
+      scrollTrigger: {
+          trigger: "#section-2Mob",
+          start: "top 20%",
+          end: "bottom 65%",
+          scrub: 1,
+          
+          
+      }
+  });
+
 
 
 
 
 //text-wrap
-gsap.set(".text-wrap", { yPercent: 50, opacity: 0 });
+gsap.set(".text-wrap.upper", { yPercent: 50, opacity: 0 });
 
-gsap.to(".text-wrap", {
+gsap.to(".text-wrap.upper", {
   yPercent: 0,
   opacity: 1,
   ease: "expo",
@@ -805,6 +826,26 @@ gsap.to(".text-wrap", {
   immediateRender: false, // otherwise scrollTrigger will force the render right away and the starting values that get locked in would be affected by the from() above
   scrollTrigger: {
       trigger: "#section-2",
+      start: "top 20%",
+      end: "bottom 65%",
+      scrub: 1,
+      
+      
+  }
+});
+
+
+//text-wrap
+gsap.set(".text-wrap.mob", { yPercent: 50, opacity: 0 });
+
+gsap.to(".text-wrap.mob", {
+  yPercent: 0,
+  opacity: 1,
+  ease: "expo",
+  duration: 0.5,
+  immediateRender: false, // otherwise scrollTrigger will force the render right away and the starting values that get locked in would be affected by the from() above
+  scrollTrigger: {
+      trigger: "#section-2Mob",
       start: "top 20%",
       end: "bottom 65%",
       scrub: 1,
@@ -829,120 +870,48 @@ const tlBlueOval = gsap.timeline({
    }
  })
  tlBlueOval.to(".tester-oval", {
-   yPercent: 0,
+   yPercent: 30,
    xPercent: 0,
-   scale: 1,
-   opacity: 1,
+   scale: 1.5,
+   opacity: 0.7,
    ease: "expo",
    duration: 0.5,
  })
  tlBlueOval.to(".tester-oval", {
-   yPercent: -50,
+   yPercent: 45,
    xPercent: 0,
-   scale: 0.7,
-   opacity: 0.4,
+   scale: 1.5,
+   opacity: 0.6,
    ease: "none",
    duration: 0.5,
  })
  tlBlueOval.to(".tester-oval", {
-  yPercent: -30,
+  yPercent: -10,
+  xPercent: 40,
+  scale: 2,
+  opacity: 0.2,
+  ease: "none",
+  duration: 0.5,
+})
+ tlBlueOval.to(".tester-oval", {
+  yPercent: 20,
   xPercent: 0,
-  scale: 0.8,
-  opacity: 0.85,
+  scale: 1.7,
+  opacity: 0.30,
   ease: "none",
   duration: 0.5,
 })
 tlBlueOval.to(".tester-oval", {
-  yPercent: 10,
-  xPercent: -28,
-  scale: 0.7,
+  yPercent: -40,
+  xPercent: 0,
+  scale: 1.2,
   opacity: 0.6,
   ease: "none",
   duration: 0.5,
 })
 
-//white-oval
-gsap.set(".white-oval", { yPercent: 25,scale: 0, opacity: 0 });
-
-const tlWhiteOval = gsap.timeline({
-  scrollTrigger: {
-    trigger: "#section-2",
-    start: "top 50%",
-    end: "bottom 97%",
-    endTrigger: "#section-3",
-    scrub: true,
-  }
-})
-tlWhiteOval.to(".white-oval", {
-  yPercent: 0,
-  scale: 1,
-  opacity: 1,
-  ease: "expo",
-  duration: 0.5,
-})
-tlWhiteOval.to(".white-oval", {
-  yPercent: 75,
-  scale: 0,
-  opacity: 0,
-  ease: "none",
-  duration: 0.2,
-})
 
 
-
-//darker-oval
-gsap.set(".darker-oval", { yPercent: 25,scale: 0, opacity: 0 });
-
-const tlDarkOval = gsap.timeline({
-  scrollTrigger: {
-    trigger: "#section-2",
-    start: "top 50%",
-    end: "bottom 97%",
-    endTrigger: "#section-3",
-    scrub: true, 
-  }
-})
-tlDarkOval.to(".darker-oval", {
-  yPercent: 0,
-  scale: 1,
-  opacity: 1,
-  ease: "expo",
-  duration: 0.5,
-})
-tlDarkOval.to(".darker-oval", {
-  yPercent: 75,
-  scale: 0,
-  opacity: 0,
-  ease: "none",
-  duration: 0.2,
-})
-
-//scree2-shadow
-gsap.set(".scree2-shadow", { yPercent: -25,scale: 0, opacity: 0 });
-
-const tlShadow = gsap.timeline({
-scrollTrigger: {
-trigger: "#section-2",
-start: "top 50%",
-end: "bottom 97%",
-endTrigger: "#section-3",
-scrub: true,
-}
-})
-tlShadow.to(".scree2-shadow", {
-yPercent: 0,
-scale: 1,
-opacity: 0.9,
-ease: "expo",
-duration: 0.5,
-})
-tlShadow.to(".scree2-shadow", {
-yPercent: 75,
-scale: 0,
-opacity: 0,
-ease: "none",
-duration: 0.2,
-})
 
 
 
@@ -997,6 +966,7 @@ duration: 0.5,
 gsap.set(".move-text-1.first", { yPercent: -150, opacity: 0 });
 gsap.set(".move-text-1.sec", { yPercent: -150, opacity: 0 });
 gsap.set(".move-text-1.third", { yPercent: -250, opacity: 0 });
+gsap.set(".move-text-1.fourth", { yPercent: -250, opacity: 0 });
 gsap.set(".paragraph.sec3", { yPercent: -500, opacity: 0 });
 gsap.set(".yel-container", { opacity: 0 });
 
@@ -1022,16 +992,21 @@ tlTextMove1.to(".move-text-1.sec", {
   opacity: 1,
   duration: 1.5,
 }, "<+=15%")
-tlTextMove1.to(".paragraph.sec3", {
-  yPercent: 0,
-  opacity: 1,
-  duration: 1.5,
-}, "<+=100%")
 tlTextMove1.to(".move-text-1.third", {
   yPercent: 0,
   opacity: 1,
   duration: 1.5,
 }, "<+=15%")
+tlTextMove1.to(".move-text-1.fourth", {
+  yPercent: 0,
+  opacity: 1,
+  duration: 1.5,
+}, "<+=15%")
+tlTextMove1.to(".paragraph.sec3", {
+  yPercent: 0,
+  opacity: 1,
+  duration: 1.5,
+}, "<+=100%")
 tlTextMove1.to(".yel-container", {
   yPercent: 0,
   opacity: 1,
@@ -1039,7 +1014,7 @@ tlTextMove1.to(".yel-container", {
 }, "<+=100%")
 
 //Shadow
-gsap.set(".screen3-shadow", { yPercent: -80, scale:0.99, opacity: 0 });
+gsap.set(".screen3-shadow-mob", { yPercent: -100, scale:0.99, opacity: 0 });
 
 const tlShadow3 = gsap.timeline({
     scrollTrigger: {
@@ -1050,17 +1025,17 @@ const tlShadow3 = gsap.timeline({
       scrub: true,
     }
   })
-  tlShadow3.to(".screen3-shadow", {
+  tlShadow3.to(".screen3-shadow-mob", {
     yPercent: 0,
     scale: 1, 
     opacity: 0.75,
     duration: 0.5,
   })
-  tlShadow3.to(".screen3-shadow", {
-      yPercent: 60,
+  tlShadow3.to(".screen3-shadow-mob", {
+      yPercent: 170,
       scale: 0.85, 
       opacity: 0,
-      duration: 0.2,
+      duration: 0.25,
     })
 
   //bottom-glow
@@ -1084,15 +1059,15 @@ const tlShadow3 = gsap.timeline({
     })
     tlBottomGlow.to(".bottom-glow", {
       yPercent: 10,
-      xPercent: 0,
+      xPercent: -10,
       scale: 1, 
       opacity: 0.85,
       duration: 0.5,
     })
     tlBottomGlow.to(".bottom-glow", {
-      yPercent: 10,
-      xPercent: -30,
-      scale: 0.6, 
+      yPercent: -200,
+      xPercent: -10,
+      scale: 0.8, 
       opacity: 0.85,
       duration: 0.5,
     })
