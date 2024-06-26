@@ -20,7 +20,7 @@ export default function Model(props) {
 
  // IntroAnimations();
  const group = useRef();
- const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/dopo33.glb");
+ const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/dopo99.glb");
 
  const { ref, mixer, names, actions, clips } = useAnimations(
    animations,
@@ -35,7 +35,7 @@ export default function Model(props) {
 
   let isTabletSize = 550 < window.innerWidth && window.innerWidth < 1280
 
-  console.log(isTabletSize)
+  //console.log(isTabletSize)
 
 
 
@@ -60,7 +60,7 @@ export default function Model(props) {
   let fovNewMob = fovOriginal + fovInBetweenMob
   let fovNewTab = fovOriginal + fovInBetweenTab
 
-  console.log(fovNewMob)
+  //console.log(fovNewMob)
 
  // Scroll to top on reload
 
@@ -77,11 +77,10 @@ let innitialNormalMob = isMobileSize ? true : false
   const [introCameraTrue, setIntroCameraTrue] = useState(innitialNormalDesk);
   const [normalCameraTrue, setNormalCameraTrue] = useState(false);
 
-  const [mobNormalCameraTrue, setMobNormalCameraTrue] = useState(innitialNormalMob);
+  const [mobIntroCameraTrue, setMobIntroCameraTrue] = useState(innitialNormalMob);
+  const [mobNormalCameraTrue, setMobNormalCameraTrue] = useState(true);
 
-  //const [camera] = useThree()
-  //console.log(camera)
-
+/*
 
 
   useLayoutEffect(() => {
@@ -90,13 +89,15 @@ let innitialNormalMob = isMobileSize ? true : false
             console.log("camera swap")
             if(!isMobileSize){
               setIntroCameraTrue(false)
-             setNormalCameraTrue(!normalCameraTrue)
+             setNormalCameraTrue(true)
              setMobNormalCameraTrue(false)
-             ScrollTrigger.refresh()
+             setIntroCameraTrue(false)
 
             }else{
-              setMobNormalCameraTrue(mobNormalCameraTrue)
-              ScrollTrigger.refresh()
+              setMobIntroCameraTrue(false)
+              setMobNormalCameraTrue(true)
+              setIntroCameraTrue(false)
+              setNormalCameraTrue(false)
             }
 
 
@@ -106,13 +107,49 @@ let innitialNormalMob = isMobileSize ? true : false
     }
     
   }, [])
+  */
+
+  console.log(actions)
+
+ 
+
+  useEffect(() => {
+  
+    const introClip = actions.IntroAction
+    const introClipMob = actions.IntroMobb
+  
+      
+    introClip.clampWhenFinished = true
+    introClip.loop = false
+    introClip.repetitions = 1
+  
+    introClipMob.clampWhenFinished = true
+    introClipMob.loop = false
+    introClipMob.repetitions = 1
+
+    setTimeout(() => {
+      if(isMobileSize){
+        console.log("play should run")
+        introClipMob.play()
+      }
+      setTimeout(() => {
+        console.log("reser should have happened")
+        introClipMob.fadeOut(0.1)
+        document.querySelector("html").style.position = "relative"
+      }, "1200")
+
+    }, "2900")
+
+   
+    
+  }, [])
 
 
 
   const [mobSwitcher, setMobSwitcher] = useState(isMobileSize)
   const [innitialIsMob, setInnitialIsMob] = useState(isMobileSize)
 
-  console.log(mobNormalCameraTrue,normalCameraTrue)
+  //console.log(mobNormalCameraTrue,normalCameraTrue)
 
   useMemo(() => {
     setMobSwitcher(isMobileSize)
@@ -120,6 +157,7 @@ let innitialNormalMob = isMobileSize ? true : false
 
   const mobCameraa = useRef()
   const deskNormalCamera = useRef()
+  /*
 
   useLayoutEffect(() => {
     if(mobSwitcher !== innitialIsMob){
@@ -129,22 +167,26 @@ let innitialNormalMob = isMobileSize ? true : false
         if(!introCameraTrue){
           setNormalCameraTrue(true)
           setMobNormalCameraTrue(false)
+          ScrollTrigger.refresh()
           //deskNormalCamera.updateProjectionMatrix()
           //deskNormalCamera.matrixWorldNeedsUpdate = true
           //PerspectiveCamera.render.makeDefault = true
         }
       }else{
+        if(!mobIntroCameraTrue){
         setNormalCameraTrue(false)
           setMobNormalCameraTrue(true)
+          ScrollTrigger.refresh()
           //mobCameraa.updateProjectionMatrix()
           //mobCameraa.matrixWorldNeedsUpdate = true
-          //PerspectiveCamera.render.makeDefault = true
+          //PerspectiveCamera.render.makeDefault = true}
       }
   
       console.log("breakpoint has been swapped")
-    }
+    }}
 
   }, [mobSwitcher])
+  */
 
 
 
@@ -152,23 +194,34 @@ let innitialNormalMob = isMobileSize ? true : false
 
   useEffect(() => {
 
-
+    // so you can click on the btns
     const rootDiv = document.getElementById("root")
     rootDiv.childNodes[0].style.pointerEvents = "none"
 
-    const introClip = actions.introAction
+/*
+    const introClip = actions.IntroAction
+    const introClipMob = actions.IntroMobb
 
     
     introClip.clampWhenFinished = true
     introClip.loop = false
     introClip.repetitions = 1
 
+    introClipMob.clampWhenFinished = true
+    introClipMob.loop = false
+    introClipMob.repetitions = 1
+
+    console.log(actions)
+
 
     if(progress > 99){
         setTimeout(() => {
-            introClip.play()
-        }, "2900")
+              //introClip.play()
+              introClipMob.play()
+ 
+        }, "2800")
     }
+        */
 
 
   });
@@ -277,8 +330,8 @@ return (
     <group name="Scene">
       <group
         name="Empty_-_move_cover"
-        position={[0, -0.847, 0]}
-        rotation={[0, -0.001, 0]}
+        position={[0.002, -0.82, -0.002]}
+        rotation={[0.009, -0.078, -0.001]}
         scale={0.032}>
         <mesh
           name="stitch"
@@ -286,21 +339,23 @@ return (
           receiveShadow
           geometry={nodes.stitch.geometry}
           material={materials['Cover material']}
-          position={[0, 0.313, 0]}
-          scale={31.309}
+          position={[0.003, 0.286, 0.003]}
+          scale={31.091}
         />
       </group>
-      <group name="Empty_-_move_battery" rotation={[0.07, -0.098, 0.049]}>
+      <group name="Empty_-_move_battery" rotation={[0.07, -0.099, 0.071]}>
         <mesh
           name="Battery_bank"
           castShadow
           receiveShadow
           geometry={nodes.Battery_bank.geometry}
           material={materials[pbMaterial]}
+          position={[0, -0.001, 0]}
+          scale={0.993}
         />
         <spotLight
           name="k_soft_shadow_light"
-          intensity={ 0.62866}
+          intensity={0.62866}
           angle={0.323}
           penumbra={0.15}
           decay={2}
@@ -324,7 +379,7 @@ return (
           receiveShadow
           geometry={nodes.numbers_as_mesh.geometry}
           material={materials['numbers glow material']}
-          position={[0.0105, 0.062, 0.022]}
+          position={[0.0105, 0.061, 0.022]}
           rotation={[0, 0, -Math.PI / 2]}
           scale={0.009}
         />
@@ -352,27 +407,14 @@ return (
       </spotLight>
       <group name="Empty-move_camera" position={[0, 0, -0.02]} scale={0.99}>
         <PerspectiveCamera
-          ref={deskNormalCamera}
           name="Camera001"
-          makeDefault={normalCameraTrue}
+          makeDefault={false}
           far={1000}
           near={0.1}
           fov={fovNew}
           position={[0.458, -0.146, -0.191]}
           rotation={[2.628, 1.009, -2.527]}
           scale={0.181}
-        />
-      </group>
-      <group name="Empty-intro_camera" position={[0.377, 0.191, -0.042]} scale={0.028}>
-        <PerspectiveCamera
-          name="Camera-Intro"
-          makeDefault={introCameraTrue}
-          far={1000}
-          near={0.1}
-          fov={fovNew}
-          position={[16.094, -5.137, -7.411]}
-          rotation={[2.628, 1.009, -2.527]}
-          scale={6.381}
         />
       </group>
       <mesh
@@ -383,16 +425,14 @@ return (
         material={materials['PB Gray']}
         position={[16.174, -11.861, -62.359]}
       />
-    
       <group
         name="Empty_-_move_mob_camera"
-        position={[0.021, 0.028, 0.011]}
-        rotation={[1.508, -0.309, -2.193]}
-        scale={0.031}>
+        position={[0.111, 0.287, 0.038]}
+        rotation={[1.743, -0.265, -1.402]}
+        scale={0.027}>
         <PerspectiveCamera
-          ref={mobCameraa}
           name="MobCamera"
-          makeDefault={mobNormalCameraTrue}
+          makeDefault={true}
           far={1000}
           near={0.1}
           fov={isTabletSize ? fovNewTab : fovNewMob}
@@ -401,12 +441,30 @@ return (
           scale={7.614}
         />
       </group>
+      <group
+        name="Empty_-_Intro_Camera"
+        position={[-0.579, 1.825, 4.895]}
+        rotation={[0, -0.719, 0]}
+        scale={1.481}>
+        <PerspectiveCamera
+          name="Camera_-_Intro"
+          makeDefault={introCameraTrue}
+          far={1000}
+          near={0.1}
+          fov={fovNew}
+          position={[0.458, -0.146, -0.191]}
+          rotation={[2.628, 1.009, -2.527]}
+        />
+      </group>
+     
     </group>
   </group>
 )
 }
 
-useGLTF.preload('http://localhost:5173/src/assets/dopo33.glb')
+
+useGLTF.preload('http://localhost:5173/src/assets/dopo99.glb')
+
 
 /*
 materials[pbMaterial]
