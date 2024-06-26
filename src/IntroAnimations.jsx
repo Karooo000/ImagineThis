@@ -12,7 +12,7 @@ export default function IntroAnimations() {
 
     const powerHeading = document.getElementById("powerHeading")
 
-    let isMobileSize = window.innerWidth < 768
+    let isMobileSize = window.innerWidth < 1280
 
     //const viewport = useThree((state) => state.viewport);
 

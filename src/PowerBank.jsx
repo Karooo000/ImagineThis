@@ -20,7 +20,7 @@ export default function Model(props) {
 
  // IntroAnimations();
  const group = useRef();
- const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/dopoMob2.glb");
+ const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/dopo33.glb");
 
  const { ref, mixer, names, actions, clips } = useAnimations(
    animations,
@@ -31,7 +31,11 @@ export default function Model(props) {
 
 
 
-  let isMobileSize = window.innerWidth < 768
+  let isMobileSize = window.innerWidth < 1280
+
+  let isTabletSize = 550 < window.innerWidth && window.innerWidth < 1280
+
+  console.log(isTabletSize)
 
 
 
@@ -46,11 +50,17 @@ export default function Model(props) {
   
   let fovNew = fovOriginal + fovInBetween
 
-  const scaleFactorDesktopMob = window.innerWidth / 768
+ 
+  const scaleFactorDesktopMob = window.innerWidth / 991
+  const scaleFactorTablet = window.innerWidth / 1300
 
-  let scaleCofMob = 1 - scaleFactorDesktopMob
+  let scaleCofMob = 1 - scaleFactorTablet
   let fovInBetweenMob = scaleCofMob * scaleCofMob * fovOriginal
+  let fovInBetweenTab = scaleCofMob * fovOriginal
   let fovNewMob = fovOriginal + fovInBetweenMob
+  let fovNewTab = fovOriginal + fovInBetweenTab
+
+  console.log(fovNewMob)
 
  // Scroll to top on reload
 
@@ -102,6 +112,8 @@ let innitialNormalMob = isMobileSize ? true : false
   const [mobSwitcher, setMobSwitcher] = useState(isMobileSize)
   const [innitialIsMob, setInnitialIsMob] = useState(isMobileSize)
 
+  console.log(mobNormalCameraTrue,normalCameraTrue)
+
   useMemo(() => {
     setMobSwitcher(isMobileSize)
   }, [isMobileSize])
@@ -109,7 +121,7 @@ let innitialNormalMob = isMobileSize ? true : false
   const mobCameraa = useRef()
   const deskNormalCamera = useRef()
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if(mobSwitcher !== innitialIsMob){
       setInnitialIsMob(prev => !prev)
   
@@ -383,7 +395,7 @@ return (
           makeDefault={mobNormalCameraTrue}
           far={1000}
           near={0.1}
-          fov={fovNewMob}
+          fov={isTabletSize ? fovNewTab : fovNewMob}
           position={[0, 23.456, 0]}
           rotation={[-Math.PI / 2, 0, 0]}
           scale={7.614}
@@ -394,7 +406,7 @@ return (
 )
 }
 
-useGLTF.preload('http://localhost:5173/src/assets/dopoMob2.glb')
+useGLTF.preload('http://localhost:5173/src/assets/dopo33.glb')
 
 /*
 materials[pbMaterial]
