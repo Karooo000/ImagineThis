@@ -14,6 +14,16 @@ export default function IntroAnimations() {
 
     let isMobileSize = window.innerWidth < 1280
 
+    const [prevsize, setPrevSize] = useState(isMobileSize)
+
+    useEffect(() => {
+      if(prevsize !== isMobileSize){
+          ScrollTrigger.refresh()
+          console.log("breakpoint")
+          setPrevSize(prev => !prev)
+      }
+    }, [isMobileSize])
+
     //const viewport = useThree((state) => state.viewport);
 
     //console.log(isMobileSize)
@@ -753,7 +763,7 @@ export default function IntroAnimations() {
       }
   });
   
-  
+  /*
   gsap.set(".line.left.Mob", { yPercent: 110, opacity: 0 });
 
   gsap.to(".line.left.Mob", {
@@ -770,7 +780,7 @@ export default function IntroAnimations() {
           
       }
   });
-
+*/
 
 
   //circles-contain

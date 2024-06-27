@@ -7,7 +7,6 @@ import * as THREE from "three";
 
 
 import IntroAnimations from "./IntroAnimations";
-import IntroAnimationsMob from "./IntroAnimationsMob";
 import { useGSAP } from "@gsap/react";
 
 
@@ -78,13 +77,41 @@ let innitialNormalMob = isMobileSize ? true : false
   const [normalCameraTrue, setNormalCameraTrue] = useState(false);
 
   const [mobIntroCameraTrue, setMobIntroCameraTrue] = useState(innitialNormalMob);
-  const [mobNormalCameraTrue, setMobNormalCameraTrue] = useState(true);
+  const [mobNormalCameraTrue, setMobNormalCameraTrue] = useState(false);
 
-/*
+
 
 
   useLayoutEffect(() => {
-    if(progress > 99){
+      if(progress > 99){
+
+          const introClip = actions.IntroAction
+          const introClipMob = actions.IntroMobb
+
+          let whichClip = isMobileSize ? introClipMob : introClip
+        
+            
+          introClip.clampWhenFinished = true
+          introClip.loop = false
+          introClip.repetitions = 1
+        
+          introClipMob.clampWhenFinished = true
+          introClipMob.loop = false
+          introClipMob.repetitions = 1
+
+          setTimeout(() => {
+            
+              console.log("play should run")
+              whichClip.play()
+          
+            setTimeout(() => {
+              console.log("reser should have happened")
+              whichClip.fadeOut(0.1)
+              document.querySelector("html").style.position = "relative"
+            }, "2200")
+
+          }, "2900")
+
         setTimeout(() => {
             console.log("camera swap")
             if(!isMobileSize){
@@ -107,38 +134,14 @@ let innitialNormalMob = isMobileSize ? true : false
     }
     
   }, [])
-  */
+  
 
-  console.log(actions)
+  //console.log(actions)
 
  
 
   useEffect(() => {
   
-    const introClip = actions.IntroAction
-    const introClipMob = actions.IntroMobb
-  
-      
-    introClip.clampWhenFinished = true
-    introClip.loop = false
-    introClip.repetitions = 1
-  
-    introClipMob.clampWhenFinished = true
-    introClipMob.loop = false
-    introClipMob.repetitions = 1
-
-    setTimeout(() => {
-      if(isMobileSize){
-        console.log("play should run")
-        introClipMob.play()
-      }
-      setTimeout(() => {
-        console.log("reser should have happened")
-        introClipMob.fadeOut(0.1)
-        document.querySelector("html").style.position = "relative"
-      }, "1200")
-
-    }, "2900")
 
    
     
@@ -146,17 +149,7 @@ let innitialNormalMob = isMobileSize ? true : false
 
 
 
-  const [mobSwitcher, setMobSwitcher] = useState(isMobileSize)
-  const [innitialIsMob, setInnitialIsMob] = useState(isMobileSize)
 
-  //console.log(mobNormalCameraTrue,normalCameraTrue)
-
-  useMemo(() => {
-    setMobSwitcher(isMobileSize)
-  }, [isMobileSize])
-
-  const mobCameraa = useRef()
-  const deskNormalCamera = useRef()
   /*
 
   useLayoutEffect(() => {
@@ -229,6 +222,7 @@ let innitialNormalMob = isMobileSize ? true : false
   useGSAP(() => {
 
       let whichAnimLenght = isMobileSize ? 150 : 120
+      let whichDuration = isMobileSize ? 6 : 5
 
       const clipMob = actions.MobCamera
       const clipDesktop = actions.WholeAnim;
@@ -281,7 +275,7 @@ let innitialNormalMob = isMobileSize ? true : false
       {
         time: max,
         ease: "none",
-        duration: 5,
+        duration: whichDuration,
       }
     );
   })
@@ -408,7 +402,7 @@ return (
       <group name="Empty-move_camera" position={[0, 0, -0.02]} scale={0.99}>
         <PerspectiveCamera
           name="Camera001"
-          makeDefault={false}
+          makeDefault={normalCameraTrue}
           far={1000}
           near={0.1}
           fov={fovNew}
@@ -432,7 +426,7 @@ return (
         scale={0.027}>
         <PerspectiveCamera
           name="MobCamera"
-          makeDefault={true}
+          makeDefault={mobNormalCameraTrue}
           far={1000}
           near={0.1}
           fov={isTabletSize ? fovNewTab : fovNewMob}

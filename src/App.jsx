@@ -1,5 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import Model from "/src/PowerBank.jsx";
+import PowerBank from "/src/PowerBankNew.jsx";
 import { ContactShadows,  useProgress } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { useThree } from "@react-three/fiber";
@@ -7,7 +8,7 @@ import { useThree } from "@react-three/fiber";
 import CustomLoader from "./CustomLoader";
 
 import IntroAnimations from "./IntroAnimations";
-import IntroAnimationsMob from "./IntroAnimationsMob";
+
 
 
 
@@ -15,8 +16,7 @@ import IntroAnimationsMob from "./IntroAnimationsMob";
 function App() {
 
   
-IntroAnimations()
-  
+  IntroAnimations()
   CustomLoader();
  
 
