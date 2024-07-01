@@ -7,6 +7,7 @@ import * as THREE from "three";
 
 
 import IntroAnimations from "./IntroAnimations";
+import Animations from "./Animations";
 import { useGSAP } from "@gsap/react";
 
 
@@ -17,10 +18,8 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function Model(props) {
 
- // IntroAnimations();
  const group = useRef();
  const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/dopo99.glb");
-
  const { ref, mixer, names, actions, clips } = useAnimations(
    animations,
    group
@@ -31,35 +30,30 @@ export default function Model(props) {
 
 
   let isMobileSize = window.innerWidth < 1280
-
   let isTabletSize = 550 < window.innerWidth && window.innerWidth < 1280
 
-  //console.log(isTabletSize)
-
-
-
- //Scale based on screensize ( responsive )
+ //FOV based on screensize ( responsive )
 
   const fovOriginal = 22.895
 
   const scaleFactorDesktop = window.innerWidth / 1512
+  const scaleFactorTablet = window.innerWidth / 1300
+  const scaleFactorDesktopMob = window.innerWidth / 991
 
+  //desktop FOV
   let scaleCof = 1 - scaleFactorDesktop
   let fovInBetween = scaleCof * scaleCof * fovOriginal
-  
   let fovNew = fovOriginal + fovInBetween
 
- 
-  const scaleFactorDesktopMob = window.innerWidth / 991
-  const scaleFactorTablet = window.innerWidth / 1300
-
+  // Mobile FOV
   let scaleCofMob = 1 - scaleFactorTablet
   let fovInBetweenMob = scaleCofMob * scaleCofMob * fovOriginal
-  let fovInBetweenTab = scaleCofMob * fovOriginal
   let fovNewMob = fovOriginal + fovInBetweenMob
+
+  // Mobile FOV
+  let fovInBetweenTab = scaleCofMob * fovOriginal
   let fovNewTab = fovOriginal + fovInBetweenTab
 
-  //console.log(fovNewMob)
 
  // Scroll to top on reload
 
@@ -67,6 +61,7 @@ export default function Model(props) {
   window.scrollTo(0, 0);
 }
 
+/*
 //Which camera is active
 
 let innitialNormalDesk = isMobileSize ? false : true
@@ -76,14 +71,17 @@ let innitialNormalMob = isMobileSize ? true : false
   const [introCameraTrue, setIntroCameraTrue] = useState(innitialNormalDesk);
   const [normalCameraTrue, setNormalCameraTrue] = useState(false);
 
-  const [mobIntroCameraTrue, setMobIntroCameraTrue] = useState(innitialNormalMob);
-  const [mobNormalCameraTrue, setMobNormalCameraTrue] = useState(false);
+  //const [mobIntroCameraTrue, setMobIntroCameraTrue] = useState(innitialNormalMob);
+  const [mobNormalCameraTrue, setMobNormalCameraTrue] = useState(innitialNormalMob);
 
 
 
+//console.log(actions)
 
   useLayoutEffect(() => {
       if(progress > 99){
+          
+       
 
           const introClip = actions.IntroAction
           const introClipMob = actions.IntroMobb
@@ -98,19 +96,22 @@ let innitialNormalMob = isMobileSize ? true : false
           introClipMob.clampWhenFinished = true
           introClipMob.loop = false
           introClipMob.repetitions = 1
-
+          
+          
           setTimeout(() => {
-            
-              console.log("play should run")
-              whichClip.play()
+            console.log("play should run")
+            whichClip.play()
+          }, "2200")
+
+          
           
             setTimeout(() => {
               console.log("reser should have happened")
               whichClip.fadeOut(0.1)
               document.querySelector("html").style.position = "relative"
-            }, "2200")
+            }, "3100")
 
-          }, "2900")
+     
 
         setTimeout(() => {
             console.log("camera swap")
@@ -118,10 +119,9 @@ let innitialNormalMob = isMobileSize ? true : false
               setIntroCameraTrue(false)
              setNormalCameraTrue(true)
              setMobNormalCameraTrue(false)
-             setIntroCameraTrue(false)
 
             }else{
-              setMobIntroCameraTrue(false)
+              //setMobIntroCameraTrue(false)
               setMobNormalCameraTrue(true)
               setIntroCameraTrue(false)
               setNormalCameraTrue(false)
@@ -135,20 +135,7 @@ let innitialNormalMob = isMobileSize ? true : false
     
   }, [])
   
-
-  //console.log(actions)
-
- 
-
-  useEffect(() => {
-  
-
-   
-    
-  }, [])
-
-
-
+*/
 
   /*
 
@@ -185,41 +172,31 @@ let innitialNormalMob = isMobileSize ? true : false
 
   
 
-  useEffect(() => {
-
+  useLayoutEffect(() => {
     // so you can click on the btns
     const rootDiv = document.getElementById("root")
     rootDiv.childNodes[0].style.pointerEvents = "none"
 
-/*
-    const introClip = actions.IntroAction
-    const introClipMob = actions.IntroMobb
+      //make numbers glow
 
-    
-    introClip.clampWhenFinished = true
-    introClip.loop = false
-    introClip.repetitions = 1
+    nodes.numbers_as_mesh.material.color.r = 2;
+    nodes.numbers_as_mesh.material.color.g = 2;
+    nodes.numbers_as_mesh.material.color.b = 2;
 
-    introClipMob.clampWhenFinished = true
-    introClipMob.loop = false
-    introClipMob.repetitions = 1
+    nodes.numbers_as_mesh.material.emissive.r = 1;
+    nodes.numbers_as_mesh.material.emissive.g = 1;
+    nodes.numbers_as_mesh.material.emissive.b = 1;
+    nodes.numbers_as_mesh.material.emissiveIntensity = 1.1;
+    nodes.numbers_as_mesh.material.toneMapped = false;
 
-    console.log(actions)
+  }, []);
 
-
-    if(progress > 99){
-        setTimeout(() => {
-              //introClip.play()
-              introClipMob.play()
- 
-        }, "2800")
-    }
-        */
-
-
-  });
 
   useGSAP(() => {
+
+    console.log("gsap hook")
+
+    /* Scroll animation STARTS */
 
       let whichAnimLenght = isMobileSize ? 150 : 120
       let whichDuration = isMobileSize ? 6 : 5
@@ -234,7 +211,6 @@ let innitialNormalMob = isMobileSize ? true : false
       // if it runs until the last frame, it will restart from frame 1, didn't found a solution for this yet.
       const max = animationDuration - frame;
   
-     
   
       clip.play();
   
@@ -261,10 +237,9 @@ let innitialNormalMob = isMobileSize ? true : false
         trigger: "#section-2",
         start: "top bottom",
         end: "bottom bottom",
-        endTrigger: "#scroll",
+        endTrigger: "#section-6",
         scrub: 1,
         toggleActions: "restart restart reverse reverse",
-        snap: 0.25,
       },
     });
     tl.set(proxy, { time: 0 });
@@ -278,21 +253,100 @@ let innitialNormalMob = isMobileSize ? true : false
         duration: whichDuration,
       }
     );
+
+    /* Scroll animation FINISHES */
+
+    /* Intro Animation STARTS */
+
+    setTimeout(() => {
+
+      if(progress > 99){
+        //console.log("anim starts")
+
+
+
+        let moveBlackLeftOval = gsap.fromTo
+        ('.black-oval.lower', 
+          {scale:4},
+          {scale: 1, duration: 1 , ease: "power4.out", delay: 0.5},
+      );
+          
+          let moveBlackRightOval = gsap.fromTo
+          ('.black-oval.upper', 
+          {scale:4 },
+          {scale: 1, duration: 1, ease: "power4.out", delay: 0.5},
+      );
+
+          let moveBlueLeftOval = gsap.fromTo
+          ('.blue-oval.lower', 
+          {scale:2},
+          {scale: 1, duration: 1, ease: "power4.out", delay: 0.5},
+      );
+
+          let moveBlueRightOval = gsap.fromTo
+          ('.blue-oval.upper', 
+          {scale:2 },
+          {scale: 1, duration: 1, ease: "power4.out", delay: 0.5},
+      );
+   
+    
+         let moveHeading = gsap.fromTo
+         ('.h1', 
+           {xPercent: -110},
+           {xPercent: 0, duration: 0.8, ease: "power4.out", delay: 1.5},
+       );
+
+           let moveHeading2 = gsap.fromTo
+           ('.text.bank', 
+           {xPercent: 130},
+           {xPercent: 0, duration: 0.8, ease: "power4.out", delay: 1.5},
+       );
+
+           let moveHeading3 = gsap.fromTo
+           ('.text.large', 
+               {y: 110, opacity: 0},
+               {y: 0, opacity: 1, duration: 0.8, ease: "power4.out", delay: 1.6},
+           );
+
+           let moveHeroSticker = gsap.fromTo
+           ('.yellow-ribbon-contain', 
+               { opacity: 0},
+               {opacity: 1, duration: 2, ease: "power4.out", delay: 1.8},
+           );
+ 
+        }
+      }, "1500")
+
+/* Intro Animation FINISHES */
+
+/* All anim for all screens */
+         /* Leave first screen Animations */
+            
+            let heroLeave = gsap.timeline({
+              ease: "power4.out",
+              scrollTrigger: {
+                trigger: "#section-2",
+                start: "top bottom",
+                end: "bottom 20%",
+                scrub: 1,
+                
+              },
+            })
+
+          heroLeave
+          .to(".black-oval.lower", {opacity: 0, yPercent: -100, scale: 0, duration: 0.5}, "sameTime")
+          .to(".blue-oval.lower", {opacity: 0, yPercent: -100, scale: 0, duration: 0.5}, "sameTime")
+          .to(".black-oval.upper", {opacity: 0, yPercent: 25, xPercent: -150, scale: 0, duration: 0.5}, "sameTime")
+          .to(".blue-oval.upper", {opacity: 0, yPercent: 25, xPercent: -150, scale: 0, duration: 0.5}, "sameTime")
+          .to(".h1", {opacity: 0, xPercent: 100, duration: 0.5}, "sameTime")
+          .to(".text.bank", {opacity: 0, xPercent: -200, duration: 0.5}, "sameTime")
+          .to(".text.large", {opacity: 0, yPercent: -10, duration: 0.2}, "sameTime")
+          .to(".yellow-ribbon-contain", {opacity: 0, yPercent: -75, duration: 0.2}, "sameTime")
+ 
+
   })
 
   
-
-  //make numbers glow
-
-  nodes.numbers_as_mesh.material.color.r = 2;
-  nodes.numbers_as_mesh.material.color.g = 2;
-  nodes.numbers_as_mesh.material.color.b = 2;
-
-  nodes.numbers_as_mesh.material.emissive.r = 1;
-  nodes.numbers_as_mesh.material.emissive.g = 1;
-  nodes.numbers_as_mesh.material.emissive.b = 1;
-  nodes.numbers_as_mesh.material.emissiveIntensity = 1.1;
-  nodes.numbers_as_mesh.material.toneMapped = false;
 
 
   //batterybank material swap
@@ -402,7 +456,7 @@ return (
       <group name="Empty-move_camera" position={[0, 0, -0.02]} scale={0.99}>
         <PerspectiveCamera
           name="Camera001"
-          makeDefault={normalCameraTrue}
+          makeDefault={true}
           far={1000}
           near={0.1}
           fov={fovNew}
@@ -426,7 +480,7 @@ return (
         scale={0.027}>
         <PerspectiveCamera
           name="MobCamera"
-          makeDefault={mobNormalCameraTrue}
+          makeDefault={false}
           far={1000}
           near={0.1}
           fov={isTabletSize ? fovNewTab : fovNewMob}
@@ -442,7 +496,7 @@ return (
         scale={1.481}>
         <PerspectiveCamera
           name="Camera_-_Intro"
-          makeDefault={introCameraTrue}
+          makeDefault={false}
           far={1000}
           near={0.1}
           fov={fovNew}

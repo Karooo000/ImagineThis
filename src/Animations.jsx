@@ -6,12 +6,11 @@ import React, { useRef, useEffect, useLayoutEffect, useState } from "react";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function IntroAnimations() {
+export default function Animations() {
 
     const { progress } = useProgress();
-    
-    /*
 
+    /*
     const viewport = useThree((state) => state.viewport);
 
     let isMobileSize = window.innerWidth < 1280
@@ -39,53 +38,55 @@ export default function IntroAnimations() {
 
         if(progress > 99){
           //console.log("anim starts")
-      
-      
-          let ovalUpper =  gsap.fromTo(
-            ".oval-cover.upper",
-            {  
-                scale: 4,
-            },
-            {
-                scale: 1,
-                duration: 1.2,
-                ease: "power4.out",
-            }
-          );
 
-          let ovalLower =  gsap.fromTo(
-            ".oval-cover.bottom",
-            {  
-                scale: 4,
-            },
-            {
-                scale: 1,
-                duration: 1.2,
-                ease: "power4.out",
-            }
-          );
 
+
+          let moveBlackLeftOval = gsap.fromTo
+          ('.black-oval.lower', 
+            {scale:0, opacity: 0},
+            {opacity: 1, scale: 1, duration: 0.5, ease: "power4.out", delay: 0.5},
+        );
+            
+            let moveBlackRightOval = gsap.fromTo
+            ('.black-oval.upper', 
+            {scale:0, opacity: 0},
+            {opacity: 1, scale: 1, duration: 0.5, ease: "power4.out", delay: 0.5},
+        );
+
+            let moveBlueLeftOval = gsap.fromTo
+            ('.blue-oval.lower', 
+            {scale:0, opacity: 0},
+            {opacity: 0.28, scale: 1, duration: 0.5, ease: "power4.out", delay: 0.5},
+        );
+
+            let moveBlueRightOval = gsap.fromTo
+            ('.blue-oval.upper', 
+            {scale:0, opacity: 0},
+            {opacity: 0.28, scale: 1, duration: 0.5, ease: "power4.out", delay: 0.5},
+        );
+     
+      
       
            let moveHeading = gsap.fromTo
-           ('.h1-like.power', 
+           ('.h1', 
              {xPercent: -110},
              {xPercent: 0, duration: 0.8, ease: "power4.out", delay: 0.5},
          );
 
              let moveHeading2 = gsap.fromTo
-             ('.h1-like.border.bank', 
+             ('.text.bank', 
              {xPercent: 130},
              {xPercent: 0, duration: 0.8, ease: "power4.out", delay: 0.5},
          );
 
              let moveHeading3 = gsap.fromTo
-             ('.h2-like.gray-border.large', 
+             ('.text.large', 
                  {y: 110, opacity: 0},
                  {y: 0, opacity: 1, duration: 0.8, ease: "power4.out", delay: 0.6},
              );
 
              let moveHeroSticker = gsap.fromTo
-             ('.hero-sticker', 
+             ('.yellow-ribbon-contain', 
                  { opacity: 0},
                  {opacity: 1, duration: 2, ease: "power4.out", delay: 0.8},
              );
@@ -94,14 +95,20 @@ export default function IntroAnimations() {
 
       }
   }, "2200")
-  
 
+  /* Animations to all screens*/
+  
+/*
+
+  /* Desktop only */
+/*
    let mm = gsap.matchMedia()
 
-   mm.add("(min-width: 1281px)", () => {
-
+   mm.add("(min-width: 1280px)", () => {
+*/
 
             /* Leave first screen Animations */
+            /*
             let heroLeave = gsap.timeline({
               ease: "power4.out",
               scrollTrigger: {
@@ -180,10 +187,12 @@ export default function IntroAnimations() {
           });
 
 
-
+*/
 
 
       //text-wrap
+
+      /*
       gsap.set(".text-wrap", { yPercent: 50, opacity: 0 });
 
       gsap.to(".text-wrap", {
@@ -201,10 +210,12 @@ export default function IntroAnimations() {
               
           }
       });
-
+*/
       /* SECOND SCREEN INTRO & OUTRO */
 
       //blue oval
+
+      /*
       gsap.set(".tester-oval", { yPercent: 25,scale: 0, opacity: 0 });
 
 
@@ -333,13 +344,13 @@ export default function IntroAnimations() {
      duration: 0.2,
    })
    
-
+*/
 
    /* THIRD SCREEN INTRO & OUTRO */
 
    //line-stucture
 
-
+/*
    gsap.set(".line-stucture", { scale: 0, opacity: 1 });
  
  const tlMidLine = gsap.timeline({
@@ -486,11 +497,13 @@ export default function IntroAnimations() {
               duration: 0.5,
             })
 
-
+*/
 
             //text-comes
 
             /* FOURTH screen Animations */
+
+/*
             gsap.set(".text-comes.comes", { xPercent: -50});
       
             const tlComes = gsap.timeline({
@@ -708,10 +721,15 @@ export default function IntroAnimations() {
       
    })
 
-   mm.add("(max-width: 1280px)", () => {
+   */
 
+   /* Tablet & desktop */
+   /*
+   mm.add("(max-width: 1279px)", () => {
 
+*/
     /* Leave first screen Animations */
+/*
     let heroLeave = gsap.timeline({
       ease: "power4.out",
       scrollTrigger: {
@@ -734,7 +752,7 @@ export default function IntroAnimations() {
 
 
 
-  // I set opacity: 0 in the CSS to avoid the flash of unstyled content. Also, it's always best to set your transforms directly via GSAP instead of just in the CSS. Faster performance and more accurate.
+  
   gsap.set(".line.right", { xPercent: -110, opacity: 0 });
 
   gsap.to(".line.right", {
@@ -752,24 +770,7 @@ export default function IntroAnimations() {
       }
   });
   
-  /*
-  gsap.set(".line.left.Mob", { yPercent: 110, opacity: 0 });
-
-  gsap.to(".line.left.Mob", {
-      yPercent: 0,
-      opacity: 1,
-      ease: "expo",
-      duration: 0.5,
-      immediateRender: false, // otherwise scrollTrigger will force the render right away and the starting values that get locked in would be affected by the from() above
-      scrollTrigger: {
-          trigger: "#section-2",
-          start: "top 30%",
-          end: "bottom 45%",
-          scrub: 1,
-          
-      }
-  });
-*/
+ 
 
 
   //circles-contain
@@ -852,10 +853,12 @@ gsap.to(".text-wrap.mob", {
       
   }
 });
+*/
 
 /* SECOND SCREEN INTRO & OUTRO */
 
 //blue oval
+/*
 gsap.set(".tester-oval", { yPercent: 25,scale: 0, opacity: 0 });
 
 
@@ -910,15 +913,14 @@ tlBlueOval.to(".tester-oval", {
 })
 
 
-
+*/
 
 
 
 /* THIRD SCREEN INTRO & OUTRO */
 
 //line-stucture
-
-
+/*
 gsap.set(".line-stucture", { scale: 0, opacity: 1 });
 
 const tlMidLine = gsap.timeline({
@@ -1072,10 +1074,12 @@ const tlShadow3 = gsap.timeline({
     })
 
 
-
+*/
     //text-comes
 
     /* FOURTH screen Animations */
+
+    /*
     gsap.set(".text-comes.comes", { xPercent: -50});
 
     const tlComes = gsap.timeline({
@@ -1295,7 +1299,7 @@ const tlShadow4 = gsap.timeline({
 
 
 
-            
+    */        
 
 
 }
