@@ -19,7 +19,7 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Model(props) {
 
  const group = useRef();
- const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/dopo99.glb");
+ const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/DopoDraco.glb");
  const { ref, mixer, names, actions, clips } = useAnimations(
    animations,
    group
@@ -61,6 +61,28 @@ export default function Model(props) {
   window.scrollTo(0, 0);
 }
 
+// Trying camera swap on breakpoint 
+
+
+
+let mobCameraTrue
+let deskCamera
+
+window.addEventListener("resize", () => {
+
+  ScrollTrigger.refresh()
+
+  if(window.innerWidth < 1280){
+    mobCameraTrue = true
+    deskCamera = false
+    console.log(deskCamera, mobCameraTrue)
+    
+  } else {
+    mobCameraTrue = false
+    deskCamera = true
+    console.log(deskCamera, mobCameraTrue)
+  }
+})
 /*
 //Which camera is active
 
@@ -159,7 +181,7 @@ let innitialNormalMob = isMobileSize ? true : false
           ScrollTrigger.refresh()
           //mobCameraa.updateProjectionMatrix()
           //mobCameraa.matrixWorldNeedsUpdate = true
-          //PerspectiveCamera.render.makeDefault = true}
+          //PerspectiveCamera.render.makeDefault = true
       }
   
       console.log("breakpoint has been swapped")
@@ -342,9 +364,710 @@ let innitialNormalMob = isMobileSize ? true : false
           .to(".text.bank", {opacity: 0, xPercent: -200, duration: 0.5}, "sameTime")
           .to(".text.large", {opacity: 0, yPercent: -10, duration: 0.2}, "sameTime")
           .to(".yellow-ribbon-contain", {opacity: 0, yPercent: -75, duration: 0.2}, "sameTime")
- 
 
-  })
+          /* Second screen intro & outro */ 
+
+          // lines
+
+          gsap.set(".line.left", { xPercent: -110, opacity: 0 });
+
+          const tlLineLeft = gsap.timeline({
+            scrollTrigger: {
+              trigger: "#section-2",
+              start: "top 30%",
+              end: "bottom 50%",
+              endTrigger: "#section-2",
+              scrub: 1,
+            }
+          })
+
+          tlLineLeft.to(".line.left", {
+              xPercent: 0,
+              opacity: 1,
+              ease: "expo",
+              duration: 0.5,
+            });
+            tlLineLeft.to(".line.left", {
+              xPercent: -110,
+              opacity: 0,
+              ease: "expo",
+              duration: 0.5,
+            });
+
+          gsap.set(".line.right", { xPercent: 110, opacity: 0 });
+
+          const tlLineRight = gsap.timeline({
+            scrollTrigger: {
+              trigger: "#section-2",
+              start: "top 30%",
+              end: "bottom 50%",
+              endTrigger: "#section-2",
+              scrub: 1,
+            }
+          })
+
+          tlLineRight.to(".line.right", {
+              xPercent: 0,
+              opacity: 1,
+              ease: "expo",
+              duration: 0.5,
+          });
+
+          tlLineRight.to(".line.right", {
+            xPercent: 110,
+            opacity: 0,
+            ease: "expo",
+            duration: 0.5,
+        });
+
+          //circles-contain
+          gsap.set(".circles-contain.desktop", { scale: 0, opacity: 0 });
+
+          const tlCirclesContain = gsap.timeline({
+            scrollTrigger: {
+              trigger: "#section-2",
+              start: "top 35%",
+              end: "bottom 50%",
+              endTrigger: "#section-2",
+              scrub: 1,
+            }
+          })
+
+          tlCirclesContain.to(".circles-contain.desktop", {
+              scale: 1,
+              opacity: 1,
+              ease: "power4.out",
+              duration: 0.5,
+          });
+          tlCirclesContain.to(".circles-contain.desktop", {
+            scale: 0,
+            opacity: 0,
+            ease: "power4.out",
+            duration: 0.5,
+        });
+
+          //info-contain-screen2
+          gsap.set(".info-contain-screen2", { yPercent: 100, opacity: 0 });
+
+          const tlSecScreenInfoContain = gsap.timeline({
+            scrollTrigger: {
+              trigger: "#section-2",
+              start: "top 35%",
+              end: "bottom 50%",
+              endTrigger: "#section-2",
+              scrub: 1,
+            }
+          })
+
+          tlSecScreenInfoContain.to(".info-contain-screen2", {
+              yPercent: 0,
+              opacity: 1,
+              ease: "power4.out",
+              duration: 1,
+          });
+          tlSecScreenInfoContain.to(".info-contain-screen2", {
+            yPercent: -100,
+            opacity: 0,
+            ease: "power4.out",
+            duration: 1,
+        });
+
+
+        let mm = gsap.matchMedia()
+
+        /* Desktop only animations */
+
+        mm.add("(min-width: 1280px)", () => {
+          /* Sceen 3 intro & Outro Starts */
+          //line-long
+          gsap.set(".line-long", { scale: 0 });
+
+
+          const tlLongLineScreen3 = gsap.timeline({
+              scrollTrigger: {
+                trigger: "#section-4",
+                start: "top 30%",
+                end: "bottom 50%",
+                endTrigger: "#section-4",
+                scrub: 1,
+              }
+            })
+            tlLongLineScreen3.to(".line-long", {
+              scale: 1,
+              ease: "power4.out",
+              duration: 0.5,
+            })
+            tlLongLineScreen3.to(".line-long", {
+              scale: 0,
+              ease: "power4.out",
+              duration: 0.5,
+            })
+
+            //line-vertical.desktop
+            gsap.set(".line-vertical.desktop", { scale: 0 });
+
+
+            const tlLeftVerticalLineScreen3 = gsap.timeline({
+                scrollTrigger: {
+                  trigger: "#section-4",
+                  start: "top 30%",
+                  end: "bottom 50%",
+                  endTrigger: "#section-4",
+                  scrub: 1,
+                }
+              })
+              tlLeftVerticalLineScreen3.to(".line-vertical.desktop", {
+                scale: 1,
+                ease: "power4.out",
+                duration: 0.5,
+              })
+              tlLeftVerticalLineScreen3.to(".line-vertical.desktop", {
+                scale: 0,
+                ease: "power4.out",
+                duration: 0.5,
+              })
+
+              //line-vertical-right.desktop
+              gsap.set(".line-vertical-right.desktop", { scale: 0 });
+
+              const tlRightVerticalLineScreen3 = gsap.timeline({
+                  scrollTrigger: {
+                    trigger: "#section-4",
+                    start: "top 30%",
+                    end: "bottom 50%",
+                    endTrigger: "#section-4",
+                    scrub: 1,
+                  }
+                })
+                tlRightVerticalLineScreen3.to(".line-vertical-right.desktop", {
+                  scale: 1,
+                  ease: "power4.out",
+                  duration: 0.5,
+                })
+                tlRightVerticalLineScreen3.to(".line-vertical-right.desktop", {
+                  scale: 0,
+                  ease: "power4.out",
+                  duration: 0.5,
+                })
+
+                //move-contain.first
+                gsap.set(".move-contain.first", { yPercent: 100, opacity: 0 });
+
+                const tlMovetext1 = gsap.timeline({
+                    scrollTrigger: {
+                      trigger: "#section-4",
+                      start: "top 30%",
+                      end: "bottom 50%",
+                      endTrigger: "#section-4",
+                      scrub: 1,
+                    }
+                  })
+                  tlMovetext1.to(".move-contain.first", {
+                    opacity: 1,
+                    yPercent: 0,
+                    ease: "power4.out",
+                    duration: 0.5,
+                  })
+                  tlMovetext1.to(".move-contain.first", {
+                    opacity: 0,
+                    yPercent: -100,
+                    ease: "power4.out",
+                    duration: 0.5,
+                  })
+                   //move-contain.second
+                gsap.set(".move-contain.second", { yPercent: 100, opacity: 0 });
+
+                const tlMovetext2 = gsap.timeline({
+                    scrollTrigger: {
+                      trigger: "#section-4",
+                      start: "top 20%",
+                      end: "bottom 50%",
+                      endTrigger: "#section-4",
+                      scrub: 1,
+                    }
+                  })
+                  tlMovetext2.to(".move-contain.second", {
+                    opacity: 1,
+                    yPercent: 0,
+                    ease: "power4.out",
+                    duration: 0.5,
+                  })
+                  tlMovetext2.to(".move-contain.second", {
+                    opacity: 0,
+                    yPercent: -100,
+                    ease: "power4.out",
+                    duration: 0.5,
+                  })
+
+                //move-contain.third
+                gsap.set(".move-contain.third", { yPercent: 100, opacity: 0 });
+
+                const tlMovetext3 = gsap.timeline({
+                    scrollTrigger: {
+                      trigger: "#section-4",
+                      start: "top 10%",
+                      end: "bottom 50%",
+                      endTrigger: "#section-4",
+                      scrub: 1,
+                    }
+                  })
+                  tlMovetext3.to(".move-contain.third", {
+                    opacity: 1,
+                    yPercent: 0,
+                    ease: "power4.out",
+                    duration: 0.5,
+                  })
+                  tlMovetext3.to(".move-contain.third", {
+                    opacity: 0,
+                    yPercent: -100,
+                    ease: "power4.out",
+                    duration: 0.5,
+                  })
+                  //bottom-contain
+                  gsap.set(".bottom-contain.third", { yPercent: 100, opacity: 0 });
+
+                  const tlMovetextContainer3 = gsap.timeline({
+                      scrollTrigger: {
+                        trigger: "#section-4",
+                        start: "top 10%",
+                        end: "bottom 50%",
+                        endTrigger: "#section-4",
+                        scrub: 1,
+                      }
+                    })
+                    tlMovetextContainer3.to(".bottom-contain.third", {
+                      opacity: 1,
+                      yPercent: 0,
+                      ease: "power4.out",
+                      duration: 0.5,
+                    })
+                    tlMovetextContainer3.to(".bottom-contain.third", {
+                      opacity: 0,
+                      yPercent: -100,
+                      ease: "power4.out",
+                      duration: 0.5,
+                    })
+
+          /* Screen 3 intro & Outro finishes */
+
+          /* Screen 4 intro & Outro starts */
+              //comes-text
+              gsap.set(".comes-text", { xPercent: -10, opacity: 0 });
+
+              const tlMovetextComes = gsap.timeline({
+                  scrollTrigger: {
+                    trigger: "#section-5",
+                    start: "top 50%",
+                    end: "bottom 50%",
+                    endTrigger: "#section-5",
+                    scrub: 1,
+                  }
+                })
+                tlMovetextComes.to(".comes-text", {
+                  opacity: 1,
+                  xPercent: 0,
+                  ease: "power4.out",
+                  duration: 0.5,
+                })
+                tlMovetextComes.to(".comes-text", {
+                  opacity: 0,
+                  xPercent: 30,
+                  ease: "power4.out",
+                  duration: 0.5,
+                })
+
+                //with-text
+                gsap.set(".with-text", { yPercent: -100, opacity: 0 });
+
+                const tlMovetextWith = gsap.timeline({
+                    scrollTrigger: {
+                      trigger: "#section-5",
+                      start: "top 50%",
+                      end: "bottom 50%",
+                      endTrigger: "#section-5",
+                      scrub: 1,
+                    }
+                  })
+                  tlMovetextWith.to(".with-text", {
+                    opacity: 1,
+                    yPercent: 0,
+                    ease: "power4.out",
+                    duration: 0.5,
+                  })
+                  tlMovetextWith.to(".with-text", {
+                    opacity: 0,
+                    yPercent: 30,
+                    ease: "power4.out",
+                    duration: 0.5,
+                  })
+                   //a-text
+                gsap.set(".a-text", { yPercent: 30, opacity: 0 });
+
+                const tlMovetextA = gsap.timeline({
+                    scrollTrigger: {
+                      trigger: "#section-5",
+                      start: "top 50%",
+                      end: "bottom 50%",
+                      endTrigger: "#section-5",
+                      scrub: 1,
+                    }
+                  })
+                  tlMovetextA.to(".a-text", {
+                    opacity: 1,
+                    yPercent: 0,
+                    ease: "power4.out",
+                    duration: 0.5,
+                  })
+                  tlMovetextA.to(".a-text", {
+                    opacity: 0,
+                    yPercent: -10,
+                    ease: "power4.out",
+                    duration: 0.5,
+                  })
+                  //protective-text
+                  gsap.set(".protective-text", { xPercent: -30, opacity: 0 });
+
+                  const tlMovetextProtective = gsap.timeline({
+                      scrollTrigger: {
+                        trigger: "#section-5",
+                        start: "top 40%",
+                        end: "bottom 50%",
+                        endTrigger: "#section-5",
+                        scrub: 1,
+                      }
+                    })
+                    tlMovetextProtective.to(".protective-text", {
+                      opacity: 1,
+                      xPercent: 0,
+                      ease: "power4.out",
+                      duration: 0.5,
+                    })
+                    tlMovetextProtective.to(".protective-text", {
+                      opacity: 0,
+                      xPercent: 20,
+                      ease: "power4.out",
+                      duration: 0.5,
+                    })
+                    //sleeve-text
+                    gsap.set(".sleeve-text", { xPercent: 30, opacity: 0 });
+
+                    const tlMovetextSleeve = gsap.timeline({
+                        scrollTrigger: {
+                          trigger: "#section-5",
+                          start: "top 40%",
+                          end: "bottom 50%",
+                          endTrigger: "#section-5",
+                          scrub: 1,
+                        }
+                      })
+                      tlMovetextSleeve.to(".sleeve-text", {
+                        opacity: 1,
+                        xPercent: 0,
+                        ease: "power4.out",
+                        duration: 0.5,
+                      })
+                      tlMovetextSleeve.to(".sleeve-text", {
+                        opacity: 0,
+                        xPercent: -20,
+                        ease: "power4.out",
+                        duration: 0.5,
+                      })
+
+          /* Screen 4 intro & Outro finishes */
+
+          /* Screen 5 intro starts */
+          //yellow-price-contain
+          gsap.set(".yellow-price-contain", { scale: 0});
+
+          const tlYellowPriceContain = gsap.timeline({
+              scrollTrigger: {
+                trigger: "#section-6",
+                start: "top 40%",
+                end: "bottom bottom",
+                endTrigger: "#section-6",
+                scrub: 1,
+              }
+            })
+            tlYellowPriceContain.to(".yellow-price-contain", {
+              scale: 1,
+              ease: "power4.out",
+              duration: 0.5,
+            })
+
+            //screen5-shadow.cover
+            gsap.set(".screen5-shadow.cover", { opacity: 0, scale: 0.3, yPercent: -100});
+
+            const tlScreen5CoverShadow = gsap.timeline({
+                scrollTrigger: {
+                  trigger: "#section-6",
+                  start: "top 20%",
+                  end: "bottom bottom",
+                  endTrigger: "#section-6",
+                  scrub: 1,
+                }
+              })
+              tlScreen5CoverShadow.to(".screen5-shadow.cover", {
+                opacity: 0.8,
+                scale: 1,
+                yPercent: 0,
+                ease: "power4.out",
+                duration: 0.5,
+              })
+
+                 //screen5-shadow.battery
+            gsap.set(".screen5-shadow.battery", { opacity: 0, scale: 0.3, yPercent: -100});
+
+            const tlScreen5BatteryShadow = gsap.timeline({
+                scrollTrigger: {
+                  trigger: "#section-6",
+                  start: "top 2%",
+                  end: "bottom bottom",
+                  endTrigger: "#section-6",
+                  scrub: 1,
+                }
+              })
+              tlScreen5BatteryShadow.to(".screen5-shadow.battery", {
+                opacity: 0.7,
+                scale: 1,
+                yPercent: 0,
+                ease: "power4.out",
+                duration: 0.5,
+              })
+
+
+          /* Screen 5 intro fnishes */   
+
+           /* Extras timelines starts */
+          //big-blue-oval
+
+          gsap.set(".big-blue-oval", { xPercent: 0, yPercent: 100,scale: 0, opacity: 0 });
+
+
+          const tlBlueOval = gsap.timeline({
+              scrollTrigger: {
+                trigger: "#section-6",
+                start: "top 50%",
+                end: "bottom bottom",
+                endTrigger: "#section-6",
+                scrub: true,
+              }
+            })
+            tlBlueOval.to(".big-blue-oval", {
+              yPercent: 0,
+              xPercent: 0,
+              scale: 1,
+              opacity: 0.2,
+              ease: "expo",
+              duration: 0.5,
+            })
+            tlBlueOval.to(".big-blue-oval", {
+              yPercent: -20,
+              xPercent: 0,
+              scale: 0.8,
+              opacity: 0.15,
+              ease: "none",
+              duration: 0.5,
+            })
+            tlBlueOval.to(".big-blue-oval", {
+             yPercent: -10,
+             xPercent: 0,
+             scale: 0.8,
+             opacity: 0.2,
+             ease: "none",
+             duration: 0.5,
+           })
+           tlBlueOval.to(".big-blue-oval", {
+             yPercent: -15,
+             xPercent: -28,
+             scale: 0.7,
+             opacity: 0.1,
+             ease: "none",
+             duration: 0.5,
+           })
+
+           //white-oval
+      gsap.set(".white-oval", { yPercent: 0,scale: 0, opacity: 0 });
+
+      const tlWhiteOval = gsap.timeline({
+          scrollTrigger: {
+            trigger: "#section-2",
+            start: "top 50%",
+            end: "bottom 50%",
+            endTrigger: "#section-2",
+            scrub: true,
+          }
+        })
+        tlWhiteOval.to(".white-oval", {
+          yPercent: 0,
+          scale: 1,
+          opacity: 1,
+          ease: "expo",
+          duration: 0.5,
+        })
+        tlWhiteOval.to(".white-oval", {
+          yPercent: 75,
+          scale: 0,
+          opacity: 0,
+          ease: "none",
+          duration: 0.2,
+        })
+ 
+           //darker-oval
+      gsap.set(".darker-oval", { yPercent: 0,scale: 0, opacity: 0 });
+
+      const tlDarkOval = gsap.timeline({
+          scrollTrigger: {
+            trigger: "#section-2",
+            start: "top 50%",
+            end: "bottom 50%",
+            endTrigger: "#section-2",
+            scrub: true, 
+          }
+        })
+        tlDarkOval.to(".darker-oval", {
+          yPercent: 0,
+          scale: 1,
+          opacity: 1,
+          ease: "expo",
+          duration: 0.5,
+        })
+        tlDarkOval.to(".darker-oval", {
+          yPercent: 75,
+          scale: 0,
+          opacity: 0,
+          ease: "none",
+          duration: 0.2,
+        })
+
+        gsap.set(".screen2-shadow", { yPercent: 0,scale: 0, opacity: 0 });
+ 
+        const tlShadow = gsap.timeline({
+            scrollTrigger: {
+              trigger: "#section-2",
+              start: "top 50%",
+              end: "bottom 50%",
+              endTrigger: "#section-2",
+              scrub: true,
+            }
+          })
+          tlShadow.to(".screen2-shadow", {
+            yPercent: 0,
+            scale: 1,
+            opacity: 0.65,
+            ease: "expo",
+            duration: 0.5,
+          })
+          tlShadow.to(".screen2-shadow", {
+            yPercent: 75,
+            scale: 0,
+            opacity: 0,
+            ease: "none",
+            duration: 0.2,
+          })
+
+          //bottom-glow
+          gsap.set(".bottom-glow", { scale:0.8 , opacity: 0, xPercent: 0 });
+      
+        const tlBottomGlow = gsap.timeline({
+          scrollTrigger: {
+            trigger: "#section-4",
+            start: "top 30%",
+            end: "bottom bottom",
+            endTrigger: "#section-6",
+            scrub: true,
+          }})
+
+          tlBottomGlow.to(".bottom-glow", {
+            xPercent: 0,
+            scale: 1, 
+            opacity: 1,
+            duration: 0.5,
+          })
+          tlBottomGlow.to(".bottom-glow", {
+            xPercent: 0,
+            scale: 1, 
+            opacity: 1,
+            duration: 0.5,
+          })
+          tlBottomGlow.to(".bottom-glow", {
+            xPercent: -30,
+            scale: 0.6, 
+            opacity: 0.75,
+            duration: 0.5,
+          })
+
+           //screen3-shadow
+           gsap.set(".screen3-shadow", { yPercent: 0,scale: 0, opacity: 0 });
+ 
+           const tlShadow3 = gsap.timeline({
+               scrollTrigger: {
+                 trigger: "#section-4",
+                 start: "top 50%",
+                 end: "bottom 70%",
+                 endTrigger: "#section-4",
+                 scrub: true,
+               }
+             })
+             tlShadow3.to(".screen3-shadow", {
+               yPercent: 0,
+               scale: 1,
+               opacity: 0.65,
+               ease: "expo",
+               duration: 0.5,
+             })
+             tlShadow3.to(".screen3-shadow", {
+               yPercent: 50,
+               scale: 0.8,
+               opacity: 0,
+               ease: "none",
+               duration: 0.2,
+             })
+
+             //screen4-shadow
+             gsap.set(".screen4-shadow", { yPercent: 0,scale: 0, opacity: 0 });
+ 
+             const tlShadow4 = gsap.timeline({
+                 scrollTrigger: {
+                   trigger: "#section-5",
+                   start: "top 50%",
+                   end: "bottom 80%",
+                   endTrigger: "#section-5",
+                   scrub: true,
+                 }
+               })
+               tlShadow4.to(".screen4-shadow", {
+                 yPercent: 0,
+                 scale: 1,
+                 opacity: 0.65,
+                 ease: "expo",
+                 duration: 0.5,
+               })
+               tlShadow4.to(".screen4-shadow", {
+                 yPercent: 10,
+                 scale: 0.8,
+                 opacity: 0,
+                 ease: "none",
+                 duration: 0.2,
+               })
+     
+             })
+   
+           })
+
+       
+           
+ 
+         /* Extras timelines finishes */
+
+     
+
+        
+
+         
+
+        
+         
+
 
   
 
@@ -453,18 +1176,7 @@ return (
         rotation={[-Math.PI / 2, 0, 0]}>
         <group position={[0, 0, -1]} />
       </spotLight>
-      <group name="Empty-move_camera" position={[0, 0, -0.02]} scale={0.99}>
-        <PerspectiveCamera
-          name="Camera001"
-          makeDefault={true}
-          far={1000}
-          near={0.1}
-          fov={fovNew}
-          position={[0.458, -0.146, -0.191]}
-          rotation={[2.628, 1.009, -2.527]}
-          scale={0.181}
-        />
-      </group>
+      
       <mesh
         name="Plane_for_gray"
         castShadow
@@ -473,37 +1185,49 @@ return (
         material={materials['PB Gray']}
         position={[16.174, -11.861, -62.359]}
       />
-      <group
-        name="Empty_-_move_mob_camera"
-        position={[0.111, 0.287, 0.038]}
-        rotation={[1.743, -0.265, -1.402]}
-        scale={0.027}>
+      <group name="Empty-move_camera" position={[0, 0, -0.02]} scale={0.99}>
         <PerspectiveCamera
-          name="MobCamera"
-          makeDefault={false}
-          far={1000}
-          near={0.1}
-          fov={isTabletSize ? fovNewTab : fovNewMob}
-          position={[0, 23.456, 0]}
-          rotation={[-Math.PI / 2, 0, 0]}
-          scale={7.614}
-        />
-      </group>
-      <group
-        name="Empty_-_Intro_Camera"
-        position={[-0.579, 1.825, 4.895]}
-        rotation={[0, -0.719, 0]}
-        scale={1.481}>
-        <PerspectiveCamera
-          name="Camera_-_Intro"
-          makeDefault={false}
+          name="Camera001"
+          makeDefault={!isMobileSize}
           far={1000}
           near={0.1}
           fov={fovNew}
           position={[0.458, -0.146, -0.191]}
           rotation={[2.628, 1.009, -2.527]}
+          scale={0.181}
         />
-      </group>
+        </group>
+        <group
+            name="Empty_-_move_mob_camera"
+            position={[0.111, 0.287, 0.038]}
+            rotation={[1.743, -0.265, -1.402]}
+            scale={0.027}>
+            <PerspectiveCamera
+            name="MobCamera"
+            makeDefault={isMobileSize}
+            far={1000}
+            near={0.1}
+            fov={isTabletSize ? fovNewTab : fovNewMob}
+            position={[0, 23.456, 0]}
+            rotation={[-Math.PI / 2, 0, 0]}
+            scale={7.614}
+            />
+        </group>
+        <group
+            name="Empty_-_Intro_Camera"
+            position={[-0.579, 1.825, 4.895]}
+            rotation={[0, -0.719, 0]}
+            scale={1.481}>
+            <PerspectiveCamera
+            name="Camera_-_Intro"
+            makeDefault={false}
+            far={1000}
+            near={0.1}
+            fov={fovNew}
+            position={[0.458, -0.146, -0.191]}
+            rotation={[2.628, 1.009, -2.527]}
+            />
+        </group>
      
     </group>
   </group>
@@ -511,7 +1235,7 @@ return (
 }
 
 
-useGLTF.preload('http://localhost:5173/src/assets/dopo99.glb')
+useGLTF.preload('http://localhost:5173/src/assets/DopoDraco.glb')
 
 
 /*

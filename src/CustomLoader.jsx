@@ -25,10 +25,10 @@ export default function CustomLoader() {
         loadingGone
         .to(".wrapper-loading", {yPercent: -70, opacity: 0, duration: 0.25},"sameTime")
         .to(loadingBar, {xPercent: 100}, "sameTime")
-        .to(".loading-blue-oval.left", {marginTop:"60vh", scale: 2, duration: 1}, "sameTime")
-        .to(".loading-blue-oval.right", {marginBottom:"60vh", scale: 2, duration: 1}, "sameTime")
-        .to(".loading-black-oval.left", {marginTop:"60vh", scale: 4, duration: 1}, "sameTime")
-        .to(".loading-black-oval.right", {marginBottom: "60vh", scale: 4, duration: 1}, "sameTime")
+        .to(".loading-blue-oval.left", {marginTop:"60vh", scale: 1.5, duration: 1}, "sameTime")
+        .to(".loading-blue-oval.right", {marginBottom:"60vh", scale: 1.5, duration: 1}, "sameTime")
+        .to(".loading-black-oval.left", {marginTop:"60vh", scale: 3, duration: 1}, "sameTime")
+        .to(".loading-black-oval.right", {marginBottom: "60vh", scale: 3, duration: 1}, "sameTime")
         
 
         setTimeout(() => {

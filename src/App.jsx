@@ -1,5 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import Model from "/src/PowerBank.jsx";
+import Camera from "./Camera";
 import { ContactShadows,  useProgress } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { useThree } from "@react-three/fiber";
@@ -24,6 +25,7 @@ function App() {
   return (
     <>
       <Canvas>
+        
         <Model />
         <EffectComposer multisampling={4}>
           <Bloom
