@@ -43,7 +43,12 @@ export default function Model(props) {
   //desktop FOV
   let scaleCof = 1 - scaleFactorDesktop
   let fovInBetween = scaleCof * scaleCof * fovOriginal
-  let fovNew = fovOriginal + fovInBetween
+
+  let fovNewClamp = fovOriginal + fovInBetween
+  let fovNew = fovNewClamp > 25 ? 25 : fovNewClamp
+
+
+  console.log((fovNew))
 
   // Mobile FOV
   let scaleCofMob = 1 - scaleFactorTablet
@@ -63,7 +68,7 @@ export default function Model(props) {
 
 // Trying camera swap on breakpoint 
 
-
+/*
 
 let mobCameraTrue
 let deskCamera
@@ -83,6 +88,24 @@ window.addEventListener("resize", () => {
     console.log(deskCamera, mobCameraTrue)
   }
 })
+  */
+
+let mobCameraTrue
+let deskCamera
+
+const mql = window.matchMedia("(max-width: 1279px)");
+
+mql.onchange = (e) => {
+  if (e.matches) {
+    mobCameraTrue = true
+    deskCamera = false
+    console.log(deskCamera, mobCameraTrue)
+  } else {
+    mobCameraTrue = false
+    deskCamera = true
+    console.log(deskCamera, mobCameraTrue)
+  }
+};
 /*
 //Which camera is active
 
@@ -341,7 +364,7 @@ let innitialNormalMob = isMobileSize ? true : false
 
 /* Intro Animation FINISHES */
 
-/* All anim for all screens */
+/* All anim for all screens STARTS */
          /* Leave first screen Animations */
             
             let heroLeave = gsap.timeline({
@@ -365,7 +388,159 @@ let innitialNormalMob = isMobileSize ? true : false
           .to(".text.large", {opacity: 0, yPercent: -10, duration: 0.2}, "sameTime")
           .to(".yellow-ribbon-contain", {opacity: 0, yPercent: -75, duration: 0.2}, "sameTime")
 
-          /* Second screen intro & outro */ 
+ 
+           /* Screen 4 intro & Outro starts */
+              //comes-text
+              gsap.set(".comes-text", { xPercent: -10, opacity: 0 });
+
+              const tlMovetextComes = gsap.timeline({
+                  scrollTrigger: {
+                    trigger: "#section-5",
+                    start: "top 50%",
+                    end: "bottom 50%",
+                    endTrigger: "#section-5",
+                    scrub: 1,
+                  }
+                })
+                tlMovetextComes.to(".comes-text", {
+                  opacity: 1,
+                  xPercent: 0,
+                  ease: "power4.out",
+                  duration: 0.5,
+                })
+                tlMovetextComes.to(".comes-text", {
+                  opacity: 0,
+                  xPercent: 30,
+                  ease: "power4.out",
+                  duration: 0.5,
+                })
+
+                //with-text
+                gsap.set(".with-text", { yPercent: -100, opacity: 0 });
+
+                const tlMovetextWith = gsap.timeline({
+                    scrollTrigger: {
+                      trigger: "#section-5",
+                      start: "top 50%",
+                      end: "bottom 50%",
+                      endTrigger: "#section-5",
+                      scrub: 1,
+                    }
+                  })
+                  tlMovetextWith.to(".with-text", {
+                    opacity: 1,
+                    yPercent: 0,
+                    ease: "power4.out",
+                    duration: 0.5,
+                  })
+                  tlMovetextWith.to(".with-text", {
+                    opacity: 0,
+                    yPercent: 30,
+                    ease: "power4.out",
+                    duration: 0.5,
+                  })
+                   //a-text
+                gsap.set(".a-text", { yPercent: 30, opacity: 0 });
+
+                const tlMovetextA = gsap.timeline({
+                    scrollTrigger: {
+                      trigger: "#section-5",
+                      start: "top 50%",
+                      end: "bottom 50%",
+                      endTrigger: "#section-5",
+                      scrub: 1,
+                    }
+                  })
+                  tlMovetextA.to(".a-text", {
+                    opacity: 1,
+                    yPercent: 0,
+                    ease: "power4.out",
+                    duration: 0.5,
+                  })
+                  tlMovetextA.to(".a-text", {
+                    opacity: 0,
+                    yPercent: -10,
+                    ease: "power4.out",
+                    duration: 0.5,
+                  })
+                  //protective-text
+                  gsap.set(".protective-text", { xPercent: -30, opacity: 0 });
+
+                  const tlMovetextProtective = gsap.timeline({
+                      scrollTrigger: {
+                        trigger: "#section-5",
+                        start: "top 40%",
+                        end: "bottom 50%",
+                        endTrigger: "#section-5",
+                        scrub: 1,
+                      }
+                    })
+                    tlMovetextProtective.to(".protective-text", {
+                      opacity: 1,
+                      xPercent: 0,
+                      ease: "power4.out",
+                      duration: 0.5,
+                    })
+                    tlMovetextProtective.to(".protective-text", {
+                      opacity: 0,
+                      xPercent: 20,
+                      ease: "power4.out",
+                      duration: 0.5,
+                    })
+                    //sleeve-text
+                    gsap.set(".sleeve-text", { xPercent: 30, opacity: 0 });
+
+                    const tlMovetextSleeve = gsap.timeline({
+                        scrollTrigger: {
+                          trigger: "#section-5",
+                          start: "top 40%",
+                          end: "bottom 50%",
+                          endTrigger: "#section-5",
+                          scrub: 1,
+                        }
+                      })
+                      tlMovetextSleeve.to(".sleeve-text", {
+                        opacity: 1,
+                        xPercent: 0,
+                        ease: "power4.out",
+                        duration: 0.5,
+                      })
+                      tlMovetextSleeve.to(".sleeve-text", {
+                        opacity: 0,
+                        xPercent: -20,
+                        ease: "power4.out",
+                        duration: 0.5,
+                      })
+
+          /* Screen 4 intro & Outro finishes */
+
+              /* Screen 5 intro starts */
+          //yellow-price-contain
+          gsap.set(".yellow-price-contain", { scale: 0});
+
+          const tlYellowPriceContain = gsap.timeline({
+              scrollTrigger: {
+                trigger: "#section-6",
+                start: "top 40%",
+                end: "bottom bottom",
+                endTrigger: "#section-6",
+                scrub: 1,
+              }
+            })
+            tlYellowPriceContain.to(".yellow-price-contain", {
+              scale: 1,
+              ease: "power4.out",
+              duration: 0.5,
+            })
+            /* Screen 5 intro FINISHES */
+
+        /* All anim for all screens FINISHES */
+
+        let mm = gsap.matchMedia()
+
+        /* Desktop only animations */
+
+        mm.add("(min-width: 1280px)", () => {
 
           // lines
 
@@ -472,13 +647,7 @@ let innitialNormalMob = isMobileSize ? true : false
             duration: 1,
         });
 
-
-        let mm = gsap.matchMedia()
-
-        /* Desktop only animations */
-
-        mm.add("(min-width: 1280px)", () => {
-          /* Sceen 3 intro & Outro Starts */
+          /* Screen 3 intro & Outro Starts */
           //line-long
           gsap.set(".line-long", { scale: 0 });
 
@@ -650,149 +819,9 @@ let innitialNormalMob = isMobileSize ? true : false
 
           /* Screen 3 intro & Outro finishes */
 
-          /* Screen 4 intro & Outro starts */
-              //comes-text
-              gsap.set(".comes-text", { xPercent: -10, opacity: 0 });
+         
 
-              const tlMovetextComes = gsap.timeline({
-                  scrollTrigger: {
-                    trigger: "#section-5",
-                    start: "top 50%",
-                    end: "bottom 50%",
-                    endTrigger: "#section-5",
-                    scrub: 1,
-                  }
-                })
-                tlMovetextComes.to(".comes-text", {
-                  opacity: 1,
-                  xPercent: 0,
-                  ease: "power4.out",
-                  duration: 0.5,
-                })
-                tlMovetextComes.to(".comes-text", {
-                  opacity: 0,
-                  xPercent: 30,
-                  ease: "power4.out",
-                  duration: 0.5,
-                })
-
-                //with-text
-                gsap.set(".with-text", { yPercent: -100, opacity: 0 });
-
-                const tlMovetextWith = gsap.timeline({
-                    scrollTrigger: {
-                      trigger: "#section-5",
-                      start: "top 50%",
-                      end: "bottom 50%",
-                      endTrigger: "#section-5",
-                      scrub: 1,
-                    }
-                  })
-                  tlMovetextWith.to(".with-text", {
-                    opacity: 1,
-                    yPercent: 0,
-                    ease: "power4.out",
-                    duration: 0.5,
-                  })
-                  tlMovetextWith.to(".with-text", {
-                    opacity: 0,
-                    yPercent: 30,
-                    ease: "power4.out",
-                    duration: 0.5,
-                  })
-                   //a-text
-                gsap.set(".a-text", { yPercent: 30, opacity: 0 });
-
-                const tlMovetextA = gsap.timeline({
-                    scrollTrigger: {
-                      trigger: "#section-5",
-                      start: "top 50%",
-                      end: "bottom 50%",
-                      endTrigger: "#section-5",
-                      scrub: 1,
-                    }
-                  })
-                  tlMovetextA.to(".a-text", {
-                    opacity: 1,
-                    yPercent: 0,
-                    ease: "power4.out",
-                    duration: 0.5,
-                  })
-                  tlMovetextA.to(".a-text", {
-                    opacity: 0,
-                    yPercent: -10,
-                    ease: "power4.out",
-                    duration: 0.5,
-                  })
-                  //protective-text
-                  gsap.set(".protective-text", { xPercent: -30, opacity: 0 });
-
-                  const tlMovetextProtective = gsap.timeline({
-                      scrollTrigger: {
-                        trigger: "#section-5",
-                        start: "top 40%",
-                        end: "bottom 50%",
-                        endTrigger: "#section-5",
-                        scrub: 1,
-                      }
-                    })
-                    tlMovetextProtective.to(".protective-text", {
-                      opacity: 1,
-                      xPercent: 0,
-                      ease: "power4.out",
-                      duration: 0.5,
-                    })
-                    tlMovetextProtective.to(".protective-text", {
-                      opacity: 0,
-                      xPercent: 20,
-                      ease: "power4.out",
-                      duration: 0.5,
-                    })
-                    //sleeve-text
-                    gsap.set(".sleeve-text", { xPercent: 30, opacity: 0 });
-
-                    const tlMovetextSleeve = gsap.timeline({
-                        scrollTrigger: {
-                          trigger: "#section-5",
-                          start: "top 40%",
-                          end: "bottom 50%",
-                          endTrigger: "#section-5",
-                          scrub: 1,
-                        }
-                      })
-                      tlMovetextSleeve.to(".sleeve-text", {
-                        opacity: 1,
-                        xPercent: 0,
-                        ease: "power4.out",
-                        duration: 0.5,
-                      })
-                      tlMovetextSleeve.to(".sleeve-text", {
-                        opacity: 0,
-                        xPercent: -20,
-                        ease: "power4.out",
-                        duration: 0.5,
-                      })
-
-          /* Screen 4 intro & Outro finishes */
-
-          /* Screen 5 intro starts */
-          //yellow-price-contain
-          gsap.set(".yellow-price-contain", { scale: 0});
-
-          const tlYellowPriceContain = gsap.timeline({
-              scrollTrigger: {
-                trigger: "#section-6",
-                start: "top 40%",
-                end: "bottom bottom",
-                endTrigger: "#section-6",
-                scrub: 1,
-              }
-            })
-            tlYellowPriceContain.to(".yellow-price-contain", {
-              scale: 1,
-              ease: "power4.out",
-              duration: 0.5,
-            })
+      
 
             //screen5-shadow.cover
             gsap.set(".screen5-shadow.cover", { opacity: 0, scale: 0.3, yPercent: -100});
@@ -1049,7 +1078,479 @@ let innitialNormalMob = isMobileSize ? true : false
                  ease: "none",
                  duration: 0.2,
                })
+                 /* Extras timelines finishes */
+                 
      
+             })
+
+             /* Animation for Desktop FINISHES*/
+
+             /* Animation for Tablet & Mobile STARTS*/
+
+             mm.add("(max-width: 1279px)", () => {
+
+              /* Second screen Mobile STARTS */
+               //info-contain-screen2
+               gsap.set(".info-contain-screen2", { yPercent: 100, opacity: 0 });
+
+               const tlSecScreenInfoContain = gsap.timeline({
+                 scrollTrigger: {
+                   trigger: "#section-2",
+                   start: "top 75%",
+                   end: "bottom 25%",
+                   endTrigger: "#section-2",
+                   scrub: 1,
+                 }
+               })
+
+               tlSecScreenInfoContain.to(".info-contain-screen2", {
+                   yPercent: 0,
+                   opacity: 1,
+                   ease: "power4.out",
+                   duration: 1,
+               });
+               tlSecScreenInfoContain.to(".info-contain-screen2", {
+                 yPercent: -100,
+                 opacity: 0,
+                 ease: "power4.out",
+                 duration: 1,
+             });
+                // lines
+
+                gsap.set(".line.upper", { yPercent: -110, opacity: 0 });
+
+                const tlLineUpper = gsap.timeline({
+                  scrollTrigger: {
+                    trigger: "#section-2",
+                    start: "top 75%",
+                    end: "bottom 25%",
+                    endTrigger: "#section-2",
+                    scrub: 1,
+                  }
+                })
+
+                tlLineUpper.to(".line.upper", {
+                    yPercent: 0,
+                    opacity: 1,
+                    ease: "expo",
+                    duration: 0.5,
+                  });
+                  tlLineUpper.to(".line.upper", {
+                    yPercent: -110,
+                    opacity: 0,
+                    ease: "expo",
+                    duration: 0.5,
+                  });
+
+                  //circles-contain
+                gsap.set(".circles-contain.mob-upper", { scale: 0, opacity: 0 });
+
+                const tlCirclesContain = gsap.timeline({
+                  scrollTrigger: {
+                    trigger: "#section-2",
+                    start: "top 75%",
+                    end: "bottom 25%",
+                    endTrigger: "#section-2",
+                    scrub: 1,
+                  }
+                })
+
+                tlCirclesContain.to(".circles-contain.mob-upper", {
+                    scale: 1,
+                    opacity: 1,
+                    ease: "power4.out",
+                    duration: 0.5,
+                });
+                tlCirclesContain.to(".circles-contain.mob-upper", {
+                  scale: 0,
+                  opacity: 0,
+                  ease: "power4.out",
+                  duration: 0.5,
+              });
+
+               /* Screen 2 Tablet & Mobile FINISHES */
+
+              /* Screen 3 Tablet & Mobile STARTS */
+
+              gsap.set(".screen3-mob-container", { yPercent: 100, opacity: 0 });
+
+               const tlThirdMobScreenInfoContain = gsap.timeline({
+                 scrollTrigger: {
+                   trigger: "#section-3",
+                   start: "top 75%",
+                   end: "bottom 25%",
+                   endTrigger: "#section-3",
+                   scrub: 1,
+                 }
+               })
+
+               tlThirdMobScreenInfoContain.to(".screen3-mob-container", {
+                   yPercent: 0,
+                   opacity: 1,
+                   ease: "power4.out",
+                   duration: 1,
+               });
+               tlThirdMobScreenInfoContain.to(".screen3-mob-container", {
+                 yPercent: -100,
+                 opacity: 0,
+                 ease: "power4.out",
+                 duration: 1,
+             });
+                // lines
+
+                gsap.set(".line.lower", { yPercent: -110, opacity: 0 });
+
+                const tlLineLower = gsap.timeline({
+                  scrollTrigger: {
+                    trigger: "#section-3",
+                    start: "top 75%",
+                    end: "bottom 25%",
+                    endTrigger: "#section-3",
+                    scrub: 1,
+                  }
+                })
+
+                tlLineLower.to(".line.lower", {
+                    yPercent: 0,
+                    opacity: 1,
+                    ease: "expo",
+                    duration: 0.5,
+                  });
+                  tlLineLower.to(".line.lower", {
+                    yPercent: -110,
+                    opacity: 0,
+                    ease: "expo",
+                    duration: 0.5,
+                  });
+
+                  //circles-contain
+                gsap.set(".circles-contain.mob-lower", { scale: 0, opacity: 0 });
+
+                const tlCirclesContainMobLower = gsap.timeline({
+                  scrollTrigger: {
+                    trigger: "#section-3",
+                    start: "top 75%",
+                    end: "bottom 25%",
+                    endTrigger: "#section-3",
+                    scrub: 1,
+                  }
+                })
+
+                tlCirclesContainMobLower.to(".circles-contain.mob-lower", {
+                    scale: 1,
+                    opacity: 1,
+                    ease: "power4.out",
+                    duration: 0.5,
+                });
+                tlCirclesContainMobLower.to(".circles-contain.mob-lower", {
+                  scale: 0,
+                  opacity: 0,
+                  ease: "power4.out",
+                  duration: 0.5,
+              });
+
+              /* Screen 3 Tablet & Mobile FINISHES */
+
+              /* Screen 4 Tablet & Mobile STARTS */
+
+              //one-info-contain
+              gsap.set(".move-contain", { yPercent: 100, opacity: 0 });
+
+              const tlMovetextStagger = gsap.timeline({
+                  scrollTrigger: {
+                    trigger: "#section-4",
+                    start: "top 60%",
+                    end: "bottom 50%",
+                    endTrigger: "#section-4",
+                    scrub: 1,
+                  }
+                })
+                tlMovetextStagger.to(".move-contain", {
+                  stagger: 0.1,
+                  opacity: 1,
+                  yPercent: 0,
+                  ease: "power4.out",
+                  duration: 0.5,
+                })
+                tlMovetextStagger.to(".move-contain", {
+                  stagger: 0.1,
+                  opacity: 0,
+                  yPercent: -100,
+                  ease: "power4.out",
+                  duration: 0.5,
+                })
+
+                //line-long
+                gsap.set(".line-long", {xPercent: 120 });
+
+
+                const tlLongLineScreen3 = gsap.timeline({
+                    scrollTrigger: {
+                      trigger: "#section-4",
+                      start: "top 30%",
+                      end: "bottom 50%",
+                      endTrigger: "#section-4",
+                      scrub: 1,
+                    }
+                  })
+                  tlLongLineScreen3.to(".line-long", {
+                    xPercent: 0,
+                    ease: "power4.out",
+                    duration: 0.5,
+                  })
+                  tlLongLineScreen3.to(".line-long", {
+                    xPercent: 120,
+                    ease: "power4.out",
+                    duration: 0.5,
+                  })
+
+                  //line-vertical.mob
+                  gsap.set(".line-vertical.mob", { scale: 0 });
+
+
+                  const tlLeftVerticalLineScreen3 = gsap.timeline({
+                      scrollTrigger: {
+                        trigger: "#section-4",
+                        start: "top 30%",
+                        end: "bottom 50%",
+                        endTrigger: "#section-4",
+                        scrub: 1,
+                      }
+                    })
+                    tlLeftVerticalLineScreen3.to(".line-vertical.mob", {
+                      scale: 1,
+                      ease: "power4.out",
+                      duration: 0.5,
+                    })
+                    tlLeftVerticalLineScreen3.to(".line-vertical.mob", {
+                      scale: 0,
+                      ease: "power4.out",
+                      duration: 0.5,
+                    })
+                    //bottom-info-contain
+                    gsap.set(".bottom-info-contain", { yPercent: 110, opacity: 0 });
+
+
+                  const tlBottomScreen4Contain = gsap.timeline({
+                      scrollTrigger: {
+                        trigger: "#section-4",
+                        start: "top 10%",
+                        end: "bottom 50%",
+                        endTrigger: "#section-4",
+                        scrub: 1,
+                      }
+                    })
+                    tlBottomScreen4Contain.to(".bottom-info-contain", {
+                      yPercent: 0,
+                      opacity: 1,
+                      ease: "power4.out",
+                      duration: 0.5,
+                    })
+                    tlBottomScreen4Contain.to(".bottom-info-contain", {
+                      yPercent: -110,
+                      opacity: 0,
+                      ease: "power4.out",
+                      duration: 0.5,
+                    })
+
+              /* Screen 4 Tablet & Mobile FINISHES */
+              /* Extras timelines starts */
+          //big-blue-oval
+
+          gsap.set(".big-blue-oval", { xPercent: 0, yPercent: 100,scale: 0, opacity: 0 });
+
+
+          const tlBlueOval = gsap.timeline({
+              scrollTrigger: {
+                trigger: "#section-2",
+                start: "top 50%",
+                end: "bottom bottom",
+                endTrigger: "#section-6",
+                scrub: true,
+              }
+            })
+            tlBlueOval.to(".big-blue-oval", {
+              yPercent: 0,
+              xPercent: 0,
+              scale: 1,
+              opacity: 0.1,
+              ease: "expo",
+              duration: 0.5,
+            })
+            tlBlueOval.to(".big-blue-oval", {
+              yPercent: -10,
+              xPercent: 0,
+              scale: 0.8,
+              opacity: 0.1,
+              ease: "none",
+              duration: 0.5,
+            })
+            tlBlueOval.to(".big-blue-oval", {
+             yPercent: -20,
+             xPercent: 20,
+             scale: 0.8,
+             opacity: 0.2,
+             ease: "none",
+             duration: 0.5,
+           })
+           tlBlueOval.to(".big-blue-oval", {
+             yPercent: -15,
+             xPercent: 0,
+             scale: 0.9,
+             opacity: 0.1,
+             ease: "none",
+             duration: 0.5,
+           })
+           tlBlueOval.to(".big-blue-oval", {
+            yPercent: -50,
+            xPercent: 0,
+            scale: 0.6,
+            opacity: 0.1,
+            ease: "none",
+            duration: 0.5,
+          })
+
+        
+
+          //bottom-glow
+          gsap.set(".bottom-glow", { scale:0.8 , opacity: 0, xPercent: 0, yPercent: 0 });
+      
+        const tlBottomGlow = gsap.timeline({
+          scrollTrigger: {
+            trigger: "#section-4",
+            start: "top 30%",
+            end: "bottom bottom",
+            endTrigger: "#section-6",
+            scrub: true,
+          }})
+
+          tlBottomGlow.to(".bottom-glow", {
+            yPercent: 10,
+            xPercent: 20,
+            scale: 1, 
+            opacity: 1,
+            duration: 0.5,
+          })
+          tlBottomGlow.to(".bottom-glow", {
+            yPercent: 70,
+            xPercent: 0,
+            scale: 1, 
+            opacity: 1,
+            duration: 0.5,
+          })
+          tlBottomGlow.to(".bottom-glow", {
+            yPercent: -170,
+            xPercent: 0,
+            scale: 1, 
+            opacity: 0.75,
+            duration: 0.5,
+          })
+          
+
+
+             //screen4-shadow
+             gsap.set(".screen3-shadow-mob", { yPercent: 0,scale: 0, opacity: 0 });
+ 
+             const tlShadow4 = gsap.timeline({
+                 scrollTrigger: {
+                   trigger: "#section-4",
+                   start: "top 50%",
+                   end: "bottom 80%",
+                   endTrigger: "#section-4",
+                   scrub: true,
+                 }
+               })
+               tlShadow4.to(".screen3-shadow-mob", {
+                 yPercent: 0,
+                 scale: 1,
+                 opacity: 0.65,
+                 ease: "expo",
+                 duration: 0.5,
+               })
+               tlShadow4.to(".screen3-shadow-mob", {
+                 yPercent: 10,
+                 scale: 0.8,
+                 opacity: 0,
+                 ease: "none",
+                 duration: 0.2,
+               })
+
+                  //screen4-shadow
+             gsap.set(".screen4-shadow", { yPercent: 0,scale: 0, opacity: 0 });
+ 
+             const tlShadow5 = gsap.timeline({
+                 scrollTrigger: {
+                   trigger: "#section-5",
+                   start: "top 50%",
+                   end: "bottom 80%",
+                   endTrigger: "#section-5",
+                   scrub: true,
+                 }
+               })
+               tlShadow5.to(".screen4-shadow", {
+                 yPercent: 0,
+                 scale: 1,
+                 opacity: 0.65,
+                 ease: "expo",
+                 duration: 0.5,
+               })
+               tlShadow5.to(".screen4-shadow", {
+                 yPercent: 10,
+                 scale: 0.8,
+                 opacity: 0,
+                 ease: "none",
+                 duration: 0.2,
+               })
+
+
+            //screen5-shadow.cover
+            gsap.set(".screen5-shadow.cover", { opacity: 0, scale: 0.3, yPercent: -100});
+
+            const tlScreen5CoverShadow = gsap.timeline({
+                scrollTrigger: {
+                  trigger: "#section-6",
+                  start: "top 20%",
+                  end: "bottom bottom",
+                  endTrigger: "#section-6",
+                  scrub: 1,
+                }
+              })
+              tlScreen5CoverShadow.to(".screen5-shadow.cover", {
+                opacity: 0.4,
+                scale: 1,
+                yPercent: -10,
+                ease: "power4.out",
+                duration: 0.5,
+              })
+
+                 //screen5-shadow.battery
+            gsap.set(".screen5-shadow.battery", { opacity: 0, scale: 0.3, yPercent: -100});
+
+            const tlScreen5BatteryShadow = gsap.timeline({
+                scrollTrigger: {
+                  trigger: "#section-6",
+                  start: "top 20%",
+                  end: "bottom bottom",
+                  endTrigger: "#section-6",
+                  scrub: 1,
+                }
+              })
+              tlScreen5BatteryShadow.to(".screen5-shadow.battery", {
+                opacity: 0.4,
+                scale: 1,
+                yPercent: 0,
+                ease: "power4.out",
+                duration: 0.5,
+              })
+                 /* Extras timelines finishes */
+
+                
+
+               
+        
+  
+
+
              })
    
            })
@@ -1057,7 +1558,7 @@ let innitialNormalMob = isMobileSize ? true : false
        
            
  
-         /* Extras timelines finishes */
+       
 
      
 
@@ -1093,6 +1594,30 @@ grayCol.addEventListener("click", grayClick)
     function grayClick(){
         setIsBlueTrue(false)   
     }
+
+
+    //camera stuff
+    const mainCameraSettings = {
+      name: "Camera001",
+      makeDefault:!isMobileSize,
+      far: 1000,
+      near:0.1,
+      fov:fovNew,
+      position:[0.458, -0.146, -0.191],
+      rotation:[2.628, 1.009, -2.527],
+      scale: 0.181
+  }
+
+  const mobCameraSettings = {
+    name: "MobCamera",
+    makeDefault: isMobileSize,
+    far: 1000,
+    near: 0.1,
+    fov: isTabletSize ? fovNewTab : fovNewMob,
+    position: [0, 23.456, 0],
+    rotation: [-Math.PI / 2, 0, 0],
+    scale: 7.614
+  }
 
 
 
@@ -1186,32 +1711,14 @@ return (
         position={[16.174, -11.861, -62.359]}
       />
       <group name="Empty-move_camera" position={[0, 0, -0.02]} scale={0.99}>
-        <PerspectiveCamera
-          name="Camera001"
-          makeDefault={!isMobileSize}
-          far={1000}
-          near={0.1}
-          fov={fovNew}
-          position={[0.458, -0.146, -0.191]}
-          rotation={[2.628, 1.009, -2.527]}
-          scale={0.181}
-        />
+        <PerspectiveCamera {...mainCameraSettings}/>
         </group>
         <group
             name="Empty_-_move_mob_camera"
             position={[0.111, 0.287, 0.038]}
             rotation={[1.743, -0.265, -1.402]}
             scale={0.027}>
-            <PerspectiveCamera
-            name="MobCamera"
-            makeDefault={isMobileSize}
-            far={1000}
-            near={0.1}
-            fov={isTabletSize ? fovNewTab : fovNewMob}
-            position={[0, 23.456, 0]}
-            rotation={[-Math.PI / 2, 0, 0]}
-            scale={7.614}
-            />
+            <PerspectiveCamera {...mobCameraSettings}/>
         </group>
         <group
             name="Empty_-_Intro_Camera"
