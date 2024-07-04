@@ -1,14 +1,12 @@
 import React, { useRef, useEffect, useLayoutEffect, useState, useMemo } from "react";
-import { useGLTF, PerspectiveCamera, useAnimations, useProgress, useTexture } from "@react-three/drei";
+import { useGLTF, PerspectiveCamera, useAnimations, useProgress, useTexture, useHelper, useFBO } from "@react-three/drei";
 import gsap from "gsap";
 import { useFrame, useThree } from "@react-three/fiber";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import * as THREE from "three";
-
-
-import IntroAnimations from "./IntroAnimations";
-import Animations from "./Animations";
 import { useGSAP } from "@gsap/react";
+import { useControls } from "leva";
+
 
 
 
@@ -48,7 +46,6 @@ export default function Model(props) {
   let fovNew = fovNewClamp > 25 ? 25 : fovNewClamp
 
 
-  console.log((fovNew))
 
   // Mobile FOV
   let scaleCofMob = 1 - scaleFactorTablet
@@ -65,6 +62,12 @@ export default function Model(props) {
  window.onbeforeunload = function () {
   window.scrollTo(0, 0);
 }
+
+
+  if(progress > 99){
+    document.querySelector("html").style.position = "relative"
+  }
+
 
 // Trying camera swap on breakpoint 
 
@@ -96,6 +99,7 @@ let deskCamera
 const mql = window.matchMedia("(max-width: 1279px)");
 
 mql.onchange = (e) => {
+  ScrollTrigger.refresh()
   if (e.matches) {
     mobCameraTrue = true
     deskCamera = false
@@ -238,8 +242,6 @@ let innitialNormalMob = isMobileSize ? true : false
 
 
   useGSAP(() => {
-
-    console.log("gsap hook")
 
     /* Scroll animation STARTS */
 
@@ -1560,19 +1562,6 @@ let innitialNormalMob = isMobileSize ? true : false
  
        
 
-     
-
-        
-
-         
-
-        
-         
-
-
-  
-
-
   //batterybank material swap
 
 const blueCol = document.querySelector(".col-blue")
@@ -1619,9 +1608,42 @@ grayCol.addEventListener("click", grayClick)
     scale: 7.614
   }
 
+  const cameraDesk = useRef()
+  const cameraMob = useRef()
+  const mobCameraEmpty = useRef()
+  const deskcameraEmpty = useRef()
+
+  useHelper(cameraDesk, THREE.CameraHelper, 'hotpink')
+  useHelper(cameraMob, THREE.CameraHelper, 'green')
+
+  const mobRenderTarget = useFBO()
+  const deskRenderTarget = useFBO()
+
+  const vector_zero = new THREE.Vector3(0,0,0)
+
+  useFrame(( {gl, scene, camera}) => {
+    //mobCameraEmpty.current.lookAt(vector_zero)
+    //cameraDesk.current.lookAt(0, 0, -0.02)
+    //cameraDesk.updateProjectionMatrix()
+
+    if(isMobileSize){
+      gl.setRenderTarget(mobRenderTarget)
+      gl.render(scene, cameraMob.current)
+      console.log("mob render target")
+    //gl.setRenderTarget(null)
+    }else{
+      gl.setRenderTarget(deskRenderTarget)
+      gl.render(scene, cameraDesk.current)
+      console.log("desk render target")
+    }
+    //gl.setRenderTarget(null)
+    
+  })
+
 
 
 return (
+  
   <group ref={group} {...props} dispose={null}>
     <group name="Scene">
       <group
@@ -1710,15 +1732,16 @@ return (
         material={materials['PB Gray']}
         position={[16.174, -11.861, -62.359]}
       />
-      <group name="Empty-move_camera" position={[0, 0, -0.02]} scale={0.99}>
-        <PerspectiveCamera {...mainCameraSettings}/>
+      <group name="Empty-move_camera" position={[0, 0, -0.02]} scale={0.99} rotation={[0,0,0]} ref={deskcameraEmpty}>
+        <PerspectiveCamera {...mainCameraSettings} ref={cameraDesk}/>
         </group>
         <group
+            ref={mobCameraEmpty}
             name="Empty_-_move_mob_camera"
             position={[0.111, 0.287, 0.038]}
             rotation={[1.743, -0.265, -1.402]}
             scale={0.027}>
-            <PerspectiveCamera {...mobCameraSettings}/>
+            <PerspectiveCamera {...mobCameraSettings} ref={cameraMob}/>
         </group>
         <group
             name="Empty_-_Intro_Camera"

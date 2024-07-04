@@ -1,14 +1,15 @@
 import { Canvas } from "@react-three/fiber";
 import Model from "/src/PowerBank.jsx";
-import Camera from "./Camera";
+
 import { ContactShadows,  useProgress } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { useThree } from "@react-three/fiber";
+import { Perf } from "r3f-perf";
 
 import CustomLoader from "./CustomLoader";
 
-import IntroAnimations from "./IntroAnimations";
-import Animations from "./Animations";
+
+
 
 
 
@@ -16,8 +17,7 @@ import Animations from "./Animations";
 
 function App() {
 
-  //Animations()
-  //IntroAnimations()
+
   CustomLoader();
  
 
@@ -25,7 +25,7 @@ function App() {
   return (
     <>
       <Canvas>
-        
+      
         <Model />
         <EffectComposer multisampling={4}>
           <Bloom
