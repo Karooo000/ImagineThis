@@ -17,7 +17,9 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Model(props) {
 
  const group = useRef();
- const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/DopoDraco.glb");
+ const { nodes, materials, animations } = useGLTF("https://dopocodee.netlify.app/DopoDraco.glb");
+ //http://localhost:5173/src/assets/DopoDraco.glb
+ //src/assets/DopoDraco.glb
  const { ref, mixer, names, actions, clips } = useAnimations(
    animations,
    group
@@ -1765,7 +1767,7 @@ return (
 }
 
 
-useGLTF.preload('http://localhost:5173/src/assets/DopoDraco.glb')
+useGLTF.preload('https://dopocodee.netlify.app/DopoDraco.glb')
 
 
 /*
