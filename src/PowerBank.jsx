@@ -6,6 +6,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import * as THREE from "three";
 import { useGSAP } from "@gsap/react";
 import { useControls } from "leva";
+import useWindowSize from "./WindowResize.jsx"
+import Camera from "./Cameras.jsx";
 
 
 
@@ -17,9 +19,9 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Model(props) {
 
  const group = useRef();
- const { nodes, materials, animations } = useGLTF("https://dopocodee.netlify.app/DopoDraco.glb");
+ const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/DopoDraco.glb");
  //http://localhost:5173/src/assets/DopoDraco.glb
- //src/assets/DopoDraco.glb
+ //https://dopocodee.netlify.app/DopoDraco.glb
  const { ref, mixer, names, actions, clips } = useAnimations(
    animations,
    group
@@ -27,36 +29,8 @@ export default function Model(props) {
  const { progress } = useProgress();
  const viewport = useThree((state) => state.viewport);
 
+ let isMobileSize = window.innerWidth < 1280
 
-
-  let isMobileSize = window.innerWidth < 1280
-  let isTabletSize = 550 < window.innerWidth && window.innerWidth < 1280
-
- //FOV based on screensize ( responsive )
-
-  const fovOriginal = 22.895
-
-  const scaleFactorDesktop = window.innerWidth / 1512
-  const scaleFactorTablet = window.innerWidth / 1300
-  const scaleFactorDesktopMob = window.innerWidth / 991
-
-  //desktop FOV
-  let scaleCof = 1 - scaleFactorDesktop
-  let fovInBetween = scaleCof * scaleCof * fovOriginal
-
-  let fovNewClamp = fovOriginal + fovInBetween
-  let fovNew = fovNewClamp > 25 ? 25 : fovNewClamp
-
-
-
-  // Mobile FOV
-  let scaleCofMob = 1 - scaleFactorTablet
-  let fovInBetweenMob = scaleCofMob * scaleCofMob * fovOriginal
-  let fovNewMob = fovOriginal + fovInBetweenMob
-
-  // Mobile FOV
-  let fovInBetweenTab = scaleCofMob * fovOriginal
-  let fovNewTab = fovOriginal + fovInBetweenTab
 
 
  // Scroll to top on reload
@@ -71,7 +45,40 @@ export default function Model(props) {
   }
 
 
-// Trying camera swap on breakpoint 
+  const [windowSize, setWindowSize] = useState({
+    width: undefined,
+    mobCameraTrue: undefined,
+    deskCameraTrue: undefined
+  });
+  
+
+  useEffect(() => {
+      console.log("useffect fired")
+      ScrollTrigger.refresh()
+    // Handler to call on window resize
+    function handleResize() {
+      // Set window width/height to state
+      setWindowSize({
+        width: window.innerWidth,
+        mobCameraTrue: isMobileSize ? true : false,
+        deskCameraTrue: isMobileSize ? false : true
+      });
+
+  
+    }
+    // Add event listener
+    window.addEventListener("resize", handleResize);
+    // Call handler right away so state gets updated with initial window size
+    handleResize();
+    // Remove event listener on cleanup
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isMobileSize]);
+/*
+  const windowUpdate = useWindowSize();
+  console.log(windowUpdate)
+  */
+
+
 
 /*
 
@@ -94,6 +101,7 @@ window.addEventListener("resize", () => {
   }
 })
   */
+ /*
 
 let mobCameraTrue
 let deskCamera
@@ -112,6 +120,7 @@ mql.onchange = (e) => {
     console.log(deskCamera, mobCameraTrue)
   }
 };
+*/
 /*
 //Which camera is active
 
@@ -1587,28 +1596,19 @@ grayCol.addEventListener("click", grayClick)
     }
 
 
-    //camera stuff
-    const mainCameraSettings = {
-      name: "Camera001",
-      makeDefault:!isMobileSize,
-      far: 1000,
-      near:0.1,
-      fov:fovNew,
-      position:[0.458, -0.146, -0.191],
-      rotation:[2.628, 1.009, -2.527],
-      scale: 0.181
-  }
 
-  const mobCameraSettings = {
-    name: "MobCamera",
-    makeDefault: isMobileSize,
-    far: 1000,
-    near: 0.1,
-    fov: isTabletSize ? fovNewTab : fovNewMob,
-    position: [0, 23.456, 0],
-    rotation: [-Math.PI / 2, 0, 0],
-    scale: 7.614
-  }
+
+    // Trying camera swap on breakpoint 
+
+    /*
+    const windowUpdate = useWindowSize();
+    console.log(windowUpdate)
+
+  
+
+  console.log(windowUpdate.mobCameraTrue)
+*/
+  /*
 
   const cameraDesk = useRef()
   const cameraMob = useRef()
@@ -1642,7 +1642,7 @@ grayCol.addEventListener("click", grayClick)
     
   })
 
-
+*/
 
 return (
   
@@ -1734,32 +1734,7 @@ return (
         material={materials['PB Gray']}
         position={[16.174, -11.861, -62.359]}
       />
-      <group name="Empty-move_camera" position={[0, 0, -0.02]} scale={0.99} rotation={[0,0,0]} ref={deskcameraEmpty}>
-        <PerspectiveCamera {...mainCameraSettings} ref={cameraDesk}/>
-        </group>
-        <group
-            ref={mobCameraEmpty}
-            name="Empty_-_move_mob_camera"
-            position={[0.111, 0.287, 0.038]}
-            rotation={[1.743, -0.265, -1.402]}
-            scale={0.027}>
-            <PerspectiveCamera {...mobCameraSettings} ref={cameraMob}/>
-        </group>
-        <group
-            name="Empty_-_Intro_Camera"
-            position={[-0.579, 1.825, 4.895]}
-            rotation={[0, -0.719, 0]}
-            scale={1.481}>
-            <PerspectiveCamera
-            name="Camera_-_Intro"
-            makeDefault={false}
-            far={1000}
-            near={0.1}
-            fov={fovNew}
-            position={[0.458, -0.146, -0.191]}
-            rotation={[2.628, 1.009, -2.527]}
-            />
-        </group>
+        <Camera mobIsTrue={windowSize.mobCameraTrue} deskIsTrue={windowSize.deskCameraTrue}/>
      
     </group>
   </group>
@@ -1767,7 +1742,7 @@ return (
 }
 
 
-useGLTF.preload('https://dopocodee.netlify.app/DopoDraco.glb')
+useGLTF.preload('http://localhost:5173/src/assets/DopoDraco.glb')
 
 
 /*
