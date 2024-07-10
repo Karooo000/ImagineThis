@@ -1,5 +1,6 @@
 
 import { PerspectiveCamera } from "@react-three/drei";
+import React, { useRef, useEffect, useLayoutEffect, useState, useMemo } from "react";
 
 export default function Camera(props) {
 
@@ -57,6 +58,9 @@ export default function Camera(props) {
   }
 
 console.log(props.deskIsTrue, props.mobIsTrue)
+useEffect(() => {
+  console.log("component rerendered");
+});
 
     
 return(

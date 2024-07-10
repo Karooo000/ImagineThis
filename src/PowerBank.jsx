@@ -1557,12 +1557,6 @@ let innitialNormalMob = isMobileSize ? true : false
               })
                  /* Extras timelines finishes */
 
-                
-
-               
-        
-  
-
 
              })
    
