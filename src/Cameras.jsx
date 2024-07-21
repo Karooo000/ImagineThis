@@ -58,6 +58,8 @@ export default function Camera(props) {
   }
 
 console.log(props.deskIsTrue, props.mobIsTrue)
+
+
 useEffect(() => {
   console.log("component rerendered");
 });

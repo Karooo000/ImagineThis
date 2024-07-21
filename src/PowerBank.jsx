@@ -19,7 +19,7 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Model(props) {
 
  const group = useRef();
- const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/DopoDraco.glb");
+ const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/Dopo.glb");
  //http://localhost:5173/src/assets/DopoDraco.glb
  //https://dopocodee.netlify.app/DopoDraco.glb
  const { ref, mixer, names, actions, clips } = useAnimations(
@@ -251,6 +251,8 @@ let innitialNormalMob = isMobileSize ? true : false
 
   }, []);
 
+  console.log(actions)
+
 
   useGSAP(() => {
 
@@ -259,8 +261,8 @@ let innitialNormalMob = isMobileSize ? true : false
       let whichAnimLenght = isMobileSize ? 150 : 120
       let whichDuration = isMobileSize ? 6 : 5
 
-      const clipMob = actions.MobCamera
-      const clipDesktop = actions.WholeAnim;
+      const clipMob = actions.CameraMobMainAnim
+      const clipDesktop = actions.CameraDeskMainAnim;
   
       let clip = isMobileSize ? clipMob : clipDesktop
   
@@ -1575,7 +1577,7 @@ const grayCol = document.querySelector(".col-gray")
 const [isBlueTrue, setIsBlueTrue] = useState(true);
 
 
-let pbMaterial = isBlueTrue ? 'PB material' : 'PB Gray'
+let pbMaterial = isBlueTrue ? 'PB material' : 'PB material Gray'
 
 
 blueCol.addEventListener("click", blueClick)
@@ -1638,6 +1640,7 @@ grayCol.addEventListener("click", grayClick)
 
 */
 
+/*
 return (
   
   <group ref={group} {...props} dispose={null}>
@@ -1734,9 +1737,141 @@ return (
   </group>
 )
 }
+*/
 
 
-useGLTF.preload('http://localhost:5173/src/assets/DopoDraco.glb')
+return (
+  <group ref={group} {...props} dispose={null}>
+    <group name="Scene">
+      <spotLight
+        name="k_soft_shadow_light"
+        intensity={0.1087028}
+        angle={0.323}
+        penumbra={0.15}
+        decay={2}
+        position={[1.133, -0.005, -0.665]}
+        rotation={[-3.06, 0.989, 1.641]}>
+        <group position={[0, 0, -1]} />
+      </spotLight>
+      <spotLight
+        name="Keylight"
+        intensity={1.38046}
+        angle={0.374}
+        penumbra={0.15}
+        decay={2}
+        position={[1.105, 0.285, -0.311]}
+        rotation={[-2.053, 1.188, 0.67]}>
+        <group position={[0, 0, -1]} />
+      </spotLight>
+      <spotLight
+        name="light-frame5"
+        intensity={0.652217}
+        angle={0.255}
+        penumbra={0.335}
+        decay={2}
+        position={[-1.02, 0.187, -0.989]}
+        rotation={[-2.854, -0.761, -2.481]}
+        scale={0.714}>
+        <group position={[0, 0, -1]} />
+      </spotLight>
+      <directionalLight
+        name="Sun"
+        intensity={0.8879}
+        decay={2}
+        position={[-0.052, 0.456, -0.358]}
+        rotation={[-2.208, -0.299, -0.049]}>
+        <group position={[0, 0, -1]} />
+      </directionalLight>
+      <spotLight
+        name="Rim_light"
+        intensity={0.217406}
+        angle={Math.PI / 8}
+        penumbra={0.15}
+        decay={2}
+        position={[0, 0.263, 1.554]}
+        rotation={[-0.207, 0.005, 0.001]}>
+        <group position={[0, 0, -1]} />
+      </spotLight>
+      <group name="Empty-Cover" position={[0, -0.49, -0.011]} scale={0.037}>
+        <mesh
+          name="Cover"
+          castShadow
+          receiveShadow
+          geometry={nodes.Cover.geometry}
+          material={materials['Cover material']}
+          position={[0.002, -0.172, 0.288]}
+          scale={27.135}
+        />
+      </group>
+      <group name="Empty-Powerbank" position={[0, 0.006, -0.011]} scale={0.037}>
+        <mesh
+          name="Powerbank"
+          castShadow
+          receiveShadow
+          geometry={nodes.Powerbank.geometry}
+          material={materials['PB material']}
+          position={[0.002, -0.172, 0.304]}
+          rotation={[Math.PI, 0, Math.PI]}
+          scale={27.135}>
+          <mesh
+            name="numbers_as_mesh"
+            castShadow
+            receiveShadow
+            geometry={nodes.numbers_as_mesh.geometry}
+            material={materials.numbers_glow_material}
+            position={[-0.013, 0.055, 0.02]}
+            rotation={[1.612, -0.077, 1.473]}
+            scale={0.915}
+          />
+        </mesh>
+      </group>
+      <group
+        name="Empty-CameraDesk"
+        position={[0.033, 0.009, -0.031]}
+        rotation={[1.358, 0.031, 2.627]}
+        scale={0.037}>
+        <PerspectiveCamera
+          name="Camera-Desktop"
+          makeDefault={true}
+          far={1000}
+          near={0.1}
+          fov={22.895}
+          position={[0.002, 14.676, 0.288]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          scale={5.896}
+        />
+      </group>
+      <group
+        name="Empty-CameraMob"
+        position={[0.021, 0.37, -0.171]}
+        rotation={[1.358, 0.279, 1.911]}
+        scale={0.058}>
+        <PerspectiveCamera
+          name="Camera-Mob"
+          makeDefault={false}
+          far={1000}
+          near={0.1}
+          fov={22.895}
+          position={[0.002, 14.676, 0.288]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          scale={5.896}
+        />
+      </group>
+      <mesh
+        name="Plane_for_gray"
+        castShadow
+        receiveShadow
+        geometry={nodes.Plane_for_gray.geometry}
+        material={materials['PB material Gray']}
+        position={[-1.654, 0.081, -0.21]}
+        scale={0.063}
+      />
+    </group>
+  </group>
+)
+}
+
+useGLTF.preload('http://localhost:5173/src/assets/Dopo.glb')
 
 
 /*
