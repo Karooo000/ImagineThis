@@ -6,7 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import * as THREE from "three";
 import { useGSAP } from "@gsap/react";
 import { useControls } from "leva";
-import useWindowSize from "./WindowResize.jsx"
+
 import Camera from "./Cameras.jsx";
 
 
@@ -19,7 +19,7 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Model(props) {
 
  const group = useRef();
- const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/Dopo.glb");
+ const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/Dopo7.glb");
  //http://localhost:5173/src/assets/DopoDraco.glb
  //https://dopocodee.netlify.app/DopoDraco.glb
  const { ref, mixer, names, actions, clips } = useAnimations(
@@ -30,6 +30,32 @@ export default function Model(props) {
  const viewport = useThree((state) => state.viewport);
 
  let isMobileSize = window.innerWidth < 1280
+ let isTabletSize = 550 < window.innerWidth && window.innerWidth < 1280
+
+ //FOV based on screensize ( responsive )
+
+  const fovOriginal = 22.895
+
+  const scaleFactorDesktop = window.innerWidth / 1512
+  const scaleFactorTablet = window.innerWidth / 1300
+  const scaleFactorDesktopMob = window.innerWidth / 991
+
+  //desktop FOV
+  let scaleCof = 1 - scaleFactorDesktop
+  let fovInBetween = scaleCof * scaleCof * fovOriginal
+
+  let fovNewClamp = fovOriginal + fovInBetween
+  let fovNew = fovNewClamp > 25 ? 25 : fovNewClamp
+
+
+  // Mobile FOV
+  let scaleCofMob = 1 - scaleFactorTablet
+  let fovInBetweenMob = scaleCofMob * scaleCofMob * fovOriginal
+  let fovNewMob = fovOriginal + fovInBetweenMob
+
+  // Tablet FOV
+  let fovInBetweenTab = scaleCofMob * fovOriginal
+  let fovNewTab = fovOriginal + fovInBetweenTab
 
 
 
@@ -73,10 +99,7 @@ export default function Model(props) {
     // Remove event listener on cleanup
     return () => window.removeEventListener("resize", handleResize);
   }, [isMobileSize]);
-/*
-  const windowUpdate = useWindowSize();
-  console.log(windowUpdate)
-  */
+
 
 
 
@@ -251,7 +274,7 @@ let innitialNormalMob = isMobileSize ? true : false
 
   }, []);
 
-  console.log(actions)
+  console.log(nodes)
 
 
   useGSAP(() => {
@@ -1755,7 +1778,7 @@ return (
       </spotLight>
       <spotLight
         name="Keylight"
-        intensity={1.38046}
+        intensity={0.038046}
         angle={0.374}
         penumbra={0.15}
         decay={2}
@@ -1775,16 +1798,16 @@ return (
         <group position={[0, 0, -1]} />
       </spotLight>
       <directionalLight
-        name="Sun"
-        intensity={0.8879}
-        decay={2}
-        position={[-0.052, 0.456, -0.358]}
-        rotation={[-2.208, -0.299, -0.049]}>
-        <group position={[0, 0, -1]} />
-      </directionalLight>
+          name="Sun"
+          intensity={0.8879}
+          decay={2}
+          position={[-0.052, 0.456, -0.358]}
+          rotation={[-2.208, -0.299, -0.049]}>
+          <group position={[0, 0, -1]} />
+        </directionalLight>
       <spotLight
         name="Rim_light"
-        intensity={0.217406}
+        intensity={0.0217406}
         angle={Math.PI / 8}
         penumbra={0.15}
         decay={2}
@@ -1803,28 +1826,29 @@ return (
           scale={27.135}
         />
       </group>
+      
       <group name="Empty-Powerbank" position={[0, 0.006, -0.011]} scale={0.037}>
-        <mesh
-          name="Powerbank"
-          castShadow
-          receiveShadow
-          geometry={nodes.Powerbank.geometry}
-          material={materials['PB material']}
-          position={[0.002, -0.172, 0.304]}
-          rotation={[Math.PI, 0, Math.PI]}
-          scale={27.135}>
           <mesh
             name="numbers_as_mesh"
             castShadow
             receiveShadow
             geometry={nodes.numbers_as_mesh.geometry}
             material={materials.numbers_glow_material}
-            position={[-0.013, 0.055, 0.02]}
-            rotation={[1.612, -0.077, 1.473]}
-            scale={0.915}
+            position={[0.372, 1.601, 0.027]}
+            rotation={[1.529, 0.077, -1.668]}
+            scale={24.817}
           />
-        </mesh>
-      </group>
+          <mesh
+            name="Powerbank"
+            castShadow
+            receiveShadow
+            geometry={nodes.Powerbank.geometry}
+            material={materials['PB material']}
+            position={[0.002, -0.172, 0.304]}
+            rotation={[Math.PI, 0, Math.PI]}
+            scale={27.135}
+          />
+        </group>
       <group
         name="Empty-CameraDesk"
         position={[0.033, 0.009, -0.031]}
@@ -1835,7 +1859,7 @@ return (
           makeDefault={true}
           far={1000}
           near={0.1}
-          fov={22.895}
+          fov={fovNew}
           position={[0.002, 14.676, 0.288]}
           rotation={[-Math.PI / 2, 0, 0]}
           scale={5.896}
@@ -1851,27 +1875,19 @@ return (
           makeDefault={false}
           far={1000}
           near={0.1}
-          fov={22.895}
+          fov={isTabletSize ? fovNewTab : fovNewMob}
           position={[0.002, 14.676, 0.288]}
           rotation={[-Math.PI / 2, 0, 0]}
           scale={5.896}
         />
       </group>
-      <mesh
-        name="Plane_for_gray"
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane_for_gray.geometry}
-        material={materials['PB material Gray']}
-        position={[-1.654, 0.081, -0.21]}
-        scale={0.063}
-      />
+      
     </group>
   </group>
 )
 }
 
-useGLTF.preload('http://localhost:5173/src/assets/Dopo.glb')
+useGLTF.preload('http://localhost:5173/src/assets/Dopo7.glb')
 
 
 /*
