@@ -1,13 +1,12 @@
-import React, { useRef, useEffect, useLayoutEffect, useState, useMemo } from "react";
-import { useGLTF, PerspectiveCamera, useAnimations, useProgress, useTexture, useHelper, useFBO } from "@react-three/drei";
+import React, { useRef, useEffect, useLayoutEffect, useState,  } from "react";
+import { useGLTF, PerspectiveCamera, useAnimations, useProgress } from "@react-three/drei";
 import gsap from "gsap";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import * as THREE from "three";
 import { useGSAP } from "@gsap/react";
-import { useControls } from "leva";
 
-import Camera from "./Cameras.jsx";
+
+
 
 
 
@@ -19,7 +18,7 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Model(props) {
 
  const group = useRef();
- const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/Dopo7.glb");
+ const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/Dopo23.glb");
  //http://localhost:5173/src/assets/DopoDraco.glb
  //https://dopocodee.netlify.app/DopoDraco.glb
  const { ref, mixer, names, actions, clips } = useAnimations(
@@ -77,9 +76,10 @@ export default function Model(props) {
     deskCameraTrue: undefined
   });
   
+  //console.log(windowSize.mobCameraTrue)
 
   useEffect(() => {
-      console.log("useffect fired")
+      //console.log("useffect fired")
       ScrollTrigger.refresh()
     // Handler to call on window resize
     function handleResize() {
@@ -274,7 +274,7 @@ let innitialNormalMob = isMobileSize ? true : false
 
   }, []);
 
-  console.log(nodes)
+
 
 
   useGSAP(() => {
@@ -284,10 +284,13 @@ let innitialNormalMob = isMobileSize ? true : false
       let whichAnimLenght = isMobileSize ? 150 : 120
       let whichDuration = isMobileSize ? 6 : 5
 
+      
+
       const clipMob = actions.CameraMobMainAnim
       const clipDesktop = actions.CameraDeskMainAnim;
   
       let clip = isMobileSize ? clipMob : clipDesktop
+      //console.log(clipMob, clipDesktop)
   
       const animationDuration = clip._clip.duration;
       const frame = animationDuration / whichAnimLenght;
@@ -398,7 +401,7 @@ let innitialNormalMob = isMobileSize ? true : false
            );
  
         }
-      }, "1500")
+      }, "1600")
 
 /* Intro Animation FINISHES */
 
@@ -1663,104 +1666,39 @@ grayCol.addEventListener("click", grayClick)
 
 */
 
-/*
-return (
+let cameraPosDesk = [0.033, 0.009, -0.031]
+let cameraPosMob = [0.019, 0.018, -0.025]
+
+let cameraRotDesk = [1.358, 0.031, 2.627]
+let cameraRotMob = [1.231, 0.08, 2.593]
+
+let cameraScaleDesk = 0.037
+let cameraScaleMob = 0.04
+
+
+const [cameraPos, setCameraPos] = useState(isMobileSize ? cameraPosMob : cameraPosDesk)
+const [cameraRot, setCameraRot] = useState(isMobileSize ? cameraPosMob : cameraPosDesk)
+const [cameraScale, setCameraScale] = useState(isMobileSize ? cameraScaleMob : cameraScaleMob)
+
+
+
+useEffect(() => {
+  if(isMobileSize){
+    setCameraPos(cameraPosMob)
+    setCameraRot(cameraRotMob)
+    setCameraScale(cameraScaleMob)
+  }else{
+    setCameraPos(cameraPosDesk)
+    setCameraRot(cameraRotDesk)
+    setCameraScale(cameraScaleDesk)
+  }
+    
+  //ScrollTrigger.refresh()
   
-  <group ref={group} {...props} dispose={null}>
-    <group name="Scene">
-      <group
-        name="Empty_-_move_cover"
-        position={[0.002, -0.82, -0.002]}
-        rotation={[0.009, -0.078, -0.001]}
-        scale={0.032}>
-        <mesh
-          name="stitch"
-          castShadow
-          receiveShadow
-          geometry={nodes.stitch.geometry}
-          material={materials['Cover material']}
-          position={[0.003, 0.286, 0.003]}
-          scale={31.091}
-        />
-      </group>
-      <group name="Empty_-_move_battery" rotation={[0.07, -0.099, 0.071]}>
-        <mesh
-          name="Battery_bank"
-          castShadow
-          receiveShadow
-          geometry={nodes.Battery_bank.geometry}
-          material={materials[pbMaterial]}
-          position={[0, -0.001, 0]}
-          scale={0.993}
-        />
-        <spotLight
-          name="k_soft_shadow_light"
-          intensity={0.62866}
-          angle={0.323}
-          penumbra={0.15}
-          decay={2}
-          position={[0.565, -0.083, -0.489]}
-          rotation={[3.09, 0.89, 1.722]}>
-          <group position={[0, 0, -1]} />
-        </spotLight>
-        <spotLight
-          name="Keylight"
-          intensity={0.470288}
-          angle={0.277}
-          penumbra={0.15}
-          decay={2}
-          position={[0.638, 0.27, 0.07]}
-          rotation={[-1.431, 1.155, 0.056]}>
-          <group position={[0, 0, -1]} />
-        </spotLight>
-        <mesh
-          name="numbers_as_mesh"
-          castShadow
-          receiveShadow
-          geometry={nodes.numbers_as_mesh.geometry}
-          material={materials['numbers glow material']}
-          position={[0.0105, 0.061, 0.022]}
-          rotation={[0, 0, -Math.PI / 2]}
-          scale={0.009}
-        />
-      </group>
-      <spotLight
-        name="light-frame5"
-        intensity={0.4446}
-        angle={0.255}
-        penumbra={0.335}
-        decay={2}
-        position={[0.881, 0.15, 1.223]}
-        rotation={[-0.12, 0.628, -1.517]}
-        scale={0.714}>
-        <group position={[0, 0, -1]} />
-      </spotLight>
-      <spotLight
-        name="Spot_1"
-        intensity={0.6896}
-        angle={Math.PI / 8}
-        penumbra={0.15}
-        decay={2}
-        position={[0, 3.229, 0]}
-        rotation={[-Math.PI / 2, 0, 0]}>
-        <group position={[0, 0, -1]} />
-      </spotLight>
-      
-      <mesh
-        name="Plane_for_gray"
-        castShadow
-        receiveShadow
-        geometry={nodes.Plane_for_gray.geometry}
-        material={materials['PB Gray']}
-        position={[16.174, -11.861, -62.359]}
-      />
-        <Camera mobIsTrue={windowSize.mobCameraTrue} deskIsTrue={windowSize.deskCameraTrue}/>
-     
-    </group>
-  </group>
-)
-}
-*/
+}, [isMobileSize])
+
+
+
 
 
 return (
@@ -1768,7 +1706,7 @@ return (
     <group name="Scene">
       <spotLight
         name="k_soft_shadow_light"
-        intensity={0.1087028}
+        intensity={0.3087028}
         angle={0.323}
         penumbra={0.15}
         decay={2}
@@ -1778,7 +1716,7 @@ return (
       </spotLight>
       <spotLight
         name="Keylight"
-        intensity={0.038046}
+        intensity={0.088046}
         angle={0.374}
         penumbra={0.15}
         decay={2}
@@ -1788,7 +1726,7 @@ return (
       </spotLight>
       <spotLight
         name="light-frame5"
-        intensity={0.652217}
+        intensity={0.152217}
         angle={0.255}
         penumbra={0.335}
         decay={2}
@@ -1834,7 +1772,7 @@ return (
             receiveShadow
             geometry={nodes.numbers_as_mesh.geometry}
             material={materials.numbers_glow_material}
-            position={[0.372, 1.601, 0.027]}
+            position={[0.372, 1.601, 0.017]}
             rotation={[1.529, 0.077, -1.668]}
             scale={24.817}
           />
@@ -1843,51 +1781,63 @@ return (
             castShadow
             receiveShadow
             geometry={nodes.Powerbank.geometry}
-            material={materials['PB material']}
+            material={materials[pbMaterial]}
             position={[0.002, -0.172, 0.304]}
             rotation={[Math.PI, 0, Math.PI]}
             scale={27.135}
           />
         </group>
-      <group
-        name="Empty-CameraDesk"
-        position={[0.033, 0.009, -0.031]}
-        rotation={[1.358, 0.031, 2.627]}
-        scale={0.037}>
-        <PerspectiveCamera
-          name="Camera-Desktop"
-          makeDefault={true}
-          far={1000}
-          near={0.1}
-          fov={fovNew}
-          position={[0.002, 14.676, 0.288]}
+    
+        <group
+          name="Empty-CameraDesk"
+          position={cameraPos}
+          rotation={cameraRot}
+          scale={cameraScale}>
+          <PerspectiveCamera
+            name="Camera-Desktop"
+            makeDefault={windowSize.deskCameraTrue}
+            far={1000}
+            near={0.1}
+            fov={22.895}
+            position={[0.002, 14.676, 0.288]}
+            rotation={[-Math.PI / 2, 0, 0]}
+            scale={5.896}
+          />
+        </group>
+        <group
+          name="Empty-CameraMob"
+          position={cameraPos}
+          rotation={cameraRot}
+          scale={cameraScale}>
+          <PerspectiveCamera
+            name="Camera-Mob"
+            makeDefault={windowSize.mobCameraTrue}
+            far={1000}
+            near={0.1}
+            fov={22.895}
+            position={[0.002, 14.676, 0.288]}
+            rotation={[-Math.PI / 2, 0, 0]}
+            scale={5.896}
+          />
+        </group>
+     
+      <group>
+      
+      <pointLight
+          name="Bottom_light"
+          intensity={0.1435}
+          decay={2}
+          position={[-0.038, -0.08, -0.211]}
           rotation={[-Math.PI / 2, 0, 0]}
-          scale={5.896}
         />
-      </group>
-      <group
-        name="Empty-CameraMob"
-        position={[0.021, 0.37, -0.171]}
-        rotation={[1.358, 0.279, 1.911]}
-        scale={0.058}>
-        <PerspectiveCamera
-          name="Camera-Mob"
-          makeDefault={false}
-          far={1000}
-          near={0.1}
-          fov={isTabletSize ? fovNewTab : fovNewMob}
-          position={[0.002, 14.676, 0.288]}
-          rotation={[-Math.PI / 2, 0, 0]}
-          scale={5.896}
-        />
-      </group>
+        </group>
       
     </group>
   </group>
 )
 }
 
-useGLTF.preload('http://localhost:5173/src/assets/Dopo7.glb')
+useGLTF.preload('http://localhost:5173/src/assets/Dopo23.glb')
 
 
 /*
@@ -1899,5 +1849,56 @@ Spot_1 - 0.6896
 normalCameraTrue
 introCameraTrue
 fovNew
+
+   <group
+        name="Empty-CameraMob"
+        position={[0.021, 0.37, -0.171]}
+        rotation={[1.358, 0.279, 1.911]}
+        scale={0.058}>
+        <PerspectiveCamera
+          name="Camera-Mob"
+          makeDefault={true}
+          far={1000}
+          near={0.1}
+          fov={isTabletSize ? fovNewTab : fovNewMob}
+          position={[0.002, 14.676, 0.288]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          scale={5.896}
+        />
+      </group>
+
+        <group
+        name="Empty-CameraDesk"
+        position={[0.033, 0.009, -0.031]}
+        rotation={[1.358, 0.031, 2.627]}
+        scale={0.037}>
+        <PerspectiveCamera
+          name="Camera-Desktop"
+          makeDefault={false}
+          far={1000}
+          near={0.1}
+          fov={fovNew}
+          position={[0.002, 14.676, 0.288]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          scale={5.896}
+        />
+      </group>
+
+
+       <group
+          name="Empty-CameraDesk"
+          position={cameraPos}
+          rotation={cameraRot}
+          scale={cameraScale}>
+          <PerspectiveCamera
+            name="Camera-Desktop"
+            makeDefault={true}
+            far={1000}
+            near={0.1}
+            fov={22.895}
+            position={[0.002, 14.676, 0.288]}
+            rotation={[-Math.PI / 2, 0, 0]}
+            scale={5.896}
+          />
 */
 
