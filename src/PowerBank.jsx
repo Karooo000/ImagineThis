@@ -18,7 +18,7 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Model(props) {
 
  const group = useRef();
- const { nodes, materials, animations } = useGLTF("https://dopocodee.netlify.app/Dopo23.glb");
+ const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/Dopo5.glb");
  //http://localhost:5173/src/assets/DopoDraco.glb
  //https://dopocodee.netlify.app/DopoDraco.glb
  const { ref, mixer, names, actions, clips } = useAnimations(
@@ -69,28 +69,21 @@ export default function Model(props) {
     document.querySelector("html").style.position = "relative"
   }
 
-
   const [windowSize, setWindowSize] = useState({
     width: undefined,
-    mobCameraTrue: undefined,
-    deskCameraTrue: undefined
+    mobCameraTrue: window.innerWidth < 1280 ? true : false,
+    deskCameraTrue: window.innerWidth < 1280 ? false : true,
   });
-  
-  //console.log(windowSize.mobCameraTrue)
 
   useEffect(() => {
-      //console.log("useffect fired")
-      ScrollTrigger.refresh()
     // Handler to call on window resize
     function handleResize() {
       // Set window width/height to state
       setWindowSize({
         width: window.innerWidth,
-        mobCameraTrue: isMobileSize ? true : false,
-        deskCameraTrue: isMobileSize ? false : true
+        mobCameraTrue: window.innerWidth < 1280 ? true : false,
+        deskCameraTrue: window.innerWidth < 1280 ? false : true,
       });
-
-  
     }
     // Add event listener
     window.addEventListener("resize", handleResize);
@@ -100,8 +93,18 @@ export default function Model(props) {
     return () => window.removeEventListener("resize", handleResize);
   }, [isMobileSize]);
 
+  /*
+  useEffect(() => {
+    //setPbPosition([-0.039, 0.097, -0.069]);
+    //setCoverPosition([0, -0.315, -0.011]);
 
+    //setDeskCameraEmptyPos([0.033, 0.009, -0.031]);
+    //setMobCameraEmptyPos([[0.002, 0.103, -0.049]]);
 
+    ScrollTrigger.refresh();
+    gsap.matchMediaRefresh();
+  }, [windowSize]);
+*/
 
 /*
 
@@ -124,136 +127,10 @@ window.addEventListener("resize", () => {
   }
 })
   */
- /*
-
-let mobCameraTrue
-let deskCamera
-
-const mql = window.matchMedia("(max-width: 1279px)");
-
-mql.onchange = (e) => {
-  ScrollTrigger.refresh()
-  if (e.matches) {
-    mobCameraTrue = true
-    deskCamera = false
-    console.log(deskCamera, mobCameraTrue)
-  } else {
-    mobCameraTrue = false
-    deskCamera = true
-    console.log(deskCamera, mobCameraTrue)
-  }
-};
-*/
-/*
-//Which camera is active
-
-let innitialNormalDesk = isMobileSize ? false : true
-let innitialNormalMob = isMobileSize ? true : false
-
-  
-  const [introCameraTrue, setIntroCameraTrue] = useState(innitialNormalDesk);
-  const [normalCameraTrue, setNormalCameraTrue] = useState(false);
-
-  //const [mobIntroCameraTrue, setMobIntroCameraTrue] = useState(innitialNormalMob);
-  const [mobNormalCameraTrue, setMobNormalCameraTrue] = useState(innitialNormalMob);
+ 
 
 
 
-//console.log(actions)
-
-  useLayoutEffect(() => {
-      if(progress > 99){
-          
-       
-
-          const introClip = actions.IntroAction
-          const introClipMob = actions.IntroMobb
-
-          let whichClip = isMobileSize ? introClipMob : introClip
-        
-            
-          introClip.clampWhenFinished = true
-          introClip.loop = false
-          introClip.repetitions = 1
-        
-          introClipMob.clampWhenFinished = true
-          introClipMob.loop = false
-          introClipMob.repetitions = 1
-          
-          
-          setTimeout(() => {
-            console.log("play should run")
-            whichClip.play()
-          }, "2200")
-
-          
-          
-            setTimeout(() => {
-              console.log("reser should have happened")
-              whichClip.fadeOut(0.1)
-              document.querySelector("html").style.position = "relative"
-            }, "3100")
-
-     
-
-        setTimeout(() => {
-            console.log("camera swap")
-            if(!isMobileSize){
-              setIntroCameraTrue(false)
-             setNormalCameraTrue(true)
-             setMobNormalCameraTrue(false)
-
-            }else{
-              //setMobIntroCameraTrue(false)
-              setMobNormalCameraTrue(true)
-              setIntroCameraTrue(false)
-              setNormalCameraTrue(false)
-            }
-
-
-            
-            document.querySelector("html").style.position = "relative"
-        }, "4200")
-    }
-    
-  }, [])
-  
-*/
-
-  /*
-
-  useLayoutEffect(() => {
-    if(mobSwitcher !== innitialIsMob){
-      setInnitialIsMob(prev => !prev)
-  
-      if(!isMobileSize){
-        if(!introCameraTrue){
-          setNormalCameraTrue(true)
-          setMobNormalCameraTrue(false)
-          ScrollTrigger.refresh()
-          //deskNormalCamera.updateProjectionMatrix()
-          //deskNormalCamera.matrixWorldNeedsUpdate = true
-          //PerspectiveCamera.render.makeDefault = true
-        }
-      }else{
-        if(!mobIntroCameraTrue){
-        setNormalCameraTrue(false)
-          setMobNormalCameraTrue(true)
-          ScrollTrigger.refresh()
-          //mobCameraa.updateProjectionMatrix()
-          //mobCameraa.matrixWorldNeedsUpdate = true
-          //PerspectiveCamera.render.makeDefault = true
-      }
-  
-      console.log("breakpoint has been swapped")
-    }}
-
-  }, [mobSwitcher])
-  */
-
-
-
-  
 
   useLayoutEffect(() => {
     // so you can click on the btns
@@ -281,65 +158,111 @@ let innitialNormalMob = isMobileSize ? true : false
 
     /* Scroll animation STARTS */
 
-      let whichAnimLenght = isMobileSize ? 150 : 120
-      let whichDuration = isMobileSize ? 6 : 5
+    let whichAnimLenghtMob = 150;
+    let whichAnimLenghtDesk = 120;
 
-      
+    let whichDurationMob = 6;
+    let whichDurationDesk = 5;
 
-      const clipMob = actions.CameraMobMainAnim
-      const clipDesktop = actions.CameraDeskMainAnim;
-  
-      let clip = isMobileSize ? clipMob : clipDesktop
-      //console.log(clipMob, clipDesktop)
-  
-      const animationDuration = clip._clip.duration;
-      const frame = animationDuration / whichAnimLenght;
-      // if it runs until the last frame, it will restart from frame 1, didn't found a solution for this yet.
-      const max = animationDuration - frame;
-  
-  
-      clip.play();
-  
-      const mixer = clip.getMixer();
-      const proxy = {
+    const clipMob = actions.MobAnim;
+    const clipDesktop = actions.DeskAction;
+
+    const animationDurationMob = clipMob._clip.duration;
+    const animationDurationDesk = clipDesktop._clip.duration;
+
+    const frameMob = animationDurationMob / whichAnimLenghtMob;
+    const frameDesk = animationDurationDesk / whichAnimLenghtDesk;
+    // if it runs until the last frame, it will restart from frame 1, didn't found a solution for this yet.
+    const maxMob = animationDurationMob - frameMob;
+    const maxDesk = animationDurationDesk - frameDesk;
+
+    let mmm = gsap.matchMedia();
+
+    mmm.add("(min-width: 1280px)", () => {
+      clipDesktop.play();
+
+      const mixerDesk = clipDesktop.getMixer();
+      const proxyDesk = {
         get time() {
-          return mixer.time;
+          return mixerDesk.time;
         },
         set time(value) {
-          clip.paused = false;
-          mixer.setTime(value);
-          clip.paused = true;
+          clipDesktop.paused = false;
+          mixerDesk.setTime(value);
+          clipDesktop.paused = true;
         },
       };
-  
+
       // for some reason must be set to 0 otherwise the clip will not be properly paused.
-      proxy.time = 0;
-  
+      proxyDesk.time = 0;
 
-    let tl = gsap.timeline({
-      ease: "none",
-      immediateRender: false,
-      scrollTrigger: {
-        trigger: "#section-2",
-        start: "top bottom",
-        end: "bottom bottom",
-        endTrigger: "#section-6",
-        scrub: 1,
-        toggleActions: "restart restart reverse reverse",
-      },
-    });
-    tl.set(proxy, { time: 0 });
-  
-    tl.to(
-      proxy,
-  
-      {
-        time: max,
+      let tl = gsap.timeline({
         ease: "none",
-        duration: whichDuration,
-      }
-    );
+        immediateRender: false,
+        scrollTrigger: {
+          trigger: "#section-2",
+          start: "top bottom",
+          end: "bottom bottom",
+          endTrigger: "#section-6",
+          scrub: 1,
+          toggleActions: "restart restart reverse reverse",
+        },
+      });
+      tl.set(proxyDesk, { time: 0 });
 
+      tl.to(
+        proxyDesk,
+
+        {
+          time: maxDesk,
+          ease: "none",
+          duration: whichDurationDesk,
+        }
+      );
+    });
+
+    mmm.add("(max-width: 1279px)", () => {
+      clipMob.play();
+
+      const mixerMob = clipMob.getMixer();
+      const proxyMob = {
+        get time() {
+          return mixerMob.time;
+        },
+        set time(value) {
+          clipMob.paused = false;
+          mixerMob.setTime(value);
+          clipMob.paused = true;
+        },
+      };
+
+      // for some reason must be set to 0 otherwise the clip will not be properly paused.
+      proxyMob.time = 0;
+
+      let tl = gsap.timeline({
+        ease: "none",
+        //immediateRender: false,
+        scrollTrigger: {
+          trigger: "#section-2",
+          start: "top bottom",
+          end: "bottom bottom",
+          endTrigger: "#section-6",
+          scrub: 1,
+          toggleActions: "restart restart reverse reverse",
+        },
+      });
+      tl.set(proxyMob, { time: 0 });
+
+      tl.to(
+        proxyMob,
+
+        {
+          time: maxMob,
+          ease: "none",
+          duration: whichDurationMob,
+        }
+      );
+    });
     /* Scroll animation FINISHES */
 
     /* Intro Animation STARTS */
@@ -1620,224 +1543,138 @@ grayCol.addEventListener("click", grayClick)
 
 
 
-    // Trying camera swap on breakpoint 
-
-    /*
-    const windowUpdate = useWindowSize();
-    console.log(windowUpdate)
-
-  
-
-  console.log(windowUpdate.mobCameraTrue)
-*/
-  /*
-
-  const cameraDesk = useRef()
-  const cameraMob = useRef()
-  const mobCameraEmpty = useRef()
-  const deskcameraEmpty = useRef()
-
-  useHelper(cameraDesk, THREE.CameraHelper, 'hotpink')
-  useHelper(cameraMob, THREE.CameraHelper, 'green')
-
-  const mobRenderTarget = useFBO()
-  const deskRenderTarget = useFBO()
-
-  const vector_zero = new THREE.Vector3(0,0,0)
-
-  useFrame(( {gl, scene, camera}) => {
-    //mobCameraEmpty.current.lookAt(vector_zero)
-    //cameraDesk.current.lookAt(0, 0, -0.02)
-    //cameraDesk.updateProjectionMatrix()
-
-    if(isMobileSize){
-      gl.setRenderTarget(mobRenderTarget)
-      gl.render(scene, cameraMob.current)
-      console.log("mob render target")
-    //gl.setRenderTarget(null)
-    }else{
-      gl.setRenderTarget(deskRenderTarget)
-      gl.render(scene, cameraDesk.current)
-      console.log("desk render target")
-    }
-    //gl.setRenderTarget(null)
-    
-  })
-
-*/
-
-let cameraPosDesk = [0.033, 0.009, -0.031]
-let cameraPosMob = [0.019, 0.018, -0.025]
-
-let cameraRotDesk = [1.358, 0.031, 2.627]
-let cameraRotMob = [1.231, 0.08, 2.593]
-
-let cameraScaleDesk = 0.037
-let cameraScaleMob = 0.04
-
-
-const [cameraPos, setCameraPos] = useState(isMobileSize ? cameraPosMob : cameraPosDesk)
-const [cameraRot, setCameraRot] = useState(isMobileSize ? cameraPosMob : cameraPosDesk)
-const [cameraScale, setCameraScale] = useState(isMobileSize ? cameraScaleMob : cameraScaleMob)
-
-
-
-useEffect(() => {
-  if(isMobileSize){
-    setCameraPos(cameraPosMob)
-    setCameraRot(cameraRotMob)
-    setCameraScale(cameraScaleMob)
-  }else{
-    setCameraPos(cameraPosDesk)
-    setCameraRot(cameraRotDesk)
-    setCameraScale(cameraScaleDesk)
-  }
-    
-  //ScrollTrigger.refresh()
-  
-}, [isMobileSize])
-
-
 
 
 
 return (
   <group ref={group} {...props} dispose={null}>
-    <group name="Scene">
+    <group name='Scene'>
       <spotLight
-        name="k_soft_shadow_light"
+        name='k_soft_shadow_light'
         intensity={0.3087028}
         angle={0.323}
         penumbra={0.15}
         decay={2}
         position={[1.133, -0.005, -0.665]}
-        rotation={[-3.06, 0.989, 1.641]}>
+        rotation={[-3.06, 0.989, 1.641]}
+      >
         <group position={[0, 0, -1]} />
       </spotLight>
       <spotLight
-        name="Keylight"
+        name='Keylight'
         intensity={0.088046}
         angle={0.374}
         penumbra={0.15}
         decay={2}
         position={[1.105, 0.285, -0.311]}
-        rotation={[-2.053, 1.188, 0.67]}>
+        rotation={[-2.053, 1.188, 0.67]}
+      >
         <group position={[0, 0, -1]} />
       </spotLight>
       <spotLight
-        name="light-frame5"
+        name='light-frame5'
         intensity={0.152217}
         angle={0.255}
         penumbra={0.335}
         decay={2}
         position={[-1.02, 0.187, -0.989]}
         rotation={[-2.854, -0.761, -2.481]}
-        scale={0.714}>
+        scale={0.714}
+      >
         <group position={[0, 0, -1]} />
       </spotLight>
-      <directionalLight
-          name="Sun"
-          intensity={0.8879}
-          decay={2}
-          position={[-0.052, 0.456, -0.358]}
-          rotation={[-2.208, -0.299, -0.049]}>
-          <group position={[0, 0, -1]} />
-        </directionalLight>
+      <directionalLight name='Sun' intensity={0.8879} decay={2} position={[-0.052, 0.456, -0.358]} rotation={[-2.208, -0.299, -0.049]}>
+        <group position={[0, 0, -1]} />
+      </directionalLight>
       <spotLight
-        name="Rim_light"
+        name='Rim_light'
         intensity={0.0217406}
         angle={Math.PI / 8}
         penumbra={0.15}
         decay={2}
         position={[0, 0.263, 1.554]}
-        rotation={[-0.207, 0.005, 0.001]}>
+        rotation={[-0.207, 0.005, 0.001]}
+      >
         <group position={[0, 0, -1]} />
       </spotLight>
-      <group name="Empty-Cover" position={[0, -0.49, -0.011]} scale={0.037}>
+      <group name='Empty-Cover' position={[0, -0.315, -0.011]} scale={0.037}>
         <mesh
-          name="Cover"
+          name='Cover'
           castShadow
           receiveShadow
           geometry={nodes.Cover.geometry}
-          material={materials['Cover material']}
+          material={materials["Cover material"]}
           position={[0.002, -0.172, 0.288]}
           scale={27.135}
         />
       </group>
-      
-      <group name="Empty-Powerbank" position={[0, 0.006, -0.011]} scale={0.037}>
-          <mesh
-            name="numbers_as_mesh"
-            castShadow
-            receiveShadow
-            geometry={nodes.numbers_as_mesh.geometry}
-            material={materials.numbers_glow_material}
-            position={[0.372, 1.601, 0.017]}
-            rotation={[1.529, 0.077, -1.668]}
-            scale={24.817}
-          />
-          <mesh
-            name="Powerbank"
-            castShadow
-            receiveShadow
-            geometry={nodes.Powerbank.geometry}
-            material={materials[pbMaterial]}
-            position={[0.002, -0.172, 0.304]}
-            rotation={[Math.PI, 0, Math.PI]}
-            scale={27.135}
-          />
-        </group>
-    
-        <group
-          name="Empty-CameraDesk"
-          position={cameraPos}
-          rotation={cameraRot}
-          scale={cameraScale}>
-          <PerspectiveCamera
-            name="Camera-Desktop"
-            makeDefault={windowSize.deskCameraTrue}
-            far={1000}
-            near={0.1}
-            fov={22.895}
-            position={[0.002, 14.676, 0.288]}
-            rotation={[-Math.PI / 2, 0, 0]}
-            scale={5.896}
-          />
-        </group>
-        <group
-          name="Empty-CameraMob"
-          position={cameraPos}
-          rotation={cameraRot}
-          scale={cameraScale}>
-          <PerspectiveCamera
-            name="Camera-Mob"
-            makeDefault={windowSize.mobCameraTrue}
-            far={1000}
-            near={0.1}
-            fov={22.895}
-            position={[0.002, 14.676, 0.288]}
-            rotation={[-Math.PI / 2, 0, 0]}
-            scale={5.896}
-          />
-        </group>
-     
-      <group>
-      
-      <pointLight
-          name="Bottom_light"
-          intensity={0.1435}
-          decay={2}
-          position={[-0.038, -0.08, -0.211]}
-          rotation={[-Math.PI / 2, 0, 0]}
+      <group name='Empty-Powerbank' position={[-0.039, 0.097, -0.069]} scale={0.037}>
+        <mesh
+          name='numbers_as_mesh'
+          castShadow
+          receiveShadow
+          geometry={nodes.numbers_as_mesh.geometry}
+          material={materials.numbers_glow_material}
+          position={[0.346, 1.601, 0.02]}
+          rotation={[1.529, 0.077, -1.668]}
+          scale={24.817}
         />
-        </group>
-      
+        <mesh
+          name='Powerbank'
+          castShadow
+          receiveShadow
+          geometry={nodes.Powerbank.geometry}
+          material={materials[pbMaterial]}
+          position={[0.002, -0.172, 0.304]}
+          rotation={[Math.PI, 0, Math.PI]}
+          scale={27.135}
+        />
+      </group>
+      <group name='Empty-CameraDesk' position={[0.033, 0.009, -0.031]} rotation={[1.358, 0.031, 2.627]} scale={0.037}>
+        <PerspectiveCamera
+          name='Camera-Desktop'
+          makeDefault={windowSize.deskCameraTrue}
+          far={1000}
+          near={0.1}
+          fov={22.895}
+          position={[0.002, 14.676, 0.288]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          scale={5.896}
+        />
+      </group>
+      <group name='Empty-CameraMob' position={[0.002, 0.103, -0.049]} rotation={[1.231, 0.08, 2.593]} scale={0.04}>
+        <PerspectiveCamera
+          name='Camera-Mob'
+          makeDefault={windowSize.mobCameraTrue}
+          far={1000}
+          near={0.1}
+          fov={22.895}
+          position={[0.002, 14.676, 0.288]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          scale={5.896}
+        />
+      </group>
+
+      <group>
+      <mesh
+          name="Plane_for_gray"
+          castShadow
+          receiveShadow
+          geometry={nodes.Plane_for_gray.geometry}
+          material={materials['PB material Gray']}
+          position={[-1.654, 0.081, -0.21]}
+          scale={0.063}
+        />
+        <pointLight name='Bottom_light' intensity={0.1435} decay={2} position={[-0.038, -0.08, -0.211]} rotation={[-Math.PI / 2, 0, 0]} />
+      </group>
     </group>
   </group>
-)
+);
 }
 
-useGLTF.preload('https://dopocodee.netlify.app/Dopo23.glb')
+useGLTF.preload("http://localhost:5173/src/assets/Dopo5.glb");
+
+//useGLTF.preload('https://dopocodee.netlify.app/Dopo23.glb')
 
 
 /*
@@ -1850,55 +1687,6 @@ normalCameraTrue
 introCameraTrue
 fovNew
 
-   <group
-        name="Empty-CameraMob"
-        position={[0.021, 0.37, -0.171]}
-        rotation={[1.358, 0.279, 1.911]}
-        scale={0.058}>
-        <PerspectiveCamera
-          name="Camera-Mob"
-          makeDefault={true}
-          far={1000}
-          near={0.1}
-          fov={isTabletSize ? fovNewTab : fovNewMob}
-          position={[0.002, 14.676, 0.288]}
-          rotation={[-Math.PI / 2, 0, 0]}
-          scale={5.896}
-        />
-      </group>
-
-        <group
-        name="Empty-CameraDesk"
-        position={[0.033, 0.009, -0.031]}
-        rotation={[1.358, 0.031, 2.627]}
-        scale={0.037}>
-        <PerspectiveCamera
-          name="Camera-Desktop"
-          makeDefault={false}
-          far={1000}
-          near={0.1}
-          fov={fovNew}
-          position={[0.002, 14.676, 0.288]}
-          rotation={[-Math.PI / 2, 0, 0]}
-          scale={5.896}
-        />
-      </group>
-
-
-       <group
-          name="Empty-CameraDesk"
-          position={cameraPos}
-          rotation={cameraRot}
-          scale={cameraScale}>
-          <PerspectiveCamera
-            name="Camera-Desktop"
-            makeDefault={true}
-            far={1000}
-            near={0.1}
-            fov={22.895}
-            position={[0.002, 14.676, 0.288]}
-            rotation={[-Math.PI / 2, 0, 0]}
-            scale={5.896}
-          />
+  
 */
 
