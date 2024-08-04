@@ -1,15 +1,19 @@
 import { useProgress } from "@react-three/drei";
 import gsap from "gsap";
+import { useRef } from "react";
+
+let loadingScreen = document.getElementById("loadingScreen")
+let loadingBar = document.querySelector(".loading-bar")
+let loadingNumbers = document.getElementById("numbersLoading")
 
 export default function CustomLoader() {
       /* Loading screen */
 
   const { progress } = useProgress();
+  const loadingGone = useRef()
  
 
-  let loadingScreen = document.getElementById("loadingScreen")
-  let loadingBar = document.querySelector(".loading-bar")
-  let loadingNumbers = document.getElementById("numbersLoading")
+ 
 
   let visibleNumber = progress.toFixed(0);
 
@@ -19,21 +23,23 @@ export default function CustomLoader() {
 
   setTimeout(() => {
       if(progress > 99){
+        
 
-        let loadingGone = gsap.timeline()
+        loadingGone.current = gsap.timeline()
 
-        loadingGone
-        .to(".wrapper-loading", {yPercent: -70, opacity: 0, duration: 0.25},"sameTime")
-        .to(loadingBar, {xPercent: 100}, "sameTime")
-        .to(".loading-blue-oval.left", {marginTop:"60vh", scale: 1.5, duration: 1}, "sameTime")
-        .to(".loading-blue-oval.right", {marginBottom:"60vh", scale: 1.5, duration: 1}, "sameTime")
-        .to(".loading-black-oval.left", {marginTop:"60vh", scale: 3, duration: 1}, "sameTime")
-        .to(".loading-black-oval.right", {marginBottom: "60vh", scale: 3, duration: 1}, "sameTime")
+        loadingGone.current
+        .to(".wrapper-loading", {yPercent: -70, opacity: 0, duration: 0.25},"sameTimeeee")
+        .to(loadingBar, {xPercent: 100}, "sameTimeeee")
+        .to(".loading-blue-oval.left", {marginTop:"60vh", scale: 1.3, duration: 0.5}, "sameTimeeee")
+        .to(".loading-blue-oval.right", {marginBottom:"60vh", scale: 1.3, duration: 0.5}, "sameTimeeee")
+        .to(".loading-black-oval.left", {marginTop:"60vh", scale: 2.2, duration: 0.5}, "sameTimeeee")
+        .to(".loading-black-oval.right", {marginBottom: "60vh", scale: 2.2, duration: 0.5}, "sameTimeeee")
+        
         
 
         setTimeout(() => {
             loadingScreen.classList.remove("active")
-        }, "1000")
+        }, "1200")
         
       }
   }, "1200")
