@@ -30,15 +30,13 @@ let isTabletSize = 550 < window.innerWidth && window.innerWidth < 1280
  let fovNewClamp = fovOriginal + fovInBetween
  let fovNew = fovNewClamp > 25 ? 25 : fovNewClamp
 
+ //anim variables
 
- // Mobile FOV
- let scaleCofMob = 1 - scaleFactorTablet
- let fovInBetweenMob = scaleCofMob * scaleCofMob * fovOriginal
- let fovNewMob = fovOriginal + fovInBetweenMob
+ let whichAnimLenghtMob = 150;
+ let whichAnimLenghtDesk = 120;
 
- // Tablet FOV
- let fovInBetweenTab = scaleCofMob * fovOriginal
- let fovNewTab = fovOriginal + fovInBetweenTab
+ let whichDurationMob = 6.25;
+ let whichDurationDesk = 5;
 
 
  
@@ -63,21 +61,21 @@ export default function Model(props) {
  const mmm = useRef()
  const tlYellowPriceContain = useRef()
  const tlSecScreenInfoContain = useRef()
-          const tlLineUpper = useRef()
-          const tlCirclesContain = useRef()
-          const tlThirdMobScreenInfoContain = useRef()
-          const tlLineLower = useRef()
-          const tlCirclesContainMobLower = useRef()
-          const tlMovetextStagger = useRef()
-          const tlLongLineScreen3 = useRef()
-          const tlLeftVerticalLineScreen3 = useRef()
-          const tlBottomScreen4Contain = useRef()
-          const tlBlueOval = useRef()
-          const tlBottomGlow = useRef()
-          const tlShadow4 = useRef()
-          const tlShadow5 = useRef()
-          const tlScreen5CoverShadow = useRef()
-          const tlScreen5BatteryShadow = useRef()
+ const tlLineUpper = useRef()
+ const tlCirclesContain = useRef()
+ const tlThirdMobScreenInfoContain = useRef()
+ const tlLineLower = useRef()
+ const tlCirclesContainMobLower = useRef()
+ const tlMovetextStagger = useRef()
+ const tlLongLineScreen3 = useRef()
+ const tlLeftVerticalLineScreen3 = useRef()
+ const tlBottomScreen4Contain = useRef()
+ const tlBlueOval = useRef()
+ const tlBottomGlow = useRef()
+ const tlShadow4 = useRef()
+ const tlShadow5 = useRef()
+ const tlScreen5CoverShadow = useRef()
+ const tlScreen5BatteryShadow = useRef()
  
 
 
@@ -101,7 +99,12 @@ useFrame((state, delta) => {
 */
 
 
+
+
  useEffect(() => {
+  //actions.MobAnim.play()
+  //actions.DeskAction.play()
+  
 
   //Anim
  setTimeout(() => {
@@ -169,7 +172,7 @@ useFrame((state, delta) => {
 
     setTimeout(()=> {
       console.log(isMobileSize)
-      isMobileSize ? actions.IntroMob.play().fadeOut(0.6) : actions.IntroDesk.play().fadeOut(.6)
+      //isMobileSize ? actions.IntroMob.play().fadeOut(0.6) : actions.IntroDesk.play().fadeOut(.6)
 
 
     }, "600")
@@ -204,7 +207,21 @@ useFrame((state, delta) => {
   useEffect(() => {
     // Handler to call on window resize
     function handleResize() {
+
+      /*
+      if(tlDesk.current && tlMob.current){
+        window.innerWidth < 1280 ? tlDesk.current.pause(true) : tlMob.current.pause(true)
+        console.log(tlDesk)
+      }
+        */
+      
+
+
+
       // Set window width/height to state
+
+
+
       setWindowSize({
         width: window.innerWidth,
         mobCameraTrue: window.innerWidth < 1280 ? true : false,
@@ -264,11 +281,7 @@ useFrame((state, delta) => {
 
     /* Scroll animation STARTS */
 
-    let whichAnimLenghtMob = 150;
-    let whichAnimLenghtDesk = 120;
-
-    let whichDurationMob = 6.25;
-    let whichDurationDesk = 5;
+   
 
     const clipMob = actions.MobAnim;
     const clipDesktop = actions.DeskAction;
@@ -285,6 +298,7 @@ useFrame((state, delta) => {
     mmm.current = gsap.matchMedia();
 
     mmm.current.add("(min-width: 1280px)", () => {
+      
       clipDesktop.play();
 
       const mixerDesk = clipDesktop.getMixer();
@@ -296,6 +310,7 @@ useFrame((state, delta) => {
           clipDesktop.paused = false;
           mixerDesk.setTime(value);
           clipDesktop.paused = true;
+        //  clipMob.paused = true
         },
       };
 
@@ -304,7 +319,7 @@ useFrame((state, delta) => {
 
       tlDesk.current = gsap.timeline({
         ease: "none",
-        immediateRender: false,
+        //immediateRender: false,
         scrollTrigger: {
           trigger: "#section-2",
           start: "top bottom",
@@ -325,9 +340,16 @@ useFrame((state, delta) => {
           duration: whichDurationDesk,
         }
       );
+      /*
+      return () => { // optional
+        tlDesk.current.kill()
+      };
+      */
     });
 
     mmm.current.add("(max-width: 1279px)", () => {
+      //clipDesktop.paused()
+      
       clipMob.play();
 
       const mixerMob = clipMob.getMixer();
@@ -339,6 +361,7 @@ useFrame((state, delta) => {
           clipMob.paused = false;
           mixerMob.setTime(value);
           clipMob.paused = true;
+         // clipDesktop.paused=true
         },
       };
 
@@ -368,6 +391,12 @@ useFrame((state, delta) => {
           duration: whichDurationMob,
         }
       );
+
+      /*
+      return () => { // optional
+        tlMob.current.kill()
+      };
+      */
     });
     /* Scroll animation FINISHES */
 
@@ -1580,7 +1609,7 @@ useFrame((state, delta) => {
 
              })
    
-           })
+           }, [windowSize])
 
        
            
