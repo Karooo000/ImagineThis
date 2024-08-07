@@ -172,7 +172,7 @@ useFrame((state, delta) => {
 
     setTimeout(()=> {
       console.log(isMobileSize)
-      //isMobileSize ? actions.IntroMob.play().fadeOut(0.6) : actions.IntroDesk.play().fadeOut(.6)
+      isMobileSize ? actions.IntroMob.play().fadeOut(0.6) : actions.IntroDesk.play().fadeOut(.6)
 
 
     }, "600")
@@ -310,7 +310,6 @@ useFrame((state, delta) => {
           clipDesktop.paused = false;
           mixerDesk.setTime(value);
           clipDesktop.paused = true;
-        //  clipMob.paused = true
         },
       };
 
@@ -348,7 +347,6 @@ useFrame((state, delta) => {
     });
 
     mmm.current.add("(max-width: 1279px)", () => {
-      //clipDesktop.paused()
       
       clipMob.play();
 

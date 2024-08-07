@@ -1,5 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import Model from "/src/PowerBank.jsx";
+import React, { useState, useEffect } from "react";
 
 import { ContactShadows,  useProgress } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
@@ -19,12 +20,30 @@ function App() {
 
 
   CustomLoader();
+
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
  
 
 
   return (
     <>
-      <Canvas>
+      <Canvas key={`${windowSize.width}-${windowSize.height}`}
+        style={{ width: "100%", height: "100vh" }}>
       
         <Model />
         <EffectComposer multisampling={4}>
