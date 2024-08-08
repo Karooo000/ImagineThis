@@ -79,7 +79,7 @@ export default function Model(props) {
  
 
 
- const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/Dopo22.glb");
+ const { nodes, materials, animations } = useGLTF("https://dopocodee.netlify.app/Dopo22.glb");
  //http://localhost:5173/src/assets/DopoDraco.glb
  //https://dopocodee.netlify.app/DopoDraco.glb
  const { ref, mixer, names, actions, clips } = useAnimations(
@@ -1768,7 +1768,7 @@ return (
 );
 }
 
-useGLTF.preload("http://localhost:5173/src/assets/Dopo22.glb");
+useGLTF.preload("https://dopocodee.netlify.app/Dopo22.glb");
 
 //useGLTF.preload('https://dopocodee.netlify.app/Dopo23.glb')
 
