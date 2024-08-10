@@ -38,6 +38,9 @@ let isTabletSize = 550 < window.innerWidth && window.innerWidth < 1280
  let whichDurationMob = 6.25;
  let whichDurationDesk = 5;
 
+ window.onbeforeunload = function () {
+  window.scrollTo(0, 0);
+}
 
  
 
@@ -110,7 +113,7 @@ useFrame((state, delta) => {
  setTimeout(() => {
 
   if(progress > 99){
-    console.log("anim starts")
+    //console.log("anim starts")
 
 
 
@@ -171,7 +174,7 @@ useFrame((state, delta) => {
     actions.IntroMob.clampWhenFinished = true
 
     setTimeout(()=> {
-      console.log(isMobileSize)
+      //console.log(isMobileSize)
       isMobileSize ? actions.IntroMob.play().fadeOut(0.6) : actions.IntroDesk.play().fadeOut(.6)
 
 
@@ -189,9 +192,7 @@ useFrame((state, delta) => {
 
  // Scroll to top on reload
 
- window.onbeforeunload = function () {
-  window.scrollTo(0, 0);
-}
+
 
 
   if(progress > 99){

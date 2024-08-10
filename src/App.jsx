@@ -21,6 +21,7 @@ function App() {
 
   CustomLoader();
 
+  /*
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -36,14 +37,18 @@ function App() {
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+
+
   }, []);
- 
+
+  <Canvas key={`${windowSize.width}-${windowSize.height}`}
+  style={{ width: "100%", height: "100vh" }}>
+    */
 
 
   return (
     <>
-      <Canvas key={`${windowSize.width}-${windowSize.height}`}
-        style={{ width: "100%", height: "100vh" }}>
+      <Canvas >
       
         <Model />
         <EffectComposer multisampling={4}>
