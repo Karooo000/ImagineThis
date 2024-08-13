@@ -39,10 +39,14 @@ let isTabletSize = 550 < window.innerWidth && window.innerWidth < 1280
  let whichDurationDesk = 5;
 
  window.onbeforeunload = function () {
-  window.scrollTo(0, 0);
+  setTimeout(() => {
+
+    window.scroll({ top: -1, left: 0});
+  
+  }, 10); 
 }
 
- 
+
 
 
 
