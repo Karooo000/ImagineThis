@@ -4,26 +4,45 @@ import { useRef } from "react";
 
 let loadingScreen = document.getElementById("loadingScreen")
 let loadingBar = document.querySelector(".loading-bar")
-let loadingNumbers = document.getElementById("numbersLoading")
+let loadingNumbers = document.querySelector(".numbers-loading")
 
 export default function CustomLoader() {
       /* Loading screen */
 
   const { progress } = useProgress();
   const loadingGone = useRef()
- 
+
+  
+
+  // get a reference to the elements we want to animate
+  
+
+
+gsap.to(".numbers-loading", {
+    innerText:99,
+    duration: 5,
+    snap : {
+       innerText: 1
+    }
+  });
+
+
+
 
  
 
-  let visibleNumber = progress.toFixed(0);
+ 
 
-  loadingNumbers.innerText = visibleNumber
+  //let visibleNumber = progress.toFixed(0);
+
+  //loadingNumbers.innerText = visibleNumber
 
   loadingBar.style.width =`${progress}%`
 
   setTimeout(() => {
       if(progress > 99){
         
+        loadingNumbers.innerText = progress
 
         loadingGone.current = gsap.timeline()
 
