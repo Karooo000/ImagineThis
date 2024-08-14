@@ -1,6 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import Model from "/src/PowerBank.jsx";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import { ContactShadows,  useProgress } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
@@ -13,10 +13,13 @@ import CustomLoader from "./CustomLoader";
 
 
 
-
+let isMobileSize = window.innerWidth < 1280
 
 
 function App() {
+
+  const canvasss = useRef()
+  console.log(canvasss)
 
 
   CustomLoader();
@@ -39,16 +42,16 @@ function App() {
     return () => window.removeEventListener("resize", handleResize);
 
 
-  }, []);
+  }, [isMobileSize]);
 
   <Canvas key={`${windowSize.width}-${windowSize.height}`}
-  style={{ width: "100%", height: "100vh" }}>
+  style={{ width: "100%", height: "100%" }}>
     */
 
 
   return (
     <>
-      <Canvas >
+      <Canvas ref={canvasss}>
       
         <Model />
         <EffectComposer multisampling={4}>
