@@ -86,8 +86,8 @@ export default function Model(props) {
  
 
 
- const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/Dopo22.glb");
- //http://localhost:5173/src/assets/DopoDraco.glb
+ const { nodes, materials, animations } = useGLTF("https://dopocodee.netlify.app/Dopo22.glb");
+ //http://localhost:5173/src/assets/Dopo22.glb
  //"https://dopocodee.netlify.app/Dopo22.glb"
  const { ref, mixer, names, actions, clips } = useAnimations(
    animations,
@@ -212,20 +212,6 @@ useFrame((state, delta) => {
   useEffect(() => {
     // Handler to call on window resize
     function handleResize() {
-
-      /*
-      if(tlDesk.current && tlMob.current){
-        window.innerWidth < 1280 ? tlDesk.current.pause(true) : tlMob.current.pause(true)
-        console.log(tlDesk)
-      }
-        */
-      
-
-
-
-      // Set window width/height to state
-
-
 
       setWindowSize({
         width: window.innerWidth,
@@ -419,6 +405,7 @@ useFrame((state, delta) => {
                 start: "top bottom",
                 end: "bottom 20%",
                 scrub: 1,
+                toggleActions: "restart restart reverse reverse",
                 
               },
             })
@@ -442,9 +429,10 @@ useFrame((state, delta) => {
                   scrollTrigger: {
                     trigger: "#section-5",
                     start: "top 50%",
-                    end: "bottom 50%",
+                    end: "bottom 20%",
                     endTrigger: "#section-5",
                     scrub: 1,
+                    toggleActions: "restart restart reverse reverse",
                   }
                 })
                 tlMovetextComes.current.to(".comes-text", {
@@ -469,7 +457,7 @@ useFrame((state, delta) => {
                     scrollTrigger: {
                       trigger: "#section-5",
                       start: "top 50%",
-                      end: "bottom 50%",
+                      end: "bottom 30%",
                       endTrigger: "#section-5",
                       scrub: 1,
                     }
@@ -493,7 +481,7 @@ useFrame((state, delta) => {
                     scrollTrigger: {
                       trigger: "#section-5",
                       start: "top 50%",
-                      end: "bottom 50%",
+                      end: "bottom 30%",
                       endTrigger: "#section-5",
                       scrub: 1,
                     }
@@ -517,7 +505,7 @@ useFrame((state, delta) => {
                       scrollTrigger: {
                         trigger: "#section-5",
                         start: "top 40%",
-                        end: "bottom 50%",
+                        end: "bottom 30%",
                         endTrigger: "#section-5",
                         scrub: 1,
                       }
@@ -541,9 +529,10 @@ useFrame((state, delta) => {
                         scrollTrigger: {
                           trigger: "#section-5",
                           start: "top 40%",
-                          end: "bottom 50%",
+                          end: "bottom 30%",
                           endTrigger: "#section-5",
                           scrub: 1,
+                        
                         }
                       })
                       tlMovetextSleeve.current.to(".sleeve-text", {
@@ -1148,7 +1137,7 @@ useFrame((state, delta) => {
                  scrollTrigger: {
                    trigger: "#section-2",
                    start: "top 75%",
-                   end: "bottom 25%",
+                   end: "bottom 5%",
                    endTrigger: "#section-2",
                    scrub: 1,
                  }
@@ -1174,7 +1163,7 @@ useFrame((state, delta) => {
                   scrollTrigger: {
                     trigger: "#section-2",
                     start: "top 75%",
-                    end: "bottom 25%",
+                    end: "bottom 5%",
                     endTrigger: "#section-2",
                     scrub: 1,
                   }
@@ -1203,7 +1192,7 @@ useFrame((state, delta) => {
                   scrollTrigger: {
                     trigger: "#section-2",
                     start: "top 75%",
-                    end: "bottom 25%",
+                    end: "bottom 5%",
                     endTrigger: "#section-2",
                     scrub: 1,
                   }
@@ -1234,7 +1223,7 @@ useFrame((state, delta) => {
                  scrollTrigger: {
                    trigger: "#section-3",
                    start: "top 75%",
-                   end: "bottom 25%",
+                   end: "bottom 5%",
                    endTrigger: "#section-3",
                    scrub: 1,
                  }
@@ -1260,7 +1249,7 @@ useFrame((state, delta) => {
                   scrollTrigger: {
                     trigger: "#section-3",
                     start: "top 75%",
-                    end: "bottom 25%",
+                    end: "bottom 5%",
                     endTrigger: "#section-3",
                     scrub: 1,
                   }
@@ -1288,7 +1277,7 @@ useFrame((state, delta) => {
                   scrollTrigger: {
                     trigger: "#section-3",
                     start: "top 75%",
-                    end: "bottom 25%",
+                    end: "bottom 5%",
                     endTrigger: "#section-3",
                     scrub: 1,
                   }
@@ -1318,9 +1307,10 @@ useFrame((state, delta) => {
                   scrollTrigger: {
                     trigger: "#section-4",
                     start: "top 60%",
-                    end: "bottom 50%",
+                    end: "bottom 20%",
                     endTrigger: "#section-4",
                     scrub: 1,
+
                   }
                 })
                 tlMovetextStagger.current.to(".move-contain", {
@@ -1349,7 +1339,7 @@ useFrame((state, delta) => {
                     scrollTrigger: {
                       trigger: "#section-4",
                       start: "top 30%",
-                      end: "bottom 50%",
+                      end: "bottom 20%",
                       endTrigger: "#section-4",
                       scrub: 1,
                     }
@@ -1373,7 +1363,7 @@ useFrame((state, delta) => {
                       scrollTrigger: {
                         trigger: "#section-4",
                         start: "top 30%",
-                        end: "bottom 50%",
+                        end: "bottom 20%",
                         endTrigger: "#section-4",
                         scrub: 1,
                       }
@@ -1398,7 +1388,7 @@ useFrame((state, delta) => {
                       scrollTrigger: {
                         trigger: "#section-4",
                         start: "top 10%",
-                        end: "bottom 50%",
+                        end: "bottom 20%",
                         endTrigger: "#section-4",
                         scrub: 1,
                       }
@@ -1427,7 +1417,7 @@ useFrame((state, delta) => {
               scrollTrigger: {
                 trigger: "#section-2",
                 start: "top 50%",
-                end: "bottom bottom",
+                end: "bottom 30%",
                 endTrigger: "#section-6",
                 scrub: true,
               }
@@ -1482,7 +1472,7 @@ useFrame((state, delta) => {
           scrollTrigger: {
             trigger: "#section-4",
             start: "top 30%",
-            end: "bottom bottom",
+            end: "bottom 30%",
             endTrigger: "#section-6",
             scrub: true,
           }})
@@ -1519,7 +1509,7 @@ useFrame((state, delta) => {
                  scrollTrigger: {
                    trigger: "#section-4",
                    start: "top 50%",
-                   end: "bottom 80%",
+                   end: "bottom 50%",
                    endTrigger: "#section-4",
                    scrub: true,
                  }
@@ -1546,7 +1536,7 @@ useFrame((state, delta) => {
                  scrollTrigger: {
                    trigger: "#section-5",
                    start: "top 50%",
-                   end: "bottom 80%",
+                   end: "bottom 50%",
                    endTrigger: "#section-5",
                    scrub: true,
                  }
@@ -1575,7 +1565,7 @@ useFrame((state, delta) => {
                 scrollTrigger: {
                   trigger: "#section-6",
                   start: "top 20%",
-                  end: "bottom bottom",
+                  end: "bottom 50%",
                   endTrigger: "#section-6",
                   scrub: 1,
                 }
@@ -1595,7 +1585,7 @@ useFrame((state, delta) => {
                 scrollTrigger: {
                   trigger: "#section-6",
                   start: "top 20%",
-                  end: "bottom bottom",
+                  end: "bottom 50%",
                   endTrigger: "#section-6",
                   scrub: 1,
                 }
@@ -1611,8 +1601,10 @@ useFrame((state, delta) => {
 
 
              })
+
+             //console.log("gsap hook fired")
    
-           }, [windowSize])
+           })
 
        
            
@@ -1773,7 +1765,7 @@ return (
 );
 }
 
-useGLTF.preload("http://localhost:5173/src/assets/Dopo22.glb");
+useGLTF.preload("https://dopocodee.netlify.app/Dopo22.glb");
 
 //useGLTF.preload('https://dopocodee.netlify.app/Dopo22.glb')
 
