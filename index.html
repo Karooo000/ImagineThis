@@ -2,15 +2,60 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <title>Seize</title>
   </head>
+
   <body>
-    <div id="root"></div>
-    <div id="loadingScreen" class="loadingScreen Active">
-      <p id="numbersLoading"></p>
+  
+    <div
+      id="root"
+    ></div>
+
+    <div id="scroll">
+      <div id="hero" class="sections">
+        <h1>Hero</h1>
+      </div>
+
+      <div id="section2" class="sections">
+        <h1>Section 2</h1>
+      </div>
+
+      <div id="section3" class="sections">
+        <h1>Section 3</h1>
+      </div>
+
+      <div id="section4" class="sections">
+        <h1>Section 4</h1>
+      </div>
+
+      <div id="section5" class="sections">
+        <h1>Section 5</h1>
+      </div>
     </div>
+
+    <style>
+      *{
+        margin: 0;
+        padding: 0;
+      }
+      #root{
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        
+      }
+
+      .sections{
+        width: 100vw;
+        height: 100vh;
+      }
+    </style>
+    
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

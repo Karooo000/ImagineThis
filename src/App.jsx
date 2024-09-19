@@ -1,76 +1,94 @@
+import React, { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import Model from "/src/PowerBank.jsx";
-import React, { useState, useEffect, useRef } from "react";
+import { Environment, SoftShadows } from "@react-three/drei";
+import Glasses from "./Glasses.jsx";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Shadowssss from "./Shadowssss.jsx";
+import BottomShadows from "./BottomShadows.jsx";
 
-import { ContactShadows,  useProgress } from "@react-three/drei";
-import { EffectComposer, Bloom } from "@react-three/postprocessing";
-import { useThree } from "@react-three/fiber";
-import { Perf } from "r3f-perf";
+import { EffectComposer, Bloom } from "@react-three/postprocessing"; // Bloom effects
 
-import CustomLoader from "./CustomLoader";
+gsap.registerPlugin(ScrollTrigger);
 
-
-
-
-
-let isMobileSize = window.innerWidth < 1280
-
-
-function App() {
-
-  //const canvasss = useRef()
-  //console.log(canvasss)
-
-
-  CustomLoader();
-/*
-
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
+export default function App(props) {
+  //testimonials
+  let tlTestimonials = gsap.timeline({
+    scrollTrigger: {
+      trigger: "#testimonials",
+      start: "top 80%",
+      end: "bottom top",
+      onUpdate(self) {
+        const velocity = self.getVelocity();
+        if (velocity < 0) return;
+        const timeScale = 3 + velocity / 400;
+        gsap.timeline().to(tlTestimonials, { duration: 0.1, timeScale }).to(tlTestimonials, { duration: 1.5, timeScale: 1 });
+      },
+    },
   });
 
-  useEffect(() => {
-    function handleResize() {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    }
+  tlTestimonials.to("#upper", {
+    duration: 20,
+    ease: "none",
+    x: `-50%`,
+    repeat: -1,
+  });
 
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+  let tlTestimonials2 = gsap.timeline({
+    scrollTrigger: {
+      trigger: "#testimonials",
+      start: "top 80%",
+      end: "bottom top",
+      onUpdate(self) {
+        const velocity = self.getVelocity();
+        if (velocity < 0) return;
+        const timeScale = 3 + velocity / 400;
+        gsap.timeline().to(tlTestimonials2, { duration: 0.1, timeScale }).to(tlTestimonials2, { duration: 1.5, timeScale: 1 });
+      },
+    },
+  });
 
+  tlTestimonials2.to("#lower", {
+    duration: 20,
+    ease: "none",
+    x: `50%`,
+    repeat: -1,
+  });
 
-  }, [isMobileSize]);
+  /*
+  // Page smooth scrolling behavior
+  const lenis = new Lenis({
+    lerp: 0.1,
+    direction: "vertical", // vertical, horizontal
+    gestureDirection: "vertical", // vertical, horizontal, both
+    smooth: true,
+    wheelMultiplier: 1.5,
+    smoothTouch: false,
+    touchMultiplier: 2,
+    infinite: false,
+  });
+
+  // Required for Lenis
+  function raf(time) {
+    lenis.raf(time);
+    // Required to sync ScrollTrigger with Lenis smooth scroll.
+    ScrollTrigger.update();
+    requestAnimationFrame(raf);
+  }
+  requestAnimationFrame(raf);
   */
-    /*
-
-  <Canvas ref={canvasss}>
-
-  <Canvas key={`${windowSize.width}-${windowSize.height}`}
-  style={{ width: "100%", height: "100%" }}>
-    */
-
 
   return (
-    <>
-       <Canvas 
-  style={{ width: "100vw", height: "100vh" }}>
-      
-        <Model />
-        <EffectComposer multisampling={4}>
-          <Bloom
-            luminanceThreshold={1.1}
-            intensity={0.15}
-            levels={3}
-            mipmapBlur
-          />
-        </EffectComposer>
-      </Canvas>
-    </>
-
+    <Canvas shadows dpr={[1, 2]}>
+      <SoftShadows samples={20} />
+      <Environment files='http://localhost:5173/src/assets/skidpan_1k.exr' />
+      <Shadowssss />
+      <BottomShadows />
+      <Suspense fallback={null}>
+        <group>
+          <Glasses />
+        </group>
+      </Suspense>
+    </Canvas>
   );
 }
-
-export default App;
