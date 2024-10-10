@@ -1,94 +1,71 @@
-import React, { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import { Environment, SoftShadows } from "@react-three/drei";
-import Glasses from "./Glasses.jsx";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Shadowssss from "./Shadowssss.jsx";
-import BottomShadows from "./BottomShadows.jsx";
+import Model from "/src/PowerBank.jsx";
+import React, { useState, useEffect, useRef } from "react";
 
-import { EffectComposer, Bloom } from "@react-three/postprocessing"; // Bloom effects
+import { ContactShadows,  useProgress } from "@react-three/drei";
+import { EffectComposer, Bloom } from "@react-three/postprocessing";
+import { useThree } from "@react-three/fiber";
+import { Perf } from "r3f-perf";
 
-gsap.registerPlugin(ScrollTrigger);
+import CustomLoader from "./CustomLoader";
 
-export default function App(props) {
-  //testimonials
-  let tlTestimonials = gsap.timeline({
-    scrollTrigger: {
-      trigger: "#testimonials",
-      start: "top 80%",
-      end: "bottom top",
-      onUpdate(self) {
-        const velocity = self.getVelocity();
-        if (velocity < 0) return;
-        const timeScale = 3 + velocity / 400;
-        gsap.timeline().to(tlTestimonials, { duration: 0.1, timeScale }).to(tlTestimonials, { duration: 1.5, timeScale: 1 });
-      },
-    },
-  });
 
-  tlTestimonials.to("#upper", {
-    duration: 20,
-    ease: "none",
-    x: `-50%`,
-    repeat: -1,
-  });
 
-  let tlTestimonials2 = gsap.timeline({
-    scrollTrigger: {
-      trigger: "#testimonials",
-      start: "top 80%",
-      end: "bottom top",
-      onUpdate(self) {
-        const velocity = self.getVelocity();
-        if (velocity < 0) return;
-        const timeScale = 3 + velocity / 400;
-        gsap.timeline().to(tlTestimonials2, { duration: 0.1, timeScale }).to(tlTestimonials2, { duration: 1.5, timeScale: 1 });
-      },
-    },
-  });
 
-  tlTestimonials2.to("#lower", {
-    duration: 20,
-    ease: "none",
-    x: `50%`,
-    repeat: -1,
-  });
+
+let isMobileSize = window.innerWidth < 1280
+
+
+function App() {
+
+  const canvasss = useRef()
+  console.log(canvasss)
+
+
+  CustomLoader();
 
   /*
-  // Page smooth scrolling behavior
-  const lenis = new Lenis({
-    lerp: 0.1,
-    direction: "vertical", // vertical, horizontal
-    gestureDirection: "vertical", // vertical, horizontal, both
-    smooth: true,
-    wheelMultiplier: 1.5,
-    smoothTouch: false,
-    touchMultiplier: 2,
-    infinite: false,
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
   });
 
-  // Required for Lenis
-  function raf(time) {
-    lenis.raf(time);
-    // Required to sync ScrollTrigger with Lenis smooth scroll.
-    ScrollTrigger.update();
-    requestAnimationFrame(raf);
-  }
-  requestAnimationFrame(raf);
-  */
+  useEffect(() => {
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+
+
+  }, [isMobileSize]);
+
+  <Canvas key={`${windowSize.width}-${windowSize.height}`}
+  style={{ width: "100%", height: "100%" }}>
+    */
+
 
   return (
-    <Canvas shadows dpr={[1, 2]}>
-      <SoftShadows samples={20} />
-      <Environment files='http://localhost:5173/src/assets/skidpan_1k.exr' />
-      <Shadowssss />
-      <BottomShadows />
-      <Suspense fallback={null}>
-        <group>
-          <Glasses />
-        </group>
-      </Suspense>
-    </Canvas>
+    <>
+      <Canvas ref={canvasss}>
+      
+        <Model />
+        <EffectComposer multisampling={4}>
+          <Bloom
+            luminanceThreshold={1.1}
+            intensity={0.15}
+            levels={3}
+            mipmapBlur
+          />
+        </EffectComposer>
+      </Canvas>
+    </>
+
   );
 }
+
+export default App;
