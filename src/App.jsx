@@ -13,18 +13,17 @@ import CustomLoader from "./CustomLoader";
 
 
 
-let isMobileSize = window.innerWidth < 1280
+
 
 
 function App() {
 
-  const canvasss = useRef()
-  console.log(canvasss)
-
 
   CustomLoader();
 
-  /*
+  let isMobileSize = window.innerWidth < 1280
+
+
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -43,15 +42,21 @@ function App() {
 
 
   }, [isMobileSize]);
+  /*
 
   <Canvas key={`${windowSize.width}-${windowSize.height}`}
   style={{ width: "100%", height: "100%" }}>
     */
 
+  //console.log(windowSize.width-windowSize.height)
+
+  console.log(isMobileSize)
+
 
   return (
     <>
-      <Canvas ref={canvasss}>
+      <Canvas key={isMobileSize ? 'mobile' : 'desktop'}
+  style={{ width: "100%", height: "100%" }}>
       
         <Model />
         <EffectComposer multisampling={4}>

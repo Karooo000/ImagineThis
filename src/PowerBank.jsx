@@ -86,8 +86,9 @@ export default function Model(props) {
  
 
 
- const { nodes, materials, animations } = useGLTF("http://localhost:5173/src/assets/Dopo22.glb");
- //http://localhost:5173/src/assets/DopoDraco.glb
+ const { nodes, materials, animations } = useGLTF("https://dopocodee.netlify.app/Dopo22.glb");
+ 
+ //"http://localhost:5173/src/assets/Dopo22.glb"
  //"https://dopocodee.netlify.app/Dopo22.glb"
  const { ref, mixer, names, actions, clips } = useAnimations(
    animations,
@@ -209,6 +210,8 @@ useFrame((state, delta) => {
     deskCameraTrue: window.innerWidth < 1280 ? false : true,
   });
 
+  
+
   useEffect(() => {
     // Handler to call on window resize
     function handleResize() {
@@ -218,8 +221,8 @@ useFrame((state, delta) => {
         window.innerWidth < 1280 ? tlDesk.current.pause(true) : tlMob.current.pause(true)
         console.log(tlDesk)
       }
-        */
       
+      */
 
 
 
@@ -232,6 +235,10 @@ useFrame((state, delta) => {
         mobCameraTrue: window.innerWidth < 1280 ? true : false,
         deskCameraTrue: window.innerWidth < 1280 ? false : true,
       });
+
+      ScrollTrigger.refresh();
+      gsap.matchMediaRefresh();
+      
     }
     // Add event listener
     window.addEventListener("resize", handleResize);
@@ -241,6 +248,7 @@ useFrame((state, delta) => {
     return () => window.removeEventListener("resize", handleResize);
   }, [isMobileSize]);
 
+  /*
   useEffect(() => {
 
     ScrollTrigger.refresh();
@@ -250,6 +258,7 @@ useFrame((state, delta) => {
 
     //console.log("ran")
   }, [windowSize]);
+  */
 
   
 
@@ -305,6 +314,7 @@ useFrame((state, delta) => {
     mmm.current.add("(min-width: 1280px)", () => {
       
       clipDesktop.play();
+      //console.log("desktop clip plays")
 
       const mixerDesk = clipDesktop.getMixer();
       const proxyDesk = {
@@ -354,6 +364,7 @@ useFrame((state, delta) => {
     mmm.current.add("(max-width: 1279px)", () => {
       
       clipMob.play();
+      //console.log("mob clip plays")
 
       const mixerMob = clipMob.getMixer();
       const proxyMob = {
@@ -1612,7 +1623,7 @@ useFrame((state, delta) => {
 
              })
    
-           }, [windowSize])
+           }, [isMobileSize])
 
        
            
@@ -1773,7 +1784,7 @@ return (
 );
 }
 
-useGLTF.preload("http://localhost:5173/src/assets/Dopo22.glb");
+useGLTF.preload("https://dopocodee.netlify.app/Dopo22.glb");
 
 //useGLTF.preload('https://dopocodee.netlify.app/Dopo22.glb')
 
