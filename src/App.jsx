@@ -50,7 +50,7 @@ function App() {
 
   //console.log(windowSize.width-windowSize.height)
 
-  console.log(isMobileSize)
+  //console.log(isMobileSize)
 
 
   return (

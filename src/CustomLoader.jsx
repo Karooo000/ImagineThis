@@ -20,7 +20,7 @@ export default function CustomLoader() {
 
 gsap.to(".numbers-loading", {
     innerText:99,
-    duration: 5,
+    duration: 15,
     snap : {
        innerText: 1
     }
