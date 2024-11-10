@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import Model from "/src/PowerBank.jsx";
+//import Model from "/src/PowerBank.jsx";
 import React, { useState, useEffect, useRef } from "react";
 
 import { ContactShadows,  useProgress } from "@react-three/drei";
@@ -7,7 +7,9 @@ import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { useThree } from "@react-three/fiber";
 import { Perf } from "r3f-perf";
 
-import CustomLoader from "./CustomLoader";
+import Preloader from "./Preloader";
+
+//import CustomLoader from "./CustomLoader";
 
 
 
@@ -18,7 +20,10 @@ import CustomLoader from "./CustomLoader";
 
 function App() {
 
+  Preloader()
 
+
+  /*
   CustomLoader();
 
   let isMobileSize = window.innerWidth < 1280
@@ -42,6 +47,7 @@ function App() {
 
 
   }, [isMobileSize]);
+  */
   /*
 
   <Canvas key={`${windowSize.width}-${windowSize.height}`}
@@ -52,10 +58,8 @@ function App() {
 
   //console.log(isMobileSize)
 
-
-  return (
-    <>
-      <Canvas key={isMobileSize ? 'mobile' : 'desktop'}
+  /*
+        <Canvas key={isMobileSize ? 'mobile' : 'desktop'}
   style={{ width: "100%", height: "100%" }}>
       
         <Model />
@@ -68,6 +72,13 @@ function App() {
           />
         </EffectComposer>
       </Canvas>
+  */
+
+
+
+  return (
+    <>
+
     </>
 
   );
