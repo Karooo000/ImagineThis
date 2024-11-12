@@ -25,49 +25,112 @@ function App() {
 
   Preloader()
 
-  //testimonials
-  let tlTestimonials = gsap.timeline({
+  //pics
+  let tlPics = gsap.timeline({
     scrollTrigger: {
-      trigger: "#testimonials",
+      trigger: "#pics",
       start: "top 80%",
       end: "bottom top",
       onUpdate(self) {
         const velocity = self.getVelocity();
         if (velocity < 0) return;
         const timeScale = 3 + velocity / 400;
-        gsap.timeline().to(tlTestimonials, { duration: 0.1, timeScale }).to(tlTestimonials, { duration: 1.5, timeScale: 1 });
+        gsap.timeline().to(tlPics, { duration: 0.1, timeScale }).to(tlPics, { duration: 1.5, timeScale: 1 });
       },
     },
   });
 
-  tlTestimonials.to("#upper", {
-    duration: 20,
+  tlPics.to("#upperpics", {
+    duration: 30,
     ease: "none",
     x: `-50%`,
     repeat: -1,
   });
 
-  let tlTestimonials2 = gsap.timeline({
+  let tlPics2 = gsap.timeline({
     scrollTrigger: {
-      trigger: "#testimonials",
+      trigger: "#pics",
       start: "top 80%",
       end: "bottom top",
       onUpdate(self) {
         const velocity = self.getVelocity();
         if (velocity < 0) return;
         const timeScale = 3 + velocity / 400;
-        gsap.timeline().to(tlTestimonials2, { duration: 0.1, timeScale }).to(tlTestimonials2, { duration: 1.5, timeScale: 1 });
+        gsap.timeline().to(tlPics2, { duration: 0.1, timeScale }).to(tlPics2, { duration: 1.5, timeScale: 1 });
       },
     },
   });
 
-  tlTestimonials2.to("#lower", {
-    duration: 20,
+  tlPics2.to("#lowerpics", {
+    duration: 30,
     ease: "none",
     x: `50%`,
     repeat: -1,
   });
 
+  let tlPics3 = gsap.timeline({
+    scrollTrigger: {
+      trigger: "#pics",
+      start: "top 80%",
+      end: "bottom top",
+      onUpdate(self) {
+        const velocity = self.getVelocity();
+        if (velocity < 0) return;
+        const timeScale = 3 + velocity / 400;
+        gsap.timeline().to(tlPics3, { duration: 0.1, timeScale }).to(tlPics3, { duration: 1.5, timeScale: 1 });
+      },
+    },
+  });
+
+  tlPics3.to("#bottompics", {
+    duration: 30,
+    ease: "none",
+    x: `-50%`,
+    repeat: -1,
+  });
+
+    //testimonials
+    let tlTestimonials = gsap.timeline({
+      scrollTrigger: {
+        trigger: "#testimonials",
+        start: "top 80%",
+        end: "bottom top",
+        onUpdate(self) {
+          const velocity = self.getVelocity();
+          if (velocity < 0) return;
+          const timeScale = 3 + velocity / 400;
+          gsap.timeline().to(tlTestimonials, { duration: 0.1, timeScale }).to(tlTestimonials, { duration: 1.5, timeScale: 1 });
+        },
+      },
+    });
+  
+    tlTestimonials.to("#upper", {
+      duration: 20,
+      ease: "none",
+      x: `-50%`,
+      repeat: -1,
+    });
+  
+    let tlTestimonials2 = gsap.timeline({
+      scrollTrigger: {
+        trigger: "#testimonials",
+        start: "top 80%",
+        end: "bottom top",
+        onUpdate(self) {
+          const velocity = self.getVelocity();
+          if (velocity < 0) return;
+          const timeScale = 3 + velocity / 400;
+          gsap.timeline().to(tlTestimonials2, { duration: 0.1, timeScale }).to(tlTestimonials2, { duration: 1.5, timeScale: 1 });
+        },
+      },
+    });
+  
+    tlTestimonials2.to("#lower", {
+      duration: 20,
+      ease: "none",
+      x: `50%`,
+      repeat: -1,
+    });
 
 
   /*
