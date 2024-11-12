@@ -7,12 +7,15 @@ import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { useThree } from "@react-three/fiber";
 import { Perf } from "r3f-perf";
 
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
 import Preloader from "./Preloader";
 
 //import CustomLoader from "./CustomLoader";
 
 
-
+gsap.registerPlugin(ScrollTrigger);
 
 
 
@@ -21,6 +24,50 @@ import Preloader from "./Preloader";
 function App() {
 
   Preloader()
+
+  //testimonials
+  let tlTestimonials = gsap.timeline({
+    scrollTrigger: {
+      trigger: "#testimonials",
+      start: "top 80%",
+      end: "bottom top",
+      onUpdate(self) {
+        const velocity = self.getVelocity();
+        if (velocity < 0) return;
+        const timeScale = 3 + velocity / 400;
+        gsap.timeline().to(tlTestimonials, { duration: 0.1, timeScale }).to(tlTestimonials, { duration: 1.5, timeScale: 1 });
+      },
+    },
+  });
+
+  tlTestimonials.to("#upper", {
+    duration: 20,
+    ease: "none",
+    x: `-50%`,
+    repeat: -1,
+  });
+
+  let tlTestimonials2 = gsap.timeline({
+    scrollTrigger: {
+      trigger: "#testimonials",
+      start: "top 80%",
+      end: "bottom top",
+      onUpdate(self) {
+        const velocity = self.getVelocity();
+        if (velocity < 0) return;
+        const timeScale = 3 + velocity / 400;
+        gsap.timeline().to(tlTestimonials2, { duration: 0.1, timeScale }).to(tlTestimonials2, { duration: 1.5, timeScale: 1 });
+      },
+    },
+  });
+
+  tlTestimonials2.to("#lower", {
+    duration: 20,
+    ease: "none",
+    x: `50%`,
+    repeat: -1,
+  });
+
 
 
   /*
