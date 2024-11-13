@@ -9,6 +9,7 @@ import { Perf } from "r3f-perf";
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import SplitType from "split-type";
 
 import Preloader from "./Preloader";
 
@@ -132,6 +133,82 @@ function App() {
       repeat: -1,
     });
 
+    //CTA btn A animation
+
+    let ctaBtnText = new SplitType(".cta-text.a", {
+      types: "words, chars",
+      tagName: "span",
+    });
+
+let ctaBtn = document.querySelector(".cta-btn.a");
+
+
+let ctaBtnAnim = gsap.to(ctaBtnText.chars, {
+  paused: true,
+  yPercent: -100,
+  stagger: {
+    each: 0.02,
+  },
+});
+
+ctaBtn.addEventListener("mouseenter", () =>
+  ctaBtnAnim.play(),
+);
+ctaBtn.addEventListener("mouseleave", () =>
+  ctaBtnAnim.reverse(),
+);
+
+
+    //CTA btn B animation
+
+    let ctaBtnTextB = new SplitType(".cta-text.b", {
+      types: "words, chars",
+      tagName: "span",
+    });
+
+let ctaBtnB = document.querySelector(".cta-btn.b");
+
+
+let ctaBtnAnimB = gsap.to(ctaBtnTextB.chars, {
+  paused: true,
+  yPercent: -100,
+  stagger: {
+    each: 0.02,
+  },
+});
+
+ctaBtnB.addEventListener("mouseenter", () =>
+  ctaBtnAnimB.play(),
+);
+ctaBtnB.addEventListener("mouseleave", () =>
+  ctaBtnAnimB.reverse(),
+);
+
+
+    //CTA btn Footer animation
+
+    let ctaBtnTextFooter = new SplitType(".cta-text.footer", {
+      types: "words, chars",
+      tagName: "span",
+    });
+
+let ctaBtnFooter = document.querySelector(".cta-btn.footer");
+
+
+let ctaBtnAnimFooter = gsap.to(ctaBtnTextFooter.chars, {
+  paused: true,
+  yPercent: -100,
+  stagger: {
+    each: 0.02,
+  },
+});
+
+ctaBtnFooter.addEventListener("mouseenter", () =>
+  ctaBtnAnimFooter.play(),
+);
+ctaBtnFooter.addEventListener("mouseleave", () =>
+  ctaBtnAnimFooter.reverse(),
+);
 
   /*
   CustomLoader();

@@ -8,5 +8,4 @@ export default function Preloader() {
          .to(".dot-second", { opacity: 1, duration: 0.5 })
          .to(".dot-third", { opacity: 1, duration: 0.5 });
 
-    console.log("works")
 }
