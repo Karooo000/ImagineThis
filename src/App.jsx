@@ -1,8 +1,8 @@
 import { Canvas } from "@react-three/fiber";
-//import Model from "/src/PowerBank.jsx";
 import React, { useState, useEffect, useRef } from "react";
 
-import { ContactShadows,  useProgress } from "@react-three/drei";
+import { ContactShadows,  useProgress, Environment, SoftShadows } from "@react-three/drei";
+
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { useThree } from "@react-three/fiber";
 import { Perf } from "r3f-perf";
@@ -14,8 +14,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import SplitType from "split-type";
 
 import Preloader from "./Preloader";
-
-//import CustomLoader from "./CustomLoader";
 
 
 gsap.registerPlugin(ScrollTrigger);
@@ -269,7 +267,11 @@ ctaBtnFooter.addEventListener("mouseleave", () =>
 
   return (
     <>
-      <Model/>
+     <Canvas shadows dpr={[1, 2]}>
+        
+        <Environment files='http://localhost:5173/src/assets/skidpan_1k.exr' environmentIntensity={0.5}/>
+        <Model/>
+      </Canvas>
     </>
 
   );
