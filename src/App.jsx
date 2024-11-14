@@ -7,6 +7,8 @@ import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { useThree } from "@react-three/fiber";
 import { Perf } from "r3f-perf";
 
+import Model from "/src/Oakley.jsx"
+
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import SplitType from "split-type";
@@ -267,7 +269,7 @@ ctaBtnFooter.addEventListener("mouseleave", () =>
 
   return (
     <>
-
+      <Model/>
     </>
 
   );
