@@ -1,10 +1,9 @@
-import { Canvas } from "@react-three/fiber";
-import React, { useState, useEffect, useRef } from "react";
+import { Canvas, useThree } from "@react-three/fiber";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 
-import { ContactShadows,  useProgress, Environment, SoftShadows } from "@react-three/drei";
+import {useProgress, Environment, SoftShadows, View} from "@react-three/drei";
 
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
-import { useThree } from "@react-three/fiber";
 import { Perf } from "r3f-perf";
 
 import Model from "/src/Oakley.jsx"
@@ -23,6 +22,9 @@ gsap.registerPlugin(ScrollTrigger);
 
 
 function App() {
+
+ 
+
 
   Preloader()
 
@@ -263,14 +265,25 @@ ctaBtnFooter.addEventListener("mouseleave", () =>
       </Canvas>
   */
 
+///Users/karolinbraun/Documents/GitHub/Oakley/src/assets/kloofendal_48d_partly_cloudy_puresky_1k.hdr
+///Users/karolinbraun/Documents/GitHub/Oakley/src/assets/quarry_04_puresky_1k.hdr
+///Users/karolinbraun/Documents/GitHub/Oakley/src/assets/skidpan_1k.exr
+///Users/karolinbraun/Documents/GitHub/Oakley/src/assets/skidpan_1kPhotoshopped.hdr
+///Users/karolinbraun/Documents/GitHub/Oakley/src/assets/Less-exporu.hdr
+///Users/karolinbraun/Documents/GitHub/Oakley/src/assets/less-expov2.hdr
+///Users/karolinbraun/Documents/GitHub/Oakley/src/assets/more-expo.hdr
 
 
   return (
     <>
      <Canvas shadows dpr={[1, 2]}>
-        
-        <Environment files='http://localhost:5173/src/assets/skidpan_1k.exr' environmentIntensity={0.5}/>
-        <Model/>
+        <Environment files='http://localhost:5173/src/assets/skidpan_1k.exr' environmentIntensity={0.1}  />
+        <ambientLight intensity={0.15}/>
+        <Suspense fallback={null}>
+          <group>
+            <Model/>
+          </group>
+       </Suspense>
       </Canvas>
     </>
 
