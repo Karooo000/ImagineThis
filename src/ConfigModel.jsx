@@ -17,13 +17,13 @@ export function ConfigModel(props) {
     const [glassMaterial, setGlassMaterial] = useState(glassMaterialsArray[0])
 
     
-    const blueColOption = document.getElementById("blue")
-    const blackColOption = document.getElementById("black")
-    const pinkColOption = document.getElementById("pink")
-    const yellowColOption = document.getElementById("yellow")
+    const blueColOption = document.getElementById("bluee")
+    const blackColOption = document.getElementById("blackk")
+    const pinkColOption = document.getElementById("pinkk")
+    const yellowColOption = document.getElementById("yelloww")
 
-    const colorOptionTextTop = document.getElementById("col-name-lenses")
-    const colorOptionTextBottom = document.getElementById("col-name-frame")
+    const colorOptionTextTop = document.getElementById("col-name-lensess")
+    const colorOptionTextBottom = document.getElementById("col-name-framee")
 
 
     blueColOption.addEventListener("click", blueClickFunction)
@@ -60,39 +60,12 @@ export function ConfigModel(props) {
     }
    
     
-    
-
-    /**
-     
-  //batterybank material swap
-
-const blueCol = document.querySelector(".col-blue")
-const grayCol = document.querySelector(".col-gray")
-
-const [isBlueTrue, setIsBlueTrue] = useState(true);
-
-
-let pbMaterial = isBlueTrue ? 'PB material' : 'PB material Gray'
-
-
-blueCol.addEventListener("click", blueClick)
-grayCol.addEventListener("click", grayClick)
-
-    function blueClick(){
-        setIsBlueTrue(true)
-    }
-
-    function grayClick(){
-        setIsBlueTrue(false)   
-    }
-
-     */
-
-    //material={materials[`"${generalMaterial}"`]}
+    console.log("works")
+    //position={[0,-0.015,0]}
 
 
     return (
-      <group {...props} dispose={null} position={[0,-0.015,0]}>
+      <group {...props} dispose={null} >
         <PerspectiveCamera
           makeDefault={false}
           far={1000}

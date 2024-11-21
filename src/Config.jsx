@@ -1,37 +1,18 @@
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import React, { useState, useEffect, useRef, Suspense, useLayoutEffect } from "react";
-
 import {useProgress, Environment, PresentationControls, OrbitControls, ContactShadows, PerspectiveCamera} from "@react-three/drei";
-
 import { Perf } from "r3f-perf";
-
 import { ConfigModel } from "./ConfigModel";
 
 import gsap from "gsap";
 
-/*
-
-   <PresentationControls
-          global={false} // Spin globally or by dragging the model
-          cursor={true} // Whether to toggle cursor style on drag
-          snap={true} // Snap-back to center (can also be a spring config)
-          speed={2} // Speed factor
-          rotation={[0, 0, 0]} // Default rotation
-          polar={[-Math.PI/4, Math.PI/4]} // Vertical limits
-          azimuth={[-Infinity, Infinity]} // Horizontal limits
-        >
-           <ConfigModel />
-        </PresentationControls>;
-
-*/
 
 gsap.registerPlugin()
 
 
-
 function Config() {
-    const controlsRef = useRef()
-    const myCamera = useRef()
+  const controlsRef = useRef()
+  const myCamera = useRef()
 
 
 const [forceChangeX, setForceChangeX] = useState(0.000)
@@ -92,6 +73,18 @@ function changeNumber() {
 
   }
 
+  /**
+   <PerspectiveCamera
+            ref={myCamera}
+            makeDefault={true}
+            far={1000}
+            near={0.1}
+            fov={22.895}
+            position={[0.006, 0.069, -0.373]}
+            rotation={[-3.1, 0.007, 3.141]}
+            scale={0.172}
+          />
+   */
 
 //camera={{ position: [0.006, 0.069, -0.373], fov: 22.895, near:0.1, far:1000, rotation:[-3.1, 0.007, 3.141], scale:0.172 }}
 
@@ -113,12 +106,9 @@ function changeNumber() {
         <ambientLight intensity={0.15}/>
         <Suspense fallback={null}>
           <group>
-          <ConfigModel />
-          <OrbitControls ref={controlsRef} enablePan={false} minZoom={1} maxZoom={1} onEnd={handleEnd}/>
-       
-        <ContactShadows position={[0, -0.025, 0]} opacity={0.2} scale={1} />
-            
-
+            <OrbitControls ref={controlsRef} enablePan={false} enableZoom={false} onEnd={handleEnd}/>
+            <ConfigModel />
+            <ContactShadows position={[0, -0.025, 0]} opacity={0.2} scale={1} />
           </group>
        </Suspense>
       </Canvas>
