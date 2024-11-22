@@ -4,6 +4,8 @@ import { useGLTF, PerspectiveCamera } from '@react-three/drei'
 let filename = "http://localhost:5173/src/assets/OakleyConfigV20.glb"
 
 
+
+
 export function ConfigModel(props) {
     const { nodes, materials } = useGLTF(filename)
 

@@ -9,6 +9,24 @@ import gsap from "gsap";
 
 gsap.registerPlugin()
 
+let isMobileSize = window.innerWidth < 1280
+let isTabletSize = 550 < window.innerWidth && window.innerWidth < 1280
+
+//FOV based on screensize ( responsive )
+
+ const fovOriginal = 22.895
+
+ const scaleFactorDesktop = window.innerWidth / 1512
+ const scaleFactorTablet = window.innerWidth / 1300
+ const scaleFactorDesktopMob = window.innerWidth / 991
+
+ //desktop FOV
+ let scaleCof = 1 - scaleFactorDesktop
+ let fovInBetween = scaleCof * scaleCof * fovOriginal
+
+ let fovNewClamp = fovOriginal + fovInBetween
+ let fovNew = fovNewClamp > 25 ? 25 : fovNewClamp
+
 
 function Config() {
   const controlsRef = useRef()
@@ -97,7 +115,7 @@ function changeNumber() {
             makeDefault={true}
             far={1000}
             near={0.1}
-            fov={22.895}
+            fov={fovNew}
             position={[0.006, 0.069, -0.373]}
             rotation={[-3.1, 0.007, 3.141]}
             scale={0.172}

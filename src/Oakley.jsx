@@ -10,6 +10,24 @@ gsap.registerPlugin(ScrollTrigger);
 
 let filename = "http://localhost:5173/src/assets/OakleyAnimV1.glb"
 
+let isMobileSize = window.innerWidth < 1280
+let isTabletSize = 550 < window.innerWidth && window.innerWidth < 1280
+
+//FOV based on screensize ( responsive )
+
+ const fovOriginal = 22.895
+
+ const scaleFactorDesktop = window.innerWidth / 1512
+ const scaleFactorTablet = window.innerWidth / 1300
+ const scaleFactorDesktopMob = window.innerWidth / 991
+
+ //desktop FOV
+ let scaleCof = 1 - scaleFactorDesktop
+ let fovInBetween = scaleCof * scaleCof * fovOriginal
+
+ let fovNewClamp = fovOriginal + fovInBetween
+ let fovNew = fovNewClamp > 25 ? 25 : fovNewClamp
+
 
 export default function Model(props) {
     const group = useRef()
@@ -272,7 +290,7 @@ export default function Model(props) {
                     makeDefault={true}
                     far={1000}
                     near={0.1}
-                    fov={22.895}
+                    fov={fovNew}
                     position={[0, 6.441, 0]}
                     rotation={[-Math.PI / 2, 0, 0]}
                     scale={2.368}
