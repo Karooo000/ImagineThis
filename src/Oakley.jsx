@@ -33,6 +33,7 @@ export default function Model(props) {
     const group = useRef()
     const mmm = useRef()
     const tlDesk = useRef()
+    const tlMob = useRef()
     const wholeModel = useRef()
 
     const { nodes, materials, animations, scene } = useGLTF(filename)
@@ -51,7 +52,7 @@ export default function Model(props) {
         let whichDurationDesk = 10;
     
     
-        //const clipMob = actions.MobAnim;
+        const clipMob = actions.CameraMob;
         const clipDesktop = actions.CameraDesk;
 
         //console.log(actions.CameraDesk)
@@ -68,7 +69,7 @@ export default function Model(props) {
     
         mmm.current = gsap.matchMedia();
     
-        mmm.current.add("(min-width: 1280px)", () => {
+        mmm.current.add("(min-width: 992px)", () => {
           
           clipDesktop.play();
           //console.log("desktop clip plays")
@@ -114,8 +115,8 @@ export default function Model(props) {
  
         });
     
-        /*
-        mmm.current.add("(max-width: 1279px)", () => {
+        
+        mmm.current.add("(max-width: 991px)", () => {
           
           clipMob.play();
           //console.log("mob clip plays")
@@ -140,10 +141,10 @@ export default function Model(props) {
             ease: "none",
             //immediateRender: false,
             scrollTrigger: {
-              trigger: "#section-2",
+              trigger: "#section2",
               start: "top bottom",
               end: "bottom bottom",
-              endTrigger: "#section-6",
+              endTrigger: "#scroll-contain",
               scrub: 1,
               toggleActions: "restart restart reverse reverse",
             },
@@ -154,19 +155,15 @@ export default function Model(props) {
             proxyMob,
     
             {
-              time: maxMob,
+              time: 4.9999,
               ease: "none",
-              duration: whichDurationMob,
+              duration: whichDurationDesk,
             }
           );
     
-          /*
-          return () => { // optional
-            tlMob.current.kill()
-          };
-          *//*
+          
         });
-        */
+        
     })
 
 
@@ -197,11 +194,7 @@ export default function Model(props) {
     };
   
     useFrame(() => {
-        /*
-      gsap.to(wholeModel.current.position, {
-        y: pointer.current.y / 0.001 + 0.0005,
-        ease: "power1.easeOut",
-      });*/
+     
      
       gsap.to(wholeModel.current.rotation, {
         x: pointer.current.y / 50 ,
