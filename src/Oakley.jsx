@@ -8,7 +8,7 @@ import * as THREE from 'three';
 
 gsap.registerPlugin(ScrollTrigger);
 
-let filename = "http://localhost:5173/src/assets/OakleyAnimV1.glb"
+let filename = "http://localhost:5173/src/assets/OakleyAnimV7.glb"
 
 let isMobileSize = window.innerWidth < 1280
 let isTabletSize = 550 < window.innerWidth && window.innerWidth < 1280
