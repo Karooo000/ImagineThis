@@ -235,65 +235,6 @@ useEffect(() => {
 }, [isMobileSize]);
 
 
-  /*
-  CustomLoader();
-
-  let isMobileSize = window.innerWidth < 1280
-
-
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
-
-  useEffect(() => {
-    function handleResize() {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    }
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-
-
-  }, [isMobileSize]);
-  */
-  /*
-
-  <Canvas key={`${windowSize.width}-${windowSize.height}`}
-  style={{ width: "100%", height: "100%" }}>
-    */
-
-  //console.log(windowSize.width-windowSize.height)
-
-  //console.log(isMobileSize)
-
-  /*
-        <Canvas key={isMobileSize ? 'mobile' : 'desktop'}
-  style={{ width: "100%", height: "100%" }}>
-      
-        <Model />
-        <EffectComposer multisampling={4}>
-          <Bloom
-            luminanceThreshold={1.1}
-            intensity={0.15}
-            levels={3}
-            mipmapBlur
-          />
-        </EffectComposer>
-      </Canvas>
-  */
-
-///Users/karolinbraun/Documents/GitHub/Oakley/src/assets/kloofendal_48d_partly_cloudy_puresky_1k.hdr
-///Users/karolinbraun/Documents/GitHub/Oakley/src/assets/quarry_04_puresky_1k.hdr
-///Users/karolinbraun/Documents/GitHub/Oakley/src/assets/skidpan_1k.exr
-///Users/karolinbraun/Documents/GitHub/Oakley/src/assets/skidpan_1kPhotoshopped.hdr
-///Users/karolinbraun/Documents/GitHub/Oakley/src/assets/Less-exporu.hdr
-///Users/karolinbraun/Documents/GitHub/Oakley/src/assets/less-expov2.hdr
-///Users/karolinbraun/Documents/GitHub/Oakley/src/assets/more-expo.hdr
-
 
   return (
     <>
