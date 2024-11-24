@@ -62,7 +62,7 @@ export function ConfigModel(props) {
     }
    
     
-    console.log("works")
+    //console.log("works")
     //position={[0,-0.015,0]}
 
 

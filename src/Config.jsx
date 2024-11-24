@@ -9,23 +9,22 @@ import gsap from "gsap";
 
 gsap.registerPlugin()
 
-let isMobileSize = window.innerWidth < 1280
-let isTabletSize = 550 < window.innerWidth && window.innerWidth < 1280
+let isTabletSize = window.innerWidth < 1280
+
+let isSmallerSize = window.innerWidth < 800
 
 //FOV based on screensize ( responsive )
 
  const fovOriginal = 22.895
+ const scaleFactor = window.innerWidth / 1512
 
- const scaleFactorDesktop = window.innerWidth / 1512
- const scaleFactorTablet = window.innerWidth / 1300
- const scaleFactorDesktopMob = window.innerWidth / 991
+ let scaleCof = 1 - scaleFactor
+ let fovInBetween = scaleCof * fovOriginal
 
- //desktop FOV
- let scaleCof = 1 - scaleFactorDesktop
- let fovInBetween = scaleCof * scaleCof * fovOriginal
+ let fovNewTablet = (fovOriginal + fovInBetween) * 1.3
+ let fovNewMobile = (fovOriginal + fovInBetween) * 1.6
 
- let fovNewClamp = fovOriginal + fovInBetween
- let fovNew = fovNewClamp > 25 ? 25 : fovNewClamp
+ let endFov = isTabletSize ? isSmallerSize ? fovNewMobile :fovNewTablet : fovOriginal
 
 
 function Config() {
@@ -36,7 +35,7 @@ function Config() {
 const [forceChangeX, setForceChangeX] = useState(0.000)
 const [forceChangeY, setForceChangeY] = useState(0.000)
 const [forceChangeZ, setForceChangeZ] = useState(0.000)
-console.log(myCamera.current?.position)
+//console.log(myCamera.current?.position)
 
 
 let newCameraPosX = {var:0.000}
@@ -115,7 +114,7 @@ function changeNumber() {
             makeDefault={true}
             far={1000}
             near={0.1}
-            fov={fovNew}
+            fov={endFov}
             position={[0.006, 0.069, -0.373]}
             rotation={[-3.1, 0.007, 3.141]}
             scale={0.172}
