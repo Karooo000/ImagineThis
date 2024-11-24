@@ -212,6 +212,27 @@ ctaBtnFooter.addEventListener("mouseleave", () =>
   ctaBtnAnimFooter.reverse(),
 );
 
+let isMobileSize = window.innerWidth < 991
+
+
+const [windowSize, setWindowSize] = useState({
+  width: window.innerWidth,
+  height: window.innerHeight,
+});
+
+useEffect(() => {
+  function handleResize() {
+    setWindowSize({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+  }
+
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+
+
+}, [isMobileSize]);
 
 
   /*
@@ -276,7 +297,8 @@ ctaBtnFooter.addEventListener("mouseleave", () =>
 
   return (
     <>
-     <Canvas shadows dpr={[1, 2]}>
+     <Canvas key={isMobileSize ? 'mobile' : 'desktop'}
+  style={{ width: "100%", height: "100%" }} shadows dpr={[1, 2]}>
         <Environment files='http://localhost:5173/src/assets/skidpan_1k.exr' environmentIntensity={0.1}  />
         <ambientLight intensity={0.15}/>
         <Suspense fallback={null}>
