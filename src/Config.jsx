@@ -11,7 +11,7 @@ gsap.registerPlugin()
 
 let isTabletSize = window.innerWidth < 1280
 
-let isSmallerSize = window.innerWidth < 800
+let isSmallerSize = window.innerWidth < 700
 
 //FOV based on screensize ( responsive )
 
@@ -21,8 +21,8 @@ let isSmallerSize = window.innerWidth < 800
  let scaleCof = 1 - scaleFactor
  let fovInBetween = scaleCof * fovOriginal
 
- let fovNewTablet = (fovOriginal + fovInBetween) * 1.3
- let fovNewMobile = (fovOriginal + fovInBetween) * 1.6
+ let fovNewTablet = (fovOriginal + fovInBetween) * 1.2
+ let fovNewMobile = (fovOriginal + fovInBetween) * 1.4
 
  let endFov = isTabletSize ? isSmallerSize ? fovNewMobile :fovNewTablet : fovOriginal
 
@@ -105,10 +105,33 @@ function changeNumber() {
 
 //camera={{ position: [0.006, 0.069, -0.373], fov: 22.895, near:0.1, far:1000, rotation:[-3.1, 0.007, 3.141], scale:0.172 }}
 
+let isMobileSize = window.innerWidth < 991
+
+
+const [windowSize, setWindowSize] = useState({
+  width: window.innerWidth,
+  height: window.innerHeight,
+});
+
+useEffect(() => {
+  function handleResize() {
+    setWindowSize({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+  }
+
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+
+
+}, [isMobileSize]);
+
 
   return (
     <>
-     <Canvas shadows dpr={[1, 2]} >
+     <Canvas key={isMobileSize ? isSmallerSize ? 'mobile' : 'tablet' : 'desktop'}
+  style={{ width: "100%", height: "100%" }} shadows dpr={[1, 2]} >
      <PerspectiveCamera
             ref={myCamera}
             makeDefault={true}

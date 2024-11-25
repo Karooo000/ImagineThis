@@ -8,9 +8,9 @@ import * as THREE from 'three';
 
 gsap.registerPlugin(ScrollTrigger);
 
-let filename = "http://localhost:5173/src/assets/OakleyAnimV7.glb"
+let filename = "http://localhost:5173/src/assets/OakleyAnimV1.glb"
 
-let isMobileSize = window.innerWidth < 1280
+
 let isTabletSize = 991 < window.innerWidth && window.innerWidth < 1280
 
 //FOV based on screensize ( responsive )
@@ -18,24 +18,15 @@ let isTabletSize = 991 < window.innerWidth && window.innerWidth < 1280
  const fovOriginal = 22.895
 
  const scaleFactorDesktop = window.innerWidth / 1512
- const scaleFactorTablet = window.innerWidth / 1300
- const scaleFactorDesktopMob = window.innerWidth / 991
-
- //desktop FOV
  let scaleCof = 1 - scaleFactorDesktop
  let fovInBetween = scaleCof * scaleCof * fovOriginal
 
- //console.log(fovInBetween)
-
  let fovNewClamp = fovOriginal + fovInBetween
-
- //console.log(fovNewClamp)
-
  let fovNew = fovNewClamp > 25 ? 25 : fovNewClamp
 
  let fovNewTabletProof = isTabletSize ? 33 : fovNew
 
- console.log(fovNewTabletProof)
+
 
 
 export default function Model(props) {

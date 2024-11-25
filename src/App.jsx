@@ -17,6 +17,13 @@ import Preloader from "./Preloader";
 
 gsap.registerPlugin(ScrollTrigger);
 
+window.onbeforeunload = function () {
+  setTimeout(() => {
+
+    window.scroll({ top: -1, left: 0});
+  
+  }, 10); 
+}
 
 
 
