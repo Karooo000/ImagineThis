@@ -10,7 +10,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 let filename = "http://localhost:5173/src/assets/OakleyAnimV1.glb"
 
-
+let isMobileSize = window.innerWidth < 991
 let isTabletSize = 991 < window.innerWidth && window.innerWidth < 1280
 
 //FOV based on screensize ( responsive )
@@ -32,15 +32,68 @@ let isTabletSize = 991 < window.innerWidth && window.innerWidth < 1280
 export default function Model(props) {
     const group = useRef()
     const mmm = useRef()
+    const mm = useRef()
     const tlDesk = useRef()
     const tlMob = useRef()
     const wholeModel = useRef()
 
+    const { progress } = useProgress();
+
     const { nodes, materials, animations, scene } = useGLTF(filename)
     const { actions } = useAnimations(animations, group)
 
-    
 
+  if(progress > 99){
+    document.querySelector("html").style.position = "relative"
+  }
+
+    
+    useEffect(()=>{
+      setTimeout(() => {
+
+        if(progress > 99){
+          //console.log("anim starts")
+      
+          let moveMenu = gsap.fromTo
+          ('.menu', 
+            {yPercent: -120},
+            {yPercent: 0, duration: 1 , ease: "power4.out", delay: isMobileSize ? 2 : 1.5},
+        );
+            
+            let moveH1 = gsap.fromTo
+            ('.h1', 
+            {xPercent: -200},
+            {xPercent: 0, duration: 1, ease: "power4.out", delay: 0.5},
+        );
+
+            let moveH2 = gsap.fromTo
+            ('.h2', 
+            {xPercent: 200},
+            {xPercent: 0, duration: 1, ease: "power4.out", delay: 0.5},
+        );
+
+            let moveThe = gsap.fromTo
+            ('.text-the', 
+            {yPercent: 200, opacity: 0},
+            {yPercent: 0, opacity: 1, duration: 1.5, ease: "power4.out", delay: 1},
+        );
+
+            let moveLines = gsap.fromTo
+            ('.hero-line', 
+            {yPercent: -200},
+            {yPercent: 0, duration: 0.75, ease: "power4.out", delay: 1},
+        );
+
+        //.text-the
+
+        //.lines-contain
+  
+      
+        
+      
+      
+          }})
+    }, [])
     
    
 
@@ -163,6 +216,274 @@ export default function Model(props) {
     
           
         });
+
+        /** All animations for all screens STARTS */
+
+        /** Second Screen Intro STARTS */
+
+        const tlSecondIntro = gsap.timeline({
+          scrollTrigger: {
+            trigger: "#section2",
+            start: "top bottom",
+            end: "bottom bottom",
+            endTrigger: "#section2",
+            scrub: true,
+          }
+        })
+        tlSecondIntro.from(".h4.prizm", {
+            yPercent: 1700,
+            opacity: 0,
+            ease: "expo",
+            duration: 1,
+          }, "sameTimeSecondScreen");
+        tlSecondIntro.from(".h4.lenses", {
+            yPercent: 1200,
+            opacity: 0,
+            ease: "expo",
+            duration: 1,
+          }, "sameTimeSecondScreen");
+          tlSecondIntro.from(".h4.technology", {
+            yPercent: 700,
+            opacity: 0,
+            ease: "expo",
+            duration: 1,
+          }, "sameTimeSecondScreen");
+          tlSecondIntro.from("#textContainSecondScreen", {
+            yPercent: 700,
+            opacity: 0,
+            ease: "expo",
+            duration: 1,
+          }, "sameTimeSecondScreen");
+          tlSecondIntro.from(".mob-lenses-shadow", {
+            yPercent: 700,
+            opacity: 0,
+            ease: "expo",
+            duration: 1,
+          }, "sameTimeSecondScreen");
+
+          
+          /** Second Screen Intro FINISHES */
+
+          /** Second Screen Outro STARTS */
+
+          const tlSecondOutro = gsap.timeline({
+            scrollTrigger: {
+              trigger: "#section3",
+              start: "top bottom",
+              end: "bottom 50%",
+              endTrigger: "#section3",
+              scrub: true,
+            }
+          })
+  
+          tlSecondOutro.to(".h4.prizm", {
+              yPercent: -25,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeSecondScreenOutro");
+            tlSecondOutro.to(".h4.lenses", {
+              yPercent: -50,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeSecondScreenOutro");
+            tlSecondOutro.to(".h4.technology", {
+              yPercent: -75,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeSecondScreenOutro");
+            tlSecondOutro.to("#line-secondScreen", {
+              yPercent: -25,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeSecondScreenOutro");
+            tlSecondOutro.to("#textContainSecondScreen", {
+              yPercent: isMobileSize ? -20 : -40,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeSecondScreenOutro");
+            tlSecondOutro.to(".mob-lenses-shadow", {
+              yPercent: 250,
+              scale: 1.7,
+              opacity: 0,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeSecondScreenOutro");
+  
+
+          /** Second Screen Outro FINISHES */
+
+          /** Third Screen Intro STARTS */
+
+          const tlThirdIntro = gsap.timeline({
+            scrollTrigger: {
+              trigger: "#section3",
+              start: "top bottom",
+              end: "bottom bottom",
+              endTrigger: "#section3",
+              scrub: true,
+            }
+          })
+  
+            tlThirdIntro.from(".h4.noslip", {
+              yPercent: 2700,
+              opacity: 0,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeThirdScreen");
+            tlThirdIntro.from(".h4.grip", {
+              yPercent: 200,
+              opacity: 0,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeThirdScreen");
+            tlThirdIntro.from(".h4.unobtainium", {
+              yPercent: 700,
+              opacity: 0,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeThirdScreen");
+            //thirdScreenLine
+            tlThirdIntro.from("#thirdScreenLine", {
+              xPercent: -1220,
+              //opacity: 0,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeThirdScreen");
+            tlThirdIntro.from("#textThirdScreen", {
+              yPercent: 1500,
+              opacity: 0,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeThirdScreen");
+
+
+          /** Third Screen Intro FINISHES */
+
+          /** Third Screen Outro STARTS */
+
+          const tlThirdOutro = gsap.timeline({
+            scrollTrigger: {
+              trigger: "#section4",
+              start: "top bottom",
+              end: "bottom 50%",
+              endTrigger: "#section4",
+              scrub: true,
+            }
+          })
+  
+            tlThirdOutro.to(".h4.noslip", {
+              yPercent: -10,
+              //opacity: 0,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeThirdScreenOutro");
+            tlThirdOutro.to(".h4.grip", {
+              yPercent: isMobileSize ? -40 : -100,
+              //opacity: 0,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeThirdScreenOutro");
+            tlThirdOutro.to(".h4.unobtainium", {
+              yPercent: isMobileSize ? -70 : -25,
+              //opacity: 0,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeThirdScreenOutro");
+            //thirdScreenLine
+            tlThirdOutro.to("#thirdScreenLine", {
+              xPercent: -200,
+              opacity: 0,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeThirdScreenOutro");
+            tlThirdOutro.to("#textThirdScreen", {
+              yPercent: isMobileSize ? -30 : -130,
+              //opacity: 0,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeThirdScreenOutro");
+
+          /** Third Screen Outro FINISHES */
+          
+
+        /** All animations for all screens FINISHES */
+
+
+        mm.current = gsap.matchMedia()
+        mm.current.add("(min-width: 992px)", () => {
+
+          // Hero Leave anim
+
+          //gsap.set(".hero-shadow", { yPercent: 0, opacity: 1 });
+
+          const tlHeroLeaveDesk = gsap.timeline({
+            scrollTrigger: {
+              trigger: "#section2",
+              start: "top bottom",
+              end: "bottom 50%",
+              endTrigger: "#section2",
+              scrub: true,
+            }
+          })
+
+          tlHeroLeaveDesk.to(".hero-shadow", {
+              yPercent: 300,
+              opacity: 0,
+              ease: "expo",
+              duration: 0.5,
+            }, "sameTimeDesk");
+            tlHeroLeaveDesk.to(".h2", {
+              yPercent: -25,
+              ease: "expo",
+              duration: 0.5,
+            }, "sameTimeDesk");
+            
+
+
+          })
+
+        mm.current.add("(max-width: 991px)", () => {
+
+            // Hero Leave anim
+  
+            //gsap.set(".hero-shadow", { yPercent: 0, opacity: 1 });
+  
+            const tlHeroLeaveMobile = gsap.timeline({
+              scrollTrigger: {
+                trigger: "#section2",
+                start: "top bottom",
+                end: "bottom 50%",
+                endTrigger: "#section2",
+                scrub: true,
+              }
+            })
+  
+            tlHeroLeaveMobile.to(".hero-shadow", {
+                yPercent: 600,
+                opacity: 0,
+                ease: "expo",
+                duration: 0.5,
+              }, "sameTime");
+              tlHeroLeaveMobile.to(".hero-line", {
+                yPercent: -200,
+                ease: "expo",
+                duration: 0.5,
+              },"sameTime");
+              tlHeroLeaveMobile.to(".h1", {
+                yPercent: -50,
+                
+                ease: "expo",
+                duration: 0.5,
+              },"sameTime");
+              tlHeroLeaveMobile.to(".h2", {
+                yPercent: -100,
+                ease: "expo",
+                duration: 0.5,
+              },"sameTime");
+              
+  
+  
+            })
         
     })
 
