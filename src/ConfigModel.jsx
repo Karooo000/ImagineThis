@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useGLTF, PerspectiveCamera } from '@react-three/drei'
 
-let filename = "http://localhost:5173/src/assets/OakleyConfigV20.glb"
+let filename = "https://glassescode.netlify.app/OakleyConfigV20.glb"
+//https://glassescode.netlify.app/
+//http://localhost:5173/src/assets/OakleyConfigV20.glb
 
 
 
