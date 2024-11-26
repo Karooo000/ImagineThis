@@ -325,7 +325,7 @@ export default function Model(props) {
           })
   
             tlThirdIntro.from(".h4.noslip", {
-              yPercent: 2700,
+              yPercent: 1000,
               opacity: 0,
               ease: "expo",
               duration: 1,
@@ -404,6 +404,311 @@ export default function Model(props) {
             }, "sameTimeThirdScreenOutro");
 
           /** Third Screen Outro FINISHES */
+
+          /** Fourth Screen Intro STARTS */
+          const tlFourthIntro = gsap.timeline({
+            scrollTrigger: {
+              trigger: "#section4",
+              start: "top bottom",
+              end: "bottom bottom",
+              endTrigger: "#section4",
+              scrub: true,
+            }
+          })
+  
+            tlFourthIntro.from(".h4.oneeighty", {
+              yPercent: 200,
+              opacity: 0,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeFourthScreen");
+            tlFourthIntro.from(".h4.degree", {
+              yPercent: 1200,
+              opacity: 0,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeFourthScreen");
+            tlFourthIntro.from(".h4.coverage", {
+              yPercent: 3700,
+              opacity: 0,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeFourthScreen");
+            tlFourthIntro.from("#textBoxFourth", {
+              yPercent: 1200,
+              opacity: 0,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeFourthScreen");
+            tlFourthIntro.from("#coverageShadow", {
+              yPercent: -100,
+              rotationZ: -90,
+              xPercent: 1500,
+              opacity: 0,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeFourthScreen");
+          /** Fourth Screen Intro FINISHES */
+
+          /** Fourth Screen Outro STARTS */
+
+          const tlFourthOutro = gsap.timeline({
+            scrollTrigger: {
+              trigger: "#section5",
+              start: "top bottom",
+              end: "bottom 50%",
+              endTrigger: "#section5",
+              scrub: true,
+            }
+          })
+  
+            tlFourthOutro.to(".h4.oneeighty", {
+              yPercent: -20,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeFourthScreenOutro");
+            tlFourthOutro.to(".h4.degree", {
+              yPercent: -50,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeFourthScreenOutro");
+            tlFourthOutro.to(".h4.coverage", {
+              yPercent: -80,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeFourthScreenOutro");
+            tlFourthOutro.to("#textBoxFourth", {
+              yPercent: -30,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeFourthScreenOutro");
+            
+            tlFourthOutro.to("#coverageShadow", {
+              yPercent: isMobileSize ? 120 : 80,
+              scale: 1.2,
+              opacity: 0,
+              ease: "expo",
+              duration: 1,
+            }, "sameTimeFourthScreenOutro");
+            
+
+            /** Fourth Screen Outro FINISHES */
+
+            /** Fifth Screen Intro STARTS */
+            const tlFifthIntro = gsap.timeline({
+              scrollTrigger: {
+                trigger: "#section5",
+                start: "top bottom",
+                end: "bottom bottom",
+                endTrigger: "#section5",
+                scrub: true,
+              }
+            })
+    
+              tlFifthIntro.from(".h4.optimized", {
+                yPercent: 500,
+                opacity: 0,
+                ease: "expo",
+                duration: 1,
+              }, "sameTimeFifthScreen");
+              tlFifthIntro.from(".h4.for", {
+                yPercent: 50,
+                opacity: 0,
+                ease: "expo",
+                duration: 1,
+              }, "sameTimeFifthScreen");
+              tlFifthIntro.from(".h4.fit", {
+                yPercent: 600,
+                opacity: 0,
+                ease: "expo",
+                duration: 1,
+              }, "sameTimeFifthScreen");
+              tlFifthIntro.from(".h4.helmets", {
+                yPercent: 100,
+                opacity: 0,
+                ease: "expo",
+                duration: 1,
+              }, "sameTimeFifthScreen");
+              tlFifthIntro.from("#textBoxFifth", {
+                yPercent: 50,
+                opacity: 0,
+                ease: "expo",
+                duration: 1,
+              }, "sameTimeFifthScreen");
+              tlFifthIntro.from(".helmet-shadow", {
+                yPercent: -300,
+                scale: 0.7,
+                opacity: 0,
+                ease: "expo",
+                duration: 1,
+              }, "sameTimeFifthScreen");
+            /** Fifth Screen Intro FINISHES */
+
+            /** Fifth  Screen Outro STARTS */
+            const tlFifthOutro = gsap.timeline({
+              scrollTrigger: {
+                trigger: "#chooseStyless",
+                start: "top bottom",
+                end: "bottom 50%",
+                endTrigger: "#chooseStyless",
+                scrub: true,
+              }
+            })
+  
+              tlFifthOutro.to(".h4.optimized", {
+                yPercent: -20,
+                //opacity: 0,
+                ease: "expo",
+                duration: 1,
+              }, "sameTimeFifthScreenOutro");
+              tlFifthOutro.to(".h4.for", {
+                yPercent: -50,
+                //opacity: 0,
+                ease: "expo",
+                duration: 1,
+              }, "sameTimeFifthScreenOutro");
+              tlFifthOutro.to(".h4.fit", {
+                yPercent: -40,
+                //opacity: 0,
+                ease: "expo",
+                duration: 1,
+              }, "sameTimeFifthScreenOutro");
+              tlFifthOutro.to(".h4.helmets", {
+                yPercent: -100,
+                //opacity: 0,
+                ease: "expo",
+                duration: 1,
+              }, "sameTimeFifthScreenOutro");
+              tlFifthOutro.to("#textBoxFifth", {
+                yPercent: -40,
+                opacity: isMobileSize ? 0 : 1,
+                ease: "expo",
+                duration: 1,
+              }, "sameTimeFifthScreenOutro");
+            
+            /** Fifth  Screen Outro FINISHES */
+
+            /** Config intro STARTS */
+            //left-contain
+            const tlConfigIntro = gsap.timeline({
+              scrollTrigger: {
+                trigger: "#chooseStyless",
+                start: "top bottom",
+                end: "bottom bottom",
+                endTrigger: "#chooseStyless",
+                scrub: 1,
+              }
+            })
+    
+              tlConfigIntro.from(".left-contain", {
+                xPercent: isMobileSize ? 0 : -50,
+                yPercent: isMobileSize ? 100 : 0,
+                opacity: 0,
+                ease: "expo",
+                duration: 3,
+              }, "sameTimeSixthScreen");
+
+            /** Config intro FINISHES */
+
+            /** Config outro STARTS */
+            const tlConfigOutro = gsap.timeline({
+              scrollTrigger: {
+                trigger: "#testimonials",
+                start: "top bottom",
+                end: "bottom 50%",
+                endTrigger: "#testimonials",
+                scrub: true,
+              }
+            })
+  
+              tlConfigOutro.to(".price-line-contain", {
+                yPercent: -70,
+                opacity: 0,
+                ease: "expo",
+                duration: 1,
+              }, "sameTimeSixthScreenOutro");
+              tlConfigOutro.to(".left-contain", {
+                xPercent: isMobileSize ? 0 : -50,
+                yPercent: isMobileSize ? -100 : 0,
+                opacity: 0,
+                ease: "expo",
+                duration: 3,
+              }, "sameTimeSixthScreenOutro");
+            /** Config outro FINISHES */
+
+            /** FAQ intro STARTS */
+            const tlFAQIntro = gsap.timeline({
+              scrollTrigger: {
+                trigger: "#faq",
+                start: "top bottom",
+                end: "bottom bottom",
+                endTrigger: "#faq",
+                scrub: 1,
+              }
+            })
+    
+              tlFAQIntro.from(".h4.frequently", {
+                yPercent: 500,
+                opacity: 0,
+                ease: "expo",
+                duration: 1,
+              }, "sameTimeFAQ");
+              tlFAQIntro.from(".h4.asked", {
+                yPercent: 250,
+                opacity: 0,
+                ease: "expo",
+                duration: 1,
+              }, "sameTimeFAQ");
+              tlFAQIntro.from(".h4.questions", {
+                yPercent: 100,
+                opacity: 0,
+                ease: "expo",
+                duration: 1,
+              }, "sameTimeFAQ");
+              tlFAQIntro.from(".faq-main-contain", {
+                yPercent: 100,
+                opacity: 0,
+                ease: "expo",
+                duration: 1,
+              }, "sameTimeFAQ");
+            /** FAQ intro FINISHES */
+
+            /** FAQ outro STARTS */
+            const tlFAQOutro = gsap.timeline({
+              scrollTrigger: {
+                trigger: "#pics",
+                start: "top bottom",
+                end: "bottom 50%",
+                endTrigger: "#pics",
+                scrub: true,
+              }
+            })
+
+              tlFAQOutro.to(".h4.frequently", {
+                yPercent: -50,
+                //opacity: 0,
+                ease: "expo",
+                duration: 1,
+              }, "sameTimeFAQOutro");
+              tlFAQOutro.to(".h4.asked", {
+                yPercent: -75,
+                //opacity: 0,
+                ease: "expo",
+                duration: 1,
+              }, "sameTimeFAQOutro");
+              tlFAQOutro.to(".h4.questions", {
+                yPercent: -110,
+                //opacity: 0,
+                ease: "expo",
+                duration: 1,
+              }, "sameTimeFAQOutro");
+              tlFAQOutro.to(".faq-main-contain", {
+                yPercent: -20,
+                opacity: 0,
+                ease: "expo",
+                duration: 1,
+              }, "sameTimeFAQOutro");
+            /** FAQ outro FINISHES */
           
 
         /** All animations for all screens FINISHES */
