@@ -142,7 +142,7 @@ useEffect(() => {
             rotation={[-3.1, 0.007, 3.141]}
             scale={0.172}
           />
-        <Environment files='http://localhost:5173/src/assets/skidpan_1k.exr' background={false} environmentIntensity={0.1} environmentRotation={[0, Math.PI, 0]}/>
+        <Environment files='https://glassescode.netlify.app/skidpan_1k.exr' background={false} environmentIntensity={0.1} environmentRotation={[0, Math.PI, 0]}/>
         <ambientLight intensity={0.15}/>
         <Suspense fallback={null}>
           <group>

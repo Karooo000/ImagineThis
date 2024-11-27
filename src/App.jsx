@@ -247,7 +247,7 @@ useEffect(() => {
     <>
      <Canvas key={isMobileSize ? 'mobile' : 'desktop'}
   style={{ width: "100%", height: "100%" }} shadows dpr={[1, 2]}>
-        <Environment files='http://localhost:5173/src/assets/skidpan_1k.exr' environmentIntensity={0.1}  />
+        <Environment files='https://glassescode.netlify.app/skidpan_1k.exr' environmentIntensity={0.1}  />
         <ambientLight intensity={0.15}/>
         <Suspense fallback={null}>
           <group>
