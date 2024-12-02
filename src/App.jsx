@@ -17,13 +17,80 @@ import Preloader from "./Preloader";
 
 gsap.registerPlugin(ScrollTrigger);
 
+
+window.onbeforeunload = function () {
+
+  setTimeout(function() {
+    document.body.addEventListener('touchstart', function() {
+      window.scrollTo(0, 0); // Use touchstart to reset scroll position
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    });}, 500)
+
+}
+
+
+
+window.addEventListener('load', function() {
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+  }
+
+  sessionStorage.clear()
+  
+  //console.log(document.documentElement.scrollTop)
+  //console.log(document.body.scrollTop)
+
+
+
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 100); // Delay by 100ms or adjust as needed
+  });
+});
+
+
+
+
+
+/* 
 window.onbeforeunload = function () {
   setTimeout(() => {
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
 
-    window.scroll({ top: -1, left: 0});
-  
+    document.addEventListener('DOMContentLoaded', function() {
+      // For Safari and other browsers
+      if (document.documentElement.scrollTop !== undefined) {
+        document.documentElement.scrollTop = 0; // Reset scroll position for HTML element
+      } else if (document.body.scrollTop !== undefined) {
+        document.body.scrollTop = 0; // Reset scroll position for body
+      } else {
+        window.scrollTo(0, 0); // Default reset for window scroll
+      }
+    });
+    */
+
+    /* window.scroll({ top: -1, left: 0});
+    document.body.scrollTop = 0
+    document.documentElement.scrollTop = 0; */
+  /*
   }, 10); 
 }
+ */
+
+/* window.onbeforeunload = function() {
+  //window.scrollTo(0, 0);
+  if (document.body.scrollTop !== undefined) {
+    document.body.scrollTop = 0; // For Safari and some old browsers
+  } else {
+    window.scrollTo(0, 0); // For most modern browsers
+  }
+}; */
 
 
 
@@ -41,12 +108,12 @@ function App() {
       trigger: "#pics",
       start: "top 80%",
       end: "bottom top",
-      onUpdate(self) {
+/*       onUpdate(self) {
         const velocity = self.getVelocity();
         if (velocity < 0) return;
         const timeScale = 3 + velocity / 400;
         gsap.timeline().to(tlPics, { duration: 0.1, timeScale }).to(tlPics, { duration: 1.5, timeScale: 1 });
-      },
+      }, */
     },
   });
 
@@ -62,12 +129,12 @@ function App() {
       trigger: "#pics",
       start: "top 80%",
       end: "bottom top",
-      onUpdate(self) {
+/*       onUpdate(self) {
         const velocity = self.getVelocity();
         if (velocity < 0) return;
         const timeScale = 3 + velocity / 400;
         gsap.timeline().to(tlPics2, { duration: 0.1, timeScale }).to(tlPics2, { duration: 1.5, timeScale: 1 });
-      },
+      }, */
     },
   });
 
@@ -83,12 +150,12 @@ function App() {
       trigger: "#pics",
       start: "top 80%",
       end: "bottom top",
-      onUpdate(self) {
+/*       onUpdate(self) {
         const velocity = self.getVelocity();
         if (velocity < 0) return;
         const timeScale = 3 + velocity / 400;
         gsap.timeline().to(tlPics3, { duration: 0.1, timeScale }).to(tlPics3, { duration: 1.5, timeScale: 1 });
-      },
+      }, */
     },
   });
 
@@ -105,12 +172,12 @@ function App() {
         trigger: "#testimonials",
         start: "top 80%",
         end: "bottom top",
-        onUpdate(self) {
+      /*   onUpdate(self) {
           const velocity = self.getVelocity();
           if (velocity < 0) return;
           const timeScale = 3 + velocity / 400;
           gsap.timeline().to(tlTestimonials, { duration: 0.1, timeScale }).to(tlTestimonials, { duration: 1.5, timeScale: 1 });
-        },
+        }, */
       },
     });
   
@@ -126,12 +193,12 @@ function App() {
         trigger: "#testimonials",
         start: "top 80%",
         end: "bottom top",
-        onUpdate(self) {
+        /* onUpdate(self) {
           const velocity = self.getVelocity();
           if (velocity < 0) return;
           const timeScale = 3 + velocity / 400;
           gsap.timeline().to(tlTestimonials2, { duration: 0.1, timeScale }).to(tlTestimonials2, { duration: 1.5, timeScale: 1 });
-        },
+        }, */
       },
     });
   

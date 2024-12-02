@@ -589,53 +589,8 @@ export default function Model(props) {
             
             /** Fifth  Screen Outro FINISHES */
 
-            /** Config intro STARTS */
-            //left-contain
-            const tlConfigIntro = gsap.timeline({
-              scrollTrigger: {
-                trigger: "#chooseStyless",
-                start: "top bottom",
-                end: "bottom bottom",
-                endTrigger: "#chooseStyless",
-                scrub: 1,
-              }
-            })
-    
-              tlConfigIntro.from(".left-contain", {
-                xPercent: isMobileSize ? 0 : -50,
-                yPercent: isMobileSize ? 100 : 0,
-                opacity: 0,
-                ease: "expo",
-                duration: 3,
-              }, "sameTimeSixthScreen");
 
-            /** Config intro FINISHES */
-
-            /** Config outro STARTS */
-            const tlConfigOutro = gsap.timeline({
-              scrollTrigger: {
-                trigger: "#testimonials",
-                start: "top bottom",
-                end: "bottom 50%",
-                endTrigger: "#testimonials",
-                scrub: true,
-              }
-            })
-  
-              tlConfigOutro.to(".price-line-contain", {
-                yPercent: -70,
-                opacity: 0,
-                ease: "expo",
-                duration: 1,
-              }, "sameTimeSixthScreenOutro");
-              tlConfigOutro.to(".left-contain", {
-                xPercent: isMobileSize ? 0 : -50,
-                yPercent: isMobileSize ? -100 : 0,
-                opacity: 0,
-                ease: "expo",
-                duration: 3,
-              }, "sameTimeSixthScreenOutro");
-            /** Config outro FINISHES */
+          
 
             /** FAQ intro STARTS */
             const tlFAQIntro = gsap.timeline({
@@ -745,6 +700,55 @@ export default function Model(props) {
             }, "sameTimeDesk");
             
 
+            /** Config intro STARTS */
+            //left-contain
+            const tlConfigIntro = gsap.timeline({
+              scrollTrigger: {
+                trigger: "#chooseStyless",
+                start: isMobileSize ? "top top" : "top bottom",
+                end: isMobileSize ? "top 70%" : "bottom bottom",
+                endTrigger: "#chooseStyless",
+                scrub: 1,
+                
+              }
+            })
+    
+              tlConfigIntro.from(".left-contain", {
+                xPercent: isMobileSize ? 0 : -50,
+                yPercent: isMobileSize ? 100 : 0,
+                opacity: 0,
+                ease: "expo",
+                duration: 3,
+              }, "sameTimeSixthScreen");
+
+            /** Config intro FINISHES */
+              
+                /** Config outro STARTS */
+            const tlConfigOutro = gsap.timeline({
+              scrollTrigger: {
+                trigger: "#testimonials",
+                start: "top bottom",
+                end: isMobileSize ? "bottom top" : "bottom 50%",
+                endTrigger: "#testimonials",
+                scrub: true,
+                
+              }
+            })
+  
+              tlConfigOutro.to(".price-line-contain", {
+                yPercent: isMobileSize ? -20 : -70,
+                opacity: 0,
+                ease: "expo",
+                duration: 1,
+              }, "sameTimeSixthScreenOutro");
+              tlConfigOutro.to(".left-contain", {
+                xPercent: isMobileSize ? 0 : -50,
+                yPercent: isMobileSize ? -100 : 0,
+                opacity: 0,
+                ease: "expo",
+                duration: 3,
+              }, "sameTimeSixthScreenOutro");
+            /** Config outro FINISHES */  
 
           })
 
@@ -786,8 +790,8 @@ export default function Model(props) {
                 ease: "expo",
                 duration: 0.5,
               },"sameTime");
-              
-  
+
+
   
             })
         
