@@ -21,17 +21,37 @@ gsap.registerPlugin(ScrollTrigger);
 window.onbeforeunload = function () {
 
   setTimeout(function() {
-    document.body.addEventListener('touchstart', function() {
-      window.scrollTo(0, 0); // Use touchstart to reset scroll position
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+  
+    sessionStorage.clear()
+    
+      window.scrollTo(-1, 0); // Use touchstart to reset scroll position
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
-    });}, 500)
+      //scrollToAnchor()
+      
+      
+       
+    }, 500)
+   
 
 }
-
-
-
+/* 
 window.addEventListener('load', function() {
+  setTimeout(function() {
+    document.getElementById('clicker-to-hero').click()
+  }, 700)
+
+})
+ */
+
+
+/*
+window.addEventListener('load', function() {
+  scrollToAnchor()
+  
   if ('scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
   }
@@ -42,7 +62,6 @@ window.addEventListener('load', function() {
   //console.log(document.body.scrollTop)
 
 
-
   document.addEventListener('DOMContentLoaded', function() {
     setTimeout(function() {
       window.scrollTo(0, 0);
@@ -50,7 +69,9 @@ window.addEventListener('load', function() {
       document.body.scrollTop = 0;
     }, 100); // Delay by 100ms or adjust as needed
   });
+ 
 });
+*/
 
 
 
