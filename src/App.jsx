@@ -125,7 +125,7 @@ function App() {
 
 
   Preloader()
-  //Scroll()
+  Scroll()
 
   //pics
   let tlPics = gsap.timeline({
