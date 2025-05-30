@@ -1,7 +1,7 @@
 import { Canvas, useThree } from "@react-three/fiber";
 import React, { useState, useEffect, useRef, Suspense } from "react";
 
-import {useProgress, Environment} from "@react-three/drei";
+import {useProgress, Environment, OrbitControls} from "@react-three/drei";
 import { EffectComposer, Bloom, HueSaturation, BrightnessContrast } from '@react-three/postprocessing';
 
 import Model from "./NeuralFractal.jsx"
@@ -32,8 +32,9 @@ function App() {
   return (
     <>
      <Canvas shadows>
-        <Environment files='src/assets/hospital_room_2_1k.hdr' environmentIntensity={0.15}  />
+        <Environment files='src/assets/hospital_room_2_1k.hdr' environmentIntensity={0.35}  />
 
+        <OrbitControls target={[1.262, 0.976, -0.247]}/>
         <CameraLayerSetup />
         
         <Suspense fallback={null}>
@@ -53,8 +54,8 @@ function App() {
           />
           <HueSaturation saturation={0.45} />{/* increase saturation (0 default, positive >1 higher) */}
           <BrightnessContrast
-            brightness={0.15} // brightness. min: -1, max: 1
-            contrast={0.35} // contrast: min -1, max: 1
+            //brightness={0.15} // brightness. min: -1, max: 1
+            contrast={0.15} // contrast: min -1, max: 1
           />
           
         </EffectComposer>

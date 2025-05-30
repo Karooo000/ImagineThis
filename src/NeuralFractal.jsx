@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react'
 import { useGLTF, PerspectiveCamera, useTexture } from '@react-three/drei'
 
-const modelURL = '/Fractals4.glb'
+const modelURL = '/fractalNEW.glb'
 
 export default function Model(props) {
 
@@ -10,7 +10,7 @@ export default function Model(props) {
   const glowingRef = useRef()
   const cameraRef = useRef()
 
-  const alphaMap = useTexture('src/assets/AlphaNew.jpg')
+  const alphaMap = useTexture('public/AlphaV2.png')
 
   // Set glowing mesh to layer 1
   useEffect(() => {
@@ -44,8 +44,8 @@ export default function Model(props) {
 
       {/* Your main fractal mesh on default layer 0 */}
       <mesh
-        castShadow
-        receiveShadow
+        //castShadow
+        //receiveShadow
         geometry={nodes.NeuralFractal.geometry}
         //material={materials.NeuralMaterial}
         position={[1.262, 0.976, -0.247]}
@@ -53,15 +53,13 @@ export default function Model(props) {
       >
            <meshStandardMaterial
                 map={materials.NeuralMaterial.map}
-                normalMap={materials.NeuralMaterial.normalMap}
                 roughnessMap={materials.NeuralMaterial.roughnessMap}
-                metalnessMap={materials.NeuralMaterial.metalnessMap}
                 alphaMap={alphaMap}
                 transparent={true}
                 ior={1.5} 
-                depthWrite={true}
-                depthTest={true}
-                side={2} // DoubleSide
+                //depthWrite={true}
+                //depthTest={true}
+                //side={2} // DoubleSide
                 //alphaTest={0.01} // Optional: removes fully transparent pixels
             />
       </mesh>
@@ -69,8 +67,8 @@ export default function Model(props) {
       {/* Glowing mesh on layer 1 */}
       <mesh
         ref={glowingRef}
-        castShadow
-        receiveShadow
+        //castShadow
+        //receiveShadow
         geometry={nodes.Spheres.geometry}
         position={[1.262, 0.976, -0.247]}
         scale={0.01}
