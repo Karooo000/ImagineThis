@@ -28,13 +28,13 @@ function App() {
 
 
 
+//<OrbitControls />
 
   return (
     <>
      <Canvas shadows>
         <Environment files='src/assets/hospital_room_2_1k.hdr' environmentIntensity={0.35}  />
 
-        <OrbitControls target={[1.262, 0.976, -0.247]}/>
         <CameraLayerSetup />
         
         <Suspense fallback={null}>
