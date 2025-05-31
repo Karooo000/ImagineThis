@@ -1,7 +1,7 @@
 import { Canvas, useThree } from "@react-three/fiber";
 import React, { useState, useEffect, useRef, Suspense } from "react";
 
-import {useProgress, Environment, OrbitControls} from "@react-three/drei";
+import {useProgress, Environment, OrbitControls, Sparkles} from "@react-three/drei";
 import { EffectComposer, Bloom, HueSaturation, Selection, SelectiveBloom, } from '@react-three/postprocessing';
 
 import Model from "./NeuralFractal.jsx"
@@ -32,7 +32,8 @@ function App() {
 
   return (
     <>
-     <Canvas shadows>
+     <Canvas shadows >
+  
         <Environment files='src/assets/hospital_room_2_1k.hdr' environmentIntensity={0.15}  />
 
         <CameraLayerSetup />
@@ -41,23 +42,36 @@ function App() {
         <Suspense fallback={null}>
         <group>
           <Model/>
+
+          <Sparkles count={30} color="#34ebe8" scale={[1.15, 1.15, 1.15]}  position={[0, 1, 0]} noise={40} speed={0.1} />
+          <Sparkles count={30} color="#365f9c" scale={[1.15, 1.15, 1.15]} position={[0, 1, 0]} noise={40} speed={0.1} />
+          <Sparkles count={30} color="#f7f389" scale={[1.15, 1.15, 1.15]} position={[0, 1, 0]} noise={40} speed={0.1} />
+          <Sparkles count={30} color="#ffffff" scale={[1.15, 1.15, 1.15]} position={[0, 1, 0]} noise={40} speed={0.1} />
+
+        {/*   <Sparkles position={[0, 1, 0]}
+            count={55}                // number of sparkles
+            scale={[1.15, 1.15, 1.15]}          // area they cover
+            size={2}                   // pixel size
+            speed={0.1}                // animation speed
+            noise={40}                  // jitter
+            //color="#c7eded"            // glow color
+            color="#1c5252"  
+          /> */}
         </group>
        </Suspense>
 
-        <Selection>
-          <EffectComposer multisampling={4}>
-            <SelectiveBloom
-              intensity={8.75}
-              
-              luminanceThreshold={0}
-              luminanceSmoothing={0.1}
-              width={3300}
-              height={3300}
-              radius={1.45}
-            />
-            <HueSaturation saturation={0.75} />
-          </EffectComposer>
-          </Selection>
+       <EffectComposer multisampling={4}>
+          <Bloom
+            mipmapBlur
+            intensity={1.5}              // Adjust to your taste
+            luminanceThreshold={1.0}     // Only bloom > 1.0 colors
+            luminanceSmoothing={0.0}
+            radius={0.1}
+          />
+          <HueSaturation saturation={0.55} />
+        </EffectComposer>
+
+        
       </Canvas>
     </>
 

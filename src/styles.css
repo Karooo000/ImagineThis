@@ -10,6 +10,8 @@ body {
   padding: 0;
   background-color: #111111;
   color: #fff;
+  font-size: 1vh;
+  line-height: 1;
  
 }
 
@@ -21,3 +23,11 @@ body {
 }
 
 
+
+.oval-gray {
+  position: absolute;
+  width: 80em;
+  height: 80em;
+  margin-left: 25vw;
+  background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0) 69%);
+}
