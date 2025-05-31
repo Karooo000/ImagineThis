@@ -4,9 +4,9 @@ import { useFrame } from '@react-three/fiber'
 
 import gsap from 'gsap'
 
-const modelURL = '/fractalNEWV10.glb'
+const modelURL = '/fractalNEWV13.glb'
 
-export default function Model(props) {
+export default function Model({ focusRef, ...props }) {
 
 
   const { nodes, materials } = useGLTF(modelURL)
@@ -14,8 +14,8 @@ export default function Model(props) {
   const glowingRef = useRef()
   const cameraRef = useRef()
   const wholeModel = useRef()
+ 
 
-  //const alphaMap = useTexture('public/AlphaMask.jpg')
 
   // Set glowing mesh to layer 1
   useEffect(() => {
@@ -25,92 +25,7 @@ export default function Model(props) {
   }, [])
 
 
-/* 
-    //Camera moves on mousemove
-    const pointer = useRef({ x: 0, y: 0 });
-    useEffect(() => {
-      // Listen for mouse move events on the document
-      document.addEventListener("mousemove", handleMouseMove);
-  
-      // Remove the event listener when the component unmounts
-      return () => {
-        document.removeEventListener("mousemove", handleMouseMove);
-      };
-    }, []);
-  
-    const handleMouseMove = event => {
-      const canvas = document.getElementById("root");
-      const canvasRect = canvas.getBoundingClientRect();
-  
-      const mouseX = event.clientX - canvasRect.left;
-      const mouseY = event.clientY - canvasRect.top;
-  
-      // Calculate the mouse position relative to the canvas
-      pointer.current = {
-        x: (mouseX / canvasRect.width) * 2 - 1,
-        y: -(mouseY / canvasRect.height) * 2 + 1,
-      };
-    };
-  
-    useFrame(() => {
-     
-     
-      gsap.to(wholeModel.current.rotation, {
-        x: pointer.current.y / 50 ,
-        ease: "power1.easeOut",
-      });
-      
-      gsap.to(wholeModel.current.rotation, {
-        y: pointer.current.x / 50 ,
-        ease: "power1.easeOut",
-      });
-        
-    });
-  
- */
-
-/* 
-    const baseTime = useRef(0)
-const mouseOffset = useRef({ x: 0, y: 0 })
-
-useEffect(() => {
-  const handleMouseMove = event => {
-    const canvas = document.getElementById("root")
-    const rect = canvas.getBoundingClientRect()
-    const x = (event.clientX - rect.left) / rect.width
-    const y = (event.clientY - rect.top) / rect.height
-
-    mouseOffset.current = {
-      x: (x - 0.5) * 0.3, // Adjust sensitivity
-      y: (y - 0.5) * 0.3,
-    }
-  }
-
-  document.addEventListener("mousemove", handleMouseMove)
-  return () => document.removeEventListener("mousemove", handleMouseMove)
-}, [])
-
-useFrame((state, delta) => {
-  if (!wholeModel.current) return
-
-  // Base orbit angle over time
-  baseTime.current += delta
-  const baseX = Math.sin(baseTime.current * 0.2) * 0.05
-  const baseY = Math.cos(baseTime.current * 0.2) * 0.05
-
-  // Combine base orbit + mouse offset
-  const targetX = baseX + mouseOffset.current.y
-  const targetY = baseY + mouseOffset.current.x
-
-  // Smoothly apply to camera position or rotation
-  wholeModel.current.position.x += (targetY - wholeModel.current.position.x) * 0.05
-  wholeModel.current.position.y += (targetX - wholeModel.current.position.y) * 0.05
-
-  // Optional: keep looking at center
-  //cameraRef.current.lookAt(0, 0.5, 0)
-})
-
- */
+/* Idle animation and mousemove */
 
 const baseTime = useRef(0)
 const targetRotation = useRef({ x: 0, y: 0 })
@@ -148,8 +63,8 @@ useFrame((_, delta) => {
   const finalY = idleY + targetRotation.current.y
 
   // Smoothly interpolate (lerp)
-  wholeModel.current.rotation.x += (finalX - wholeModel.current.rotation.x) * 0.05
-  wholeModel.current.rotation.y += (finalY - wholeModel.current.rotation.y) * 0.02
+  wholeModel.current.rotation.x += (finalX - wholeModel.current.rotation.x) * 0.01
+  wholeModel.current.rotation.y += (finalY - wholeModel.current.rotation.y) * 0.01
 })
 
 
@@ -177,6 +92,8 @@ useFrame((_, delta) => {
         receiveShadow
         geometry={nodes.NeuralFractal.geometry}
         material={materials.NeuralMaterial}
+        position={[0.022, 0, -0.024]}
+        rotation={[Math.PI, 0, Math.PI]}
       />
 
         <mesh
@@ -185,14 +102,14 @@ useFrame((_, delta) => {
           receiveShadow
           geometry={nodes.Spheres.geometry}
           //material={materials.Spheres}
-          position={[0.022, 0.853, -0.024]}
+          position={[0, 0.853, 0]}
+          rotation={[Math.PI, 0, Math.PI]}
         >
       
         <meshStandardMaterial
-                  color="#c7eded"
-                  //color="ff0000"
-                  emissive={[0.78 * 3, 0.93 * 3, 0.93 * 3]}
-                  //emissive={[0.204 * 5, 0.922 * 5, 0.91 * 5]}
+                  //color="#c7eded"
+                  color="#3a73ff"
+                  emissive={[0.78 * 2, 0.93 * 2, 0.93 * 2]}
                   emissiveIntensity={1.5}
                   toneMapped={false}
                 />
@@ -200,20 +117,29 @@ useFrame((_, delta) => {
         </mesh>
       </group>
       <pointLight
-        intensity={0.163054}
+        intensity={0.0363054}
         decay={2}
         color="#3a73ff"
         position={[-0.004, 0.526, -0.131]}
         rotation={[-Math.PI / 2, 0, 0]}
       />
       <spotLight
-        intensity={0.163054}
+        intensity={0.0463054}
         angle={Math.PI / 8}
         penumbra={0.15}
         decay={2}
         color="#ffe58e"
         position={[0, 1.523, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
+      />
+         <mesh
+        castShadow
+        receiveShadow
+        geometry={nodes.FocusTarget.geometry}
+        material={nodes.FocusTarget.material}
+        position={[-0.199, 0.788, 0.054]}
+        ref={focusRef}
+        visible={false}
       />
 </group>
 
