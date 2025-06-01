@@ -19,39 +19,6 @@ function CameraLayerSetup() {
   return null;
 }
 
-// NEW: Sparkles component with subtle noise change on mouse move
-function SparklesWithSubtleMouseNoise({ baseNoise = 40, ...props }) {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const noiseRef = useRef(baseNoise);
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      // normalize mouse position to [-1, 1]
-      const x = (e.clientX / window.innerWidth) * 2 - 1;
-      const y = (e.clientY / window.innerHeight) * 2 - 1;
-      setMousePos({ x, y });
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
-  useFrame(() => {
-    const maxIncrease = 2; // very subtle max increase in noise
-    const influence = Math.min(maxIncrease, (Math.abs(mousePos.x) + Math.abs(mousePos.y)) * 1);
-    const targetNoise = baseNoise + influence;
-
-    // very slow lerp for smooth subtle movement
-    noiseRef.current += (targetNoise - noiseRef.current) * 0.01;
-  });
-
-  return (
-    <Sparkles
-      {...props}
-      noise={noiseRef.current}
-    />
-  );
-}
 
 function App() {
 
@@ -73,7 +40,6 @@ function App() {
 
 
 
-
   return (
     <>
      <Canvas shadows >
@@ -86,8 +52,7 @@ function App() {
         <group>
           <Model focusRef={focusRef}/>
 
-            {/* Replace your Sparkles with the subtle mouse-reactive one */}
-            <SparklesWithSubtleMouseNoise
+            <Sparkles
               count={30}
               color="#34ebe8"
               scale={[1.15, 1.15, 1.15]}
@@ -95,7 +60,7 @@ function App() {
               speed={0.1}
               baseNoise={40}
             />
-            <SparklesWithSubtleMouseNoise
+            <Sparkles
               count={30}
               color="#365f9c"
               scale={[1.15, 1.15, 1.15]}
@@ -103,7 +68,7 @@ function App() {
               speed={0.1}
               baseNoise={40}
             />
-            <SparklesWithSubtleMouseNoise
+            <Sparkles
               count={30}
               color="#f7f389"
               scale={[1.15, 1.15, 1.15]}
@@ -111,14 +76,15 @@ function App() {
               speed={0.1}
               baseNoise={40}
             />
-            <SparklesWithSubtleMouseNoise
+            <Sparkles
               count={30}
               color="#ffffff"
               scale={[1.15, 1.15, 1.15]}
               position={[0, 1, 0]}
               speed={0.1}
               baseNoise={40}
-            />
+            /> 
+
         </group>
        </Suspense>
 
