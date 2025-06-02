@@ -4,7 +4,7 @@ import { useFrame } from '@react-three/fiber'
 
 import gsap from 'gsap'
 
-const modelURL = '/fractalNEWV13.glb'
+const modelURL = 'https://imaginethiscode.netlify.app/fractalNEWV4.glb'
 
 export default function Model({ focusRef, ...props }) {
 
@@ -82,7 +82,7 @@ useFrame((_, delta) => {
         far={100}
         near={0.1}
         fov={22.895}
-        position={[-0.079, 1.571, 1.778]}
+        position={[-0.039, 1.607, 1.757]}
         rotation={[-0.442, 0.068, 0.032]}
       />
       <group ref={wholeModel}>

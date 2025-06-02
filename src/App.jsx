@@ -6,6 +6,10 @@ import { EffectComposer, Bloom, HueSaturation, DepthOfField } from '@react-three
 
 import Model from "./NeuralFractal.jsx"
 
+import gsap from "gsap";
+//import { ScrollTrigger } from "gsap/ScrollTrigger";
+import SplitType from "split-type";
+
 /* Camera layers for bloom to be only on spheres */
 function CameraLayerSetup() {
   const { camera } = useThree();
@@ -38,13 +42,63 @@ function App() {
 
     /* Depth of field and blur ENDS*/
 
+        //works menu link animation
+
+        let worksMenuText = new SplitType(".works-text", {
+          types: "words, chars",
+          tagName: "span",
+        });
+    
+    let worksMenuBtn = document.querySelector(".link.works-btn");
+    
+    
+    let worksMenuAnim = gsap.to(worksMenuText.chars, {
+      paused: true,
+      yPercent: -100,
+      stagger: {
+        each: 0.03,
+      },
+    });
+    
+    worksMenuBtn.addEventListener("mouseenter", () =>
+      worksMenuAnim.play(),
+    );
+    worksMenuBtn.addEventListener("mouseleave", () =>
+      worksMenuAnim.reverse(),
+    );
+
+            //contact us menu link animation
+
+            let contactusMenuText = new SplitType(".contactus-text", {
+              types: "words, chars",
+              tagName: "span",
+            });
+        
+        let contactusMenuBtn = document.querySelector(".link.contactus-btn");
+        
+        
+        let contactusMenuAnim = gsap.to(contactusMenuText.chars, {
+          paused: true,
+          yPercent: -100,
+          stagger: {
+            each: 0.03,
+          },
+        });
+        
+        contactusMenuBtn.addEventListener("mouseenter", () =>
+          contactusMenuAnim.play(),
+        );
+        contactusMenuBtn.addEventListener("mouseleave", () =>
+          contactusMenuAnim.reverse(),
+        );
+
 
 
   return (
     <>
      <Canvas shadows >
   
-        <Environment files='src/assets/hospital_room_2_1k.hdr' environmentIntensity={0.005}/>
+        <Environment files='https://imaginethiscode.netlify.app/hospital_room_2_1k.hdr' environmentIntensity={0.005}/>
 
         <CameraLayerSetup />
         <Suspense fallback={null}>
