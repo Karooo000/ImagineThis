@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef, Suspense } from "react";
 import {useProgress, Environment, OrbitControls, Sparkles} from "@react-three/drei";
 import { EffectComposer, Bloom, HueSaturation, DepthOfField } from '@react-three/postprocessing';
 
+import { BrowserRouter as Router, useLocation } from "react-router-dom";
+
 import Model from "./NeuralFractal.jsx"
 
 import gsap from "gsap";
@@ -23,8 +25,17 @@ function CameraLayerSetup() {
   return null;
 }
 
+if (typeof window !== 'undefined') {
+  window.goToPath = (path) => {
+    window.history.pushState({}, "", path);
+    const navEvent = new PopStateEvent("popstate");
+    window.dispatchEvent(navEvent);
+  };
+}
 
-function App() {
+
+function Scene() {
+
 
   /* Depth of field and blur */
   const focusRef = useRef();
@@ -42,55 +53,83 @@ function App() {
 
     /* Depth of field and blur ENDS*/
 
-        //works menu link animation
 
-        let worksMenuText = new SplitType(".works-text", {
-          types: "words, chars",
-          tagName: "span",
-        });
-    
-    let worksMenuBtn = document.querySelector(".link.works-btn");
-    
-    
-    let worksMenuAnim = gsap.to(worksMenuText.chars, {
-      paused: true,
-      yPercent: -100,
-      stagger: {
-        each: 0.03,
-      },
-    });
-    
-    worksMenuBtn.addEventListener("mouseenter", () =>
-      worksMenuAnim.play(),
-    );
-    worksMenuBtn.addEventListener("mouseleave", () =>
-      worksMenuAnim.reverse(),
-    );
 
-            //contact us menu link animation
+   useEffect(() => {
+    /* Button hover effects START*/
+  const worksText = new SplitType(".works-text", {
+    types: "words, chars",
+    tagName: "span",
+  });
 
-            let contactusMenuText = new SplitType(".contactus-text", {
-              types: "words, chars",
-              tagName: "span",
-            });
-        
-        let contactusMenuBtn = document.querySelector(".link.contactus-btn");
-        
-        
-        let contactusMenuAnim = gsap.to(contactusMenuText.chars, {
-          paused: true,
-          yPercent: -100,
-          stagger: {
-            each: 0.03,
-          },
-        });
-        
-        contactusMenuBtn.addEventListener("mouseenter", () =>
-          contactusMenuAnim.play(),
-        );
-        contactusMenuBtn.addEventListener("mouseleave", () =>
-          contactusMenuAnim.reverse(),
-        );
+  const contactText = new SplitType(".contactus-text", {
+    types: "words, chars",
+    tagName: "span",
+  });
+
+  const worksAnim = gsap.to(worksText.chars, {
+    paused: true,
+    yPercent: -100,
+    stagger: 0.03,
+  });
+
+  const contactAnim = gsap.to(contactText.chars, {
+    paused: true,
+    yPercent: -100,
+    stagger: 0.03,
+  });
+
+  const handleEnter = () => contactAnim.play();
+  const handleLeave = () => contactAnim.reverse();
+  /* Button hover effects END*/
+
+    /* React Router Starts*/
+
+  const handleContactClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    window.goToPath("/contact-us");
+  };
+
+  const handleHomeClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    window.goToPath("/");
+  };
+
+  const contactBtn = document.querySelector(".contactus-btn");
+  const homeBtn = document.querySelector(".logo-btn");
+
+  if (contactBtn) {
+    /** Hover stuff */
+    contactBtn.addEventListener("mouseenter", handleEnter);
+    contactBtn.addEventListener("mouseleave", handleLeave);
+    /** Router stuff */
+    contactBtn.addEventListener("click", handleContactClick);
+  }
+
+  if (homeBtn) {
+    homeBtn.addEventListener("click", handleHomeClick);
+  }
+
+  // 🧼 CLEANUP:
+  return () => {
+    if (contactBtn) {
+      /** Hover stuff */
+      contactBtn.removeEventListener("mouseenter", handleEnter);
+      contactBtn.removeEventListener("mouseleave", handleLeave);
+      /** Router stuff */
+      contactBtn.removeEventListener("click", handleContactClick);
+    }
+    if (homeBtn) {
+      homeBtn.removeEventListener("click", handleHomeClick);
+    }
+  };
+  /* React Router Ends*/
+}, []);
+
+
+
 
 
 
@@ -150,7 +189,7 @@ function App() {
             luminanceSmoothing={0.0}
             radius={0.1}
           />
-          <HueSaturation saturation={0.55} />
+          <HueSaturation saturation={0.45} />
           <DepthOfField
             focalLength={1.6}    // Try larger, e.g. 0.5, 1.0
             bokehScale={50}      // Increase for bigger blur shapes
@@ -164,6 +203,69 @@ function App() {
       </Canvas>
     </>
 
+  );
+}
+
+
+
+function PageContent() {
+  const focusRef = useRef();
+  const location = useLocation();
+
+  useEffect(() => {
+  const homeContainer = document.querySelector(".container.home");
+  const contactContainer = document.querySelector(".container.contact");
+
+  const showHome = location.pathname === "/";
+  const showContact = location.pathname === "/contact-us";
+
+  if (homeContainer) {
+    if (showHome) {
+      gsap.set(homeContainer, { display: "flex", opacity: 0 }); 
+      gsap.to(homeContainer, { autoAlpha: 1, opacity: 1, duration: 0.6 });
+    } else {
+      gsap.to(homeContainer, {
+        autoAlpha: 0,
+        opacity: 0,
+        duration: 0.6,
+        onComplete: () => gsap.set(homeContainer, { display: "none" }),
+      });
+    }
+  }
+
+  if (contactContainer) {
+    if (showContact) {
+      gsap.set(contactContainer, { display: "flex", opacity: 0 });
+      gsap.to(contactContainer, { autoAlpha: 1, duration: 0.6, opacity: 1 });
+    } else {
+      gsap.to(contactContainer, {
+        autoAlpha: 0,
+        opacity: 0,
+        duration: 0.6,
+        onComplete: () => gsap.set(contactContainer, { display: "none" }),
+      });
+    }
+  }
+}, [location]);
+
+  return <Scene focusRef={focusRef} />;
+}
+
+
+export function App() {
+
+  useEffect(() => {
+    window.goToPath = (path) => {
+      window.history.pushState({}, "", path);
+      const navEvent = new PopStateEvent("popstate");
+      window.dispatchEvent(navEvent);
+    };
+  }, []);
+
+  return (
+    <Router>
+      <PageContent />
+    </Router>
   );
 }
 

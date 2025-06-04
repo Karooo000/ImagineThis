@@ -4,7 +4,9 @@ import { useFrame } from '@react-three/fiber'
 
 import gsap from 'gsap'
 
-const modelURL = 'https://imaginethiscode.netlify.app/fractalNEWV4.glb'
+//const modelURL = 'https://imaginethiscode.netlify.app/fractalNEWV4.glb'
+const modelURL = "http://localhost:5173/Fractal1.glb"
+
 
 export default function Model({ focusRef, ...props }) {
 
@@ -76,15 +78,18 @@ useFrame((_, delta) => {
         position={[4.076, 5.904, -1.005]}
         rotation={[-1.839, 0.602, 1.932]}
       />
-      <PerspectiveCamera
-        ref={cameraRef}
-        makeDefault={true}
-        far={100}
-        near={0.1}
-        fov={22.895}
-        position={[-0.039, 1.607, 1.757]}
-        rotation={[-0.442, 0.068, 0.032]}
-      />
+       <group name="Empty_-_Camera" position={[-0.008, 0.823, -0.033]} scale={0.14}>
+          <PerspectiveCamera
+            name="Camera"
+            makeDefault={true}
+            far={100}
+            near={0.1}
+            fov={22.895}
+            position={[-0.217, 5.606, 12.792]}
+            rotation={[-0.442, 0.068, 0.032]}
+            scale={7.146}
+          />
+        </group>
       <group ref={wholeModel}>
 
       <mesh

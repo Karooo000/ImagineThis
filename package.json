@@ -23,6 +23,7 @@
     "r3f-perf": "^7.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^7.6.2",
     "react-scripts": "^5.0.1",
     "split-type": "^0.3.4",
     "three": "^0.148.0"
