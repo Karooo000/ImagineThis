@@ -1,6 +1,8 @@
 import React, { useRef, useEffect } from 'react'
-import { useGLTF, PerspectiveCamera, useTexture } from '@react-three/drei'
+import { useGLTF, PerspectiveCamera, useTexture, useAnimations } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
+import * as THREE from 'three'
+
 
 import gsap from 'gsap'
 
@@ -8,15 +10,43 @@ import gsap from 'gsap'
 const modelURL = "http://localhost:5173/Fractal1.glb"
 
 
-export default function Model({ focusRef, ...props }) {
-
-
-  const { nodes, materials } = useGLTF(modelURL)
-
+export default function Model({ focusRef, animationDirection, ...props }) {
+  const group = useRef()
   const glowingRef = useRef()
   const cameraRef = useRef()
   const wholeModel = useRef()
- 
+
+  const { nodes, materials, animations } = useGLTF(modelURL)
+  const { actions } = useAnimations(animations, group)
+
+
+  //const cameraAction = actions["Empty - CameraAction"]
+
+  /** Play an action when Home -> Contact */
+useEffect(() => {
+  const cameraAction = actions["Empty - CameraAction"];
+  if (!cameraAction) {
+    console.warn("cameraAction not found");
+    return;
+  }
+
+  cameraAction.reset().setLoop(THREE.LoopOnce, 1);
+  cameraAction.clampWhenFinished = true;
+
+  console.log("Playing animation direction:", animationDirection);
+
+  if (animationDirection === "forward") {
+    cameraAction.time = 0;
+    cameraAction.setEffectiveTimeScale(1);
+    cameraAction.fadeIn(0.5).play();
+  } else if (animationDirection === "backward") {
+    cameraAction.time = cameraAction.getClip().duration;
+    cameraAction.setEffectiveTimeScale(-1);
+    cameraAction.fadeIn(0.5).play();
+  } else {
+    cameraAction.stop();
+  }
+}, [animationDirection, actions]);
 
 
   // Set glowing mesh to layer 1
@@ -69,9 +99,10 @@ useFrame((_, delta) => {
   wholeModel.current.rotation.y += (finalY - wholeModel.current.rotation.y) * 0.01
 })
 
+/* Idle animation and mousemove ENDS*/
 
   return (
-      <group {...props} dispose={null} >
+      <group ref={group} {...props} dispose={null} >
       <pointLight
         intensity={0.054351413}
         decay={2}

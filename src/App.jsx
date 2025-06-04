@@ -1,10 +1,10 @@
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
-import React, { useState, useEffect, useRef, Suspense } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react"
 
 import {useProgress, Environment, OrbitControls, Sparkles} from "@react-three/drei";
 import { EffectComposer, Bloom, HueSaturation, DepthOfField } from '@react-three/postprocessing';
 
-import { BrowserRouter as Router, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 
 import Model from "./NeuralFractal.jsx"
 
@@ -34,7 +34,7 @@ if (typeof window !== 'undefined') {
 }
 
 
-function Scene() {
+function Scene({ animationDirection  }) {
 
 
   /* Depth of field and blur */
@@ -143,7 +143,7 @@ function Scene() {
         <Suspense fallback={null}>
 
         <group>
-          <Model focusRef={focusRef}/>
+          <Model focusRef={focusRef} animationDirection={animationDirection}/>
 
             <Sparkles
               count={30}
@@ -208,53 +208,65 @@ function Scene() {
 
 
 
+
 function PageContent() {
-  const focusRef = useRef();
   const location = useLocation();
+  const prevPath = useRef(location.pathname);
+  const [playContactAnim, setPlayContactAnim] = useState(null);
 
   useEffect(() => {
-  const homeContainer = document.querySelector(".container.home");
-  const contactContainer = document.querySelector(".container.contact");
+    // Handle fade between home and contact containers
+    const homeContainer = document.querySelector(".container.home");
+    const contactContainer = document.querySelector(".container.contact");
 
-  const showHome = location.pathname === "/";
-  const showContact = location.pathname === "/contact-us";
+    const showHome = location.pathname === "/";
+    const showContact = location.pathname === "/contact-us";
 
-  if (homeContainer) {
-    if (showHome) {
-      gsap.set(homeContainer, { display: "flex", opacity: 0 }); 
-      gsap.to(homeContainer, { autoAlpha: 1, opacity: 1, duration: 0.6 });
-    } else {
-      gsap.to(homeContainer, {
+    const tl = gsap.timeline();
+
+    if (showHome && contactContainer && homeContainer) {
+      tl.to(contactContainer, {
         autoAlpha: 0,
-        opacity: 0,
-        duration: 0.6,
-        onComplete: () => gsap.set(homeContainer, { display: "none" }),
-      });
-    }
-  }
-
-  if (contactContainer) {
-    if (showContact) {
-      gsap.set(contactContainer, { display: "flex", opacity: 0 });
-      gsap.to(contactContainer, { autoAlpha: 1, duration: 0.6, opacity: 1 });
-    } else {
-      gsap.to(contactContainer, {
-        autoAlpha: 0,
-        opacity: 0,
-        duration: 0.6,
+        duration: 0.4,
         onComplete: () => gsap.set(contactContainer, { display: "none" }),
-      });
+      })
+        .set(homeContainer, { display: "flex" })
+        .to(homeContainer, { autoAlpha: 1, duration: 0.6 });
     }
+
+    if (showContact && homeContainer && contactContainer) {
+      tl.to(homeContainer, {
+        autoAlpha: 0,
+        duration: 0.4,
+        onComplete: () => gsap.set(homeContainer, { display: "none" }),
+      })
+        .set(contactContainer, { display: "flex" })
+        .to(contactContainer, { autoAlpha: 1, duration: 0.6 });
+    }
+  }, [location]);
+
+useEffect(() => {
+  const from = prevPath.current;
+  const to = location.pathname;
+
+  if (from === "/" && to === "/contact-us") {
+    setPlayContactAnim("forward");
+  } else if (from === "/contact-us" && to === "/") {
+    setPlayContactAnim("backward");
+  } else {
+    setPlayContactAnim(null);
   }
+
+  prevPath.current = to;
 }, [location]);
 
-  return <Scene focusRef={focusRef} />;
-}
 
+  return <Scene animationDirection={playContactAnim} />;
+}
 
 export function App() {
 
-  useEffect(() => {
+    useEffect(() => {
     window.goToPath = (path) => {
       window.history.pushState({}, "", path);
       const navEvent = new PopStateEvent("popstate");
@@ -263,10 +275,14 @@ export function App() {
   }, []);
 
   return (
-    <Router>
-      <PageContent />
-    </Router>
+    <BrowserRouter>
+      <Routes>
+        <Route path="*" element={<PageContent />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
+
+
 
 export default App;
