@@ -7,46 +7,65 @@ import * as THREE from 'three'
 import gsap from 'gsap'
 
 //const modelURL = 'https://imaginethiscode.netlify.app/fractalNEWV4.glb'
-const modelURL = "http://localhost:5173/Fractal1.glb"
+const modelURL = "http://localhost:5173/Fractal2.glb"
 
 
-export default function Model({ focusRef, animationDirection, ...props }) {
+export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBackContact, ...props }) {
   const group = useRef()
   const glowingRef = useRef()
   const cameraRef = useRef()
   const wholeModel = useRef()
+  const lastPlayedAnimation = useRef(null)
 
   const { nodes, materials, animations } = useGLTF(modelURL)
   const { actions } = useAnimations(animations, group)
 
-
+ console.log("testing")
   //const cameraAction = actions["Empty - CameraAction"]
 
-  /** Play an action when Home -> Contact */
-useEffect(() => {
-  const cameraAction = actions["Empty - CameraAction"];
-  if (!cameraAction) {
-    console.warn("cameraAction not found");
-    return;
-  }
+  /** Play animations based on navigation */
+  useEffect(() => {
+    const contractIntroAction = actions["ContractIntroAction"];
+    const backwardsContactAction = actions["BackwardsContact"];
 
-  cameraAction.reset().setLoop(THREE.LoopOnce, 1);
-  cameraAction.clampWhenFinished = true;
+    if (!contractIntroAction || !backwardsContactAction) {
+      console.warn("One or both animation actions not found");
+      return;
+    }
 
-  console.log("Playing animation direction:", animationDirection);
+    // Configure animations
+    [contractIntroAction, backwardsContactAction].forEach(action => {
+      action.setLoop(THREE.LoopOnce, 1);
+      action.clampWhenFinished = true;
+    });
 
-  if (animationDirection === "forward") {
-    cameraAction.time = 0;
-    cameraAction.setEffectiveTimeScale(1);
-    cameraAction.fadeIn(0.5).play();
-  } else if (animationDirection === "backward") {
-    cameraAction.time = cameraAction.getClip().duration;
-    cameraAction.setEffectiveTimeScale(-1);
-    cameraAction.fadeIn(0.5).play();
-  } else {
-    cameraAction.stop();
-  }
-}, [animationDirection, actions]);
+    const playAnimation = (action) => {
+      // Stop all animations immediately
+      Object.values(actions).forEach(a => {
+        a.stop();
+        a.enabled = false;
+      });
+
+      // Enable and play the target animation
+      action.enabled = true;
+      action.timeScale = 1;
+      action.time = 0;
+      action.play();
+      lastPlayedAnimation.current = action;
+    };
+
+    if (shouldPlayContactIntro && lastPlayedAnimation.current !== contractIntroAction) {
+      console.log("Playing ContractIntroAction");
+      playAnimation(contractIntroAction);
+    } else if (shouldPlayBackContact && lastPlayedAnimation.current !== backwardsContactAction) {
+      console.log("Playing BackwardsContact");
+      playAnimation(backwardsContactAction);
+    }
+
+    return () => {
+      // Don't stop animations on cleanup to maintain positions
+    };
+  }, [shouldPlayContactIntro, shouldPlayBackContact, actions]);
 
 
   // Set glowing mesh to layer 1
@@ -184,3 +203,4 @@ useFrame((_, delta) => {
 }
 
 useGLTF.preload(modelURL)
+

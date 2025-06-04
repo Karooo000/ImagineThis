@@ -34,7 +34,7 @@ if (typeof window !== 'undefined') {
 }
 
 
-function Scene({ animationDirection  }) {
+function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
 
 
   /* Depth of field and blur */
@@ -143,7 +143,11 @@ function Scene({ animationDirection  }) {
         <Suspense fallback={null}>
 
         <group>
-          <Model focusRef={focusRef} animationDirection={animationDirection}/>
+          <Model 
+            focusRef={focusRef} 
+            shouldPlayContactIntro={shouldPlayContactIntro}
+            shouldPlayBackContact={shouldPlayBackContact}
+          />
 
             <Sparkles
               count={30}
@@ -212,10 +216,12 @@ function Scene({ animationDirection  }) {
 function PageContent() {
   const location = useLocation();
   const prevPath = useRef(location.pathname);
-  const [playContactAnim, setPlayContactAnim] = useState(null);
+  const [shouldPlayContactIntro, setShouldPlayContactIntro] = useState(false);
+  const [shouldPlayBackContact, setShouldPlayBackContact] = useState(false);
+  const isAnimating = useRef(false);
 
+  // Handle fade between home and contact containers
   useEffect(() => {
-    // Handle fade between home and contact containers
     const homeContainer = document.querySelector(".container.home");
     const contactContainer = document.querySelector(".container.contact");
 
@@ -245,23 +251,45 @@ function PageContent() {
     }
   }, [location]);
 
-useEffect(() => {
-  const from = prevPath.current;
-  const to = location.pathname;
+  // Handle animation triggers
+  useEffect(() => {
+    const from = prevPath.current;
+    const to = location.pathname;
 
-  if (from === "/" && to === "/contact-us") {
-    setPlayContactAnim("forward");
-  } else if (from === "/contact-us" && to === "/") {
-    setPlayContactAnim("backward");
-  } else {
-    setPlayContactAnim(null);
-  }
+    console.log("Navigation:", { from, to });
 
-  prevPath.current = to;
-}, [location]);
+    if (isAnimating.current) {
+      return;
+    }
 
+    if (from === "/" && to === "/contact-us") {
+      console.log("Setting Contact Intro animation");
+      isAnimating.current = true;
+      setShouldPlayContactIntro(true);
+      setShouldPlayBackContact(false);
+      setTimeout(() => {
+        isAnimating.current = false;
+      }, 1000); // Adjust timeout based on your animation duration
+    } else if (from === "/contact-us" && to === "/") {
+      console.log("Setting Back Contact animation");
+      isAnimating.current = true;
+      setShouldPlayContactIntro(false);
+      setShouldPlayBackContact(true);
+      setTimeout(() => {
+        isAnimating.current = false;
+      }, 1000); // Adjust timeout based on your animation duration
+    } else {
+      setShouldPlayContactIntro(false);
+      setShouldPlayBackContact(false);
+    }
 
-  return <Scene animationDirection={playContactAnim} />;
+    prevPath.current = to;
+  }, [location]);
+
+  return <Scene 
+    shouldPlayContactIntro={shouldPlayContactIntro}
+    shouldPlayBackContact={shouldPlayBackContact}
+  />;
 }
 
 export function App() {
