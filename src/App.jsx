@@ -1,7 +1,7 @@
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import React, { useState, useEffect, useRef, Suspense } from "react"
 
-import {useProgress, Environment, OrbitControls, Sparkles} from "@react-three/drei";
+import {useProgress, Environment, OrbitControls, Sparkles, PerspectiveCamera} from "@react-three/drei";
 import { EffectComposer, Bloom, HueSaturation, DepthOfField } from '@react-three/postprocessing';
 
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
@@ -33,9 +33,9 @@ if (typeof window !== 'undefined') {
   };
 }
 
-
 function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
-
+  const location = useLocation();
+  const is404 = location.pathname !== "/" && location.pathname !== "/contact-us";
 
   /* Depth of field and blur */
   const focusRef = useRef();
@@ -53,85 +53,146 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
 
     /* Depth of field and blur ENDS*/
 
-
-
    useEffect(() => {
-    /* Button hover effects START*/
-  const worksText = new SplitType(".works-text", {
-    types: "words, chars",
-    tagName: "span",
-  });
+    /* ===== BUTTON HOVER EFFECTS START ===== */
 
-  const contactText = new SplitType(".contactus-text", {
-    types: "words, chars",
-    tagName: "span",
-  });
+    /* ----- Contact Button ----- */
+    const contactText = new SplitType(".contactus-text", {
+        types: "words, chars",
+        tagName: "span",
+    });
 
-  const worksAnim = gsap.to(worksText.chars, {
-    paused: true,
-    yPercent: -100,
-    stagger: 0.03,
-  });
+    const contactAnim = gsap.to(contactText.chars, {
+        paused: true,
+        yPercent: -100,
+        stagger: 0.03,
+    });
 
-  const contactAnim = gsap.to(contactText.chars, {
-    paused: true,
-    yPercent: -100,
-    stagger: 0.03,
-  });
+    const handleContactEnter = () => contactAnim.play();
+    const handleContactLeave = () => contactAnim.reverse();
 
-  const handleEnter = () => contactAnim.play();
-  const handleLeave = () => contactAnim.reverse();
-  /* Button hover effects END*/
+    /* ----- Works Button ----- */
+    const worksText = new SplitType(".works-text", {
+        types: "words, chars",
+        tagName: "span",
+    });
 
-    /* React Router Starts*/
+    const worksAnim = gsap.to(worksText.chars, {
+        paused: true,
+        yPercent: -100,
+        stagger: 0.03,
+    });
 
-  const handleContactClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    window.goToPath("/contact-us");
-  };
+    const handleWorksEnter = () => worksAnim.play();
+    const handleWorksLeave = () => worksAnim.reverse();
 
-  const handleHomeClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    window.goToPath("/");
-  };
+    /* ----- Submit Button ----- */
+    const submitText = new SplitType(".submit-text", {
+        types: "words, chars",
+        tagName: "span",
+    });
+  
+    const submitAnim = gsap.to(submitText.chars, {
+        paused: true,
+        yPercent: -100,
+        stagger: 0.03,
+    });
+  
+    const handleSubmitEnter = () => submitAnim.play();
+    const handleSubmitLeave = () => submitAnim.reverse();
 
-  const contactBtn = document.querySelector(".contactus-btn");
-  const homeBtn = document.querySelector(".logo-btn");
+    /* ----- Home Button ----- */
+    const homeText = new SplitType(".home-text", {
+        types: "words, chars",
+        tagName: "span",
+    });
 
-  if (contactBtn) {
-    /** Hover stuff */
-    contactBtn.addEventListener("mouseenter", handleEnter);
-    contactBtn.addEventListener("mouseleave", handleLeave);
-    /** Router stuff */
-    contactBtn.addEventListener("click", handleContactClick);
-  }
+    const homeAnim = gsap.to(homeText.chars, {
+        paused: true,
+        yPercent: -100,
+        stagger: 0.03,
+    });
 
-  if (homeBtn) {
-    homeBtn.addEventListener("click", handleHomeClick);
-  }
+    const handleHomeEnter = () => homeAnim.play();
+    const handleHomeLeave = () => homeAnim.reverse();
 
-  // 🧼 CLEANUP:
-  return () => {
+    /* ===== ROUTING FUNCTIONS ===== */
+    const handleContactClick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.goToPath("/contact-us");
+    };
+
+    const handleHomeClick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.goToPath("/");
+    };
+
+    /* ===== EVENT LISTENERS ===== */
+    const contactBtn = document.querySelector(".contactus-btn");
+    const worksBtn = document.querySelector(".works-btn");
+    const submitBtn = document.querySelector(".submit-button");
+    const homeBtn = document.querySelector(".home-btn");
+    const logoBtn = document.querySelector(".logo-btn");  // Add logo button selector
+
+    // Contact button listeners
     if (contactBtn) {
-      /** Hover stuff */
-      contactBtn.removeEventListener("mouseenter", handleEnter);
-      contactBtn.removeEventListener("mouseleave", handleLeave);
-      /** Router stuff */
-      contactBtn.removeEventListener("click", handleContactClick);
+        contactBtn.addEventListener("mouseenter", handleContactEnter);
+        contactBtn.addEventListener("mouseleave", handleContactLeave);
+        contactBtn.addEventListener("click", handleContactClick);
     }
+
+    // Works button listeners
+    if (worksBtn) {
+        worksBtn.addEventListener("mouseenter", handleWorksEnter);
+        worksBtn.addEventListener("mouseleave", handleWorksLeave);
+    }
+
+    // Submit button listeners
+    if (submitBtn) {
+        submitBtn.addEventListener("mouseenter", handleSubmitEnter);
+        submitBtn.addEventListener("mouseleave", handleSubmitLeave);
+    }
+
+    // Home button listener
     if (homeBtn) {
-      homeBtn.removeEventListener("click", handleHomeClick);
+        homeBtn.addEventListener("mouseenter", handleHomeEnter);
+        homeBtn.addEventListener("mouseleave", handleHomeLeave);
+        homeBtn.addEventListener("click", handleHomeClick);
     }
-  };
-  /* React Router Ends*/
+
+    // Logo button listener - same functionality as home button
+    if (logoBtn) {
+        logoBtn.addEventListener("click", handleHomeClick);
+    }
+
+    // 🧼 CLEANUP:
+    return () => {
+        if (contactBtn) {
+            contactBtn.removeEventListener("mouseenter", handleContactEnter);
+            contactBtn.removeEventListener("mouseleave", handleContactLeave);
+            contactBtn.removeEventListener("click", handleContactClick);
+        }
+        if (worksBtn) {
+            worksBtn.removeEventListener("mouseenter", handleWorksEnter);
+            worksBtn.removeEventListener("mouseleave", handleWorksLeave);
+        }
+        if (submitBtn) {
+            submitBtn.removeEventListener("mouseenter", handleSubmitEnter);
+            submitBtn.removeEventListener("mouseleave", handleSubmitLeave);
+        }
+        if (homeBtn) {
+            homeBtn.removeEventListener("mouseenter", handleHomeEnter);
+            homeBtn.removeEventListener("mouseleave", handleHomeLeave);
+            homeBtn.removeEventListener("click", handleHomeClick);
+        }
+        if (logoBtn) {
+            logoBtn.removeEventListener("click", handleHomeClick);
+        }
+    };
+    /* ===== BUTTON HOVER EFFECTS END ===== */
 }, []);
-
-
-
-
-
 
   return (
     <>
@@ -143,44 +204,58 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
         <Suspense fallback={null}>
 
         <group>
-          <Model 
-            focusRef={focusRef} 
-            shouldPlayContactIntro={shouldPlayContactIntro}
-            shouldPlayBackContact={shouldPlayBackContact}
+          {!is404 ? (
+            <Model 
+              focusRef={focusRef} 
+              shouldPlayContactIntro={shouldPlayContactIntro}
+              shouldPlayBackContact={shouldPlayBackContact}
+            />
+          ) : (
+            <group name="Empty_-_Camera" position={[-0.008, 0.823, -0.033]} scale={0.14}>
+              <PerspectiveCamera
+                name="Camera"
+                makeDefault={true}
+                far={100}
+                near={0.1}
+                fov={22.895}
+                position={[-0.217, 5.606, 12.792]}
+                rotation={[-0.442, 0.068, 0.032]}
+                scale={7.146}
+              />
+            </group>
+          )}
+          <Sparkles
+            count={30}
+            color="#34ebe8"
+            scale={[1.15, 1.15, 1.15]}
+            position={[0, 1, 0]}
+            speed={0.1}
+            baseNoise={40}
           />
-
-            <Sparkles
-              count={30}
-              color="#34ebe8"
-              scale={[1.15, 1.15, 1.15]}
-              position={[0, 1, 0]}
-              speed={0.1}
-              baseNoise={40}
-            />
-            <Sparkles
-              count={30}
-              color="#365f9c"
-              scale={[1.15, 1.15, 1.15]}
-              position={[0, 1, 0]}
-              speed={0.1}
-              baseNoise={40}
-            />
-            <Sparkles
-              count={30}
-              color="#f7f389"
-              scale={[1.15, 1.15, 1.15]}
-              position={[0, 1, 0]}
-              speed={0.1}
-              baseNoise={40}
-            />
-            <Sparkles
-              count={30}
-              color="#ffffff"
-              scale={[1.15, 1.15, 1.15]}
-              position={[0, 1, 0]}
-              speed={0.1}
-              baseNoise={40}
-            /> 
+          <Sparkles
+            count={30}
+            color="#365f9c"
+            scale={[1.15, 1.15, 1.15]}
+            position={[0, 1, 0]}
+            speed={0.1}
+            baseNoise={40}
+          />
+          <Sparkles
+            count={30}
+            color="#f7f389"
+            scale={[1.15, 1.15, 1.15]}
+            position={[0, 1, 0]}
+            speed={0.1}
+            baseNoise={40}
+          />
+          <Sparkles
+            count={30}
+            color="#ffffff"
+            scale={[1.15, 1.15, 1.15]}
+            position={[0, 1, 0]}
+            speed={0.1}
+            baseNoise={40}
+          /> 
 
         </group>
        </Suspense>
@@ -194,13 +269,15 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
             radius={0.1}
           />
           <HueSaturation saturation={0.45} />
-          <DepthOfField
-            focalLength={1.6}    // Try larger, e.g. 0.5, 1.0
-            bokehScale={50}      // Increase for bigger blur shapes
-            focusDistance={0.5}  // You can experiment with this (distance from camera)
-            target={focusRef.current}
-            layers={[0, 1]}  
-          />
+          {!is404 && (
+            <DepthOfField
+              focalLength={1.6}    // Try larger, e.g. 0.5, 1.0
+              bokehScale={50}      // Increase for bigger blur shapes
+              focusDistance={0.5}  // You can experiment with this (distance from camera)
+              target={focusRef.current}
+              layers={[0, 1]}  
+            />
+          )}
         </EffectComposer>
 
         
@@ -210,15 +287,13 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
   );
 }
 
-
-
-
 function PageContent() {
   const location = useLocation();
   const prevPath = useRef(location.pathname);
   const [shouldPlayContactIntro, setShouldPlayContactIntro] = useState(false);
   const [shouldPlayBackContact, setShouldPlayBackContact] = useState(false);
   const isAnimating = useRef(false);
+  const is404 = location.pathname !== "/" && location.pathname !== "/contact-us";
 
   // Handle fade between home and contact containers
   useEffect(() => {
@@ -228,37 +303,61 @@ function PageContent() {
     const showHome = location.pathname === "/";
     const showContact = location.pathname === "/contact-us";
 
-    const tl = gsap.timeline();
+    // Don't run animations for 404 page
+    if (is404) return;
+
+    const tl = gsap.timeline({
+      defaults: {
+        ease: "power2.inOut",
+        duration: 0.6
+      }
+    });
 
     if (showHome && contactContainer && homeContainer) {
+      // First set initial states
+      gsap.set(homeContainer, { 
+        visibility: "visible",
+        opacity: 0,
+        yPercent: 3
+      });
+      
       tl.to(contactContainer, {
-        autoAlpha: 0,
-        duration: 0.4,
-        onComplete: () => gsap.set(contactContainer, { display: "none" }),
+        opacity: 0,
+        yPercent: -3,
+        onComplete: () => gsap.set(contactContainer, { visibility: "hidden", yPercent: 0 })
       })
-        .set(homeContainer, { display: "flex" })
-        .to(homeContainer, { autoAlpha: 1, duration: 0.6 });
+      .to(homeContainer, { 
+        opacity: 1,
+        yPercent: 0
+      }, "-=0.4"); // Start slightly before previous animation ends
     }
 
     if (showContact && homeContainer && contactContainer) {
+      // First set initial states
+      gsap.set(contactContainer, { 
+        visibility: "visible",
+        opacity: 0,
+        yPercent: 3
+      });
+
       tl.to(homeContainer, {
-        autoAlpha: 0,
-        duration: 0.4,
-        onComplete: () => gsap.set(homeContainer, { display: "none" }),
+        opacity: 0,
+        yPercent: -3,
+        onComplete: () => gsap.set(homeContainer, { visibility: "hidden", yPercent: 0 })
       })
-        .set(contactContainer, { display: "flex" })
-        .to(contactContainer, { autoAlpha: 1, duration: 0.6 });
+      .to(contactContainer, { 
+        opacity: 1,
+        yPercent: 0
+      }, "-=0.4"); // Start slightly before previous animation ends
     }
-  }, [location]);
+  }, [location, is404]);
 
   // Handle animation triggers
   useEffect(() => {
     const from = prevPath.current;
     const to = location.pathname;
 
-    console.log("Navigation:", { from, to });
-
-    if (isAnimating.current) {
+    if (isAnimating.current || is404) {
       return;
     }
 
@@ -284,7 +383,7 @@ function PageContent() {
     }
 
     prevPath.current = to;
-  }, [location]);
+  }, [location, is404]);
 
   return <Scene 
     shouldPlayContactIntro={shouldPlayContactIntro}
@@ -293,8 +392,7 @@ function PageContent() {
 }
 
 export function App() {
-
-    useEffect(() => {
+  useEffect(() => {
     window.goToPath = (path) => {
       window.history.pushState({}, "", path);
       const navEvent = new PopStateEvent("popstate");
@@ -310,7 +408,5 @@ export function App() {
     </BrowserRouter>
   );
 }
-
-
 
 export default App;

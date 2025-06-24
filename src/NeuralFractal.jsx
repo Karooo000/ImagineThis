@@ -7,7 +7,7 @@ import * as THREE from 'three'
 import gsap from 'gsap'
 
 //const modelURL = 'https://imaginethiscode.netlify.app/fractalNEWV4.glb'
-const modelURL = "http://localhost:5173/Fractal2.glb"
+const modelURL = "http://localhost:5173/Fractal7.glb"
 
 
 export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBackContact, ...props }) {
@@ -20,7 +20,7 @@ export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBack
   const { nodes, materials, animations } = useGLTF(modelURL)
   const { actions } = useAnimations(animations, group)
 
- console.log("testing")
+
   //const cameraAction = actions["Empty - CameraAction"]
 
   /** Play animations based on navigation */
@@ -29,7 +29,7 @@ export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBack
     const backwardsContactAction = actions["BackwardsContact"];
 
     if (!contractIntroAction || !backwardsContactAction) {
-      console.warn("One or both animation actions not found");
+      //console.warn("One or both animation actions not found");
       return;
     }
 
@@ -55,10 +55,10 @@ export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBack
     };
 
     if (shouldPlayContactIntro && lastPlayedAnimation.current !== contractIntroAction) {
-      console.log("Playing ContractIntroAction");
+      //console.log("Playing ContractIntroAction");
       playAnimation(contractIntroAction);
     } else if (shouldPlayBackContact && lastPlayedAnimation.current !== backwardsContactAction) {
-      console.log("Playing BackwardsContact");
+      //console.log("Playing BackwardsContact");
       playAnimation(backwardsContactAction);
     }
 
@@ -114,8 +114,8 @@ useFrame((_, delta) => {
   const finalY = idleY + targetRotation.current.y
 
   // Smoothly interpolate (lerp)
-  wholeModel.current.rotation.x += (finalX - wholeModel.current.rotation.x) * 0.01
-  wholeModel.current.rotation.y += (finalY - wholeModel.current.rotation.y) * 0.01
+  wholeModel.current.rotation.x += (finalX - wholeModel.current.rotation.x) * 0.03
+  wholeModel.current.rotation.y += (finalY - wholeModel.current.rotation.y) * 0.03
 })
 
 /* Idle animation and mousemove ENDS*/
