@@ -123,18 +123,30 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
         console.log("🔥 Contact button clicked");
         e.preventDefault();
         e.stopPropagation();
+        
+        // Close mobile menu if clicking from mobile menu
+        const mobileMenuContainer = document.querySelector('.menu-open-wrap-dopo');
+        if (mobileMenuContainer && mobileMenuContainer.classList.contains('menu-open')) {
+            console.log("🔥 Closing mobile menu");
+            mobileMenuContainer.classList.remove('menu-open');
+        }
+        
         window.goToPath("/contact-us");
     };
 
     const handleHomeClick = (e) => {
         console.log("🔥 Home button clicked");
-        console.log("🔥 Event target:", e.target);
-        console.log("🔥 Event type:", e.type);
         e.preventDefault();
         e.stopPropagation();
-        console.log("🔥 About to call window.goToPath");
+        
+        // Close mobile menu if clicking from mobile menu
+        const mobileMenuContainer = document.querySelector('.menu-open-wrap-dopo');
+        if (mobileMenuContainer && mobileMenuContainer.classList.contains('menu-open')) {
+            console.log("🔥 Closing mobile menu");
+            mobileMenuContainer.classList.remove('menu-open');
+        }
+        
         window.goToPath("/");
-        console.log("🔥 window.goToPath called");
     };
 
     /* ===== EVENT LISTENERS ===== */
@@ -143,10 +155,30 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
     const submitBtn = document.querySelector(".submit-button");
     const homeBtn = document.querySelector(".home-btn");
     const logoBtn = document.querySelector(".logo-btn");  // Add logo button selector
+    
+    // Mobile menu buttons (inside .menu-open-wrap-dopo)
+    const mobileContactBtn = document.querySelector(".menu-open-wrap-dopo .one-menu-item[data-path='/contact-us']");
+    const mobileHomeBtn = document.querySelector(".menu-open-wrap-dopo .one-menu-item[data-path='/']");
+    
+    // Try alternative selectors for mobile home button
+    const mobileHomeBtnAlt1 = document.querySelector(".menu-open-wrap-dopo a[href='index.html']");
+    const mobileHomeBtnAlt2 = document.querySelector(".menu-open-wrap-dopo a[href='/']");
+    const mobileHomeBtnAlt3 = document.querySelector(".menu-open-wrap-dopo .one-menu-item");
+    
+    // Use the first found mobile home button
+    const finalMobileHomeBtn = mobileHomeBtn || mobileHomeBtnAlt1 || mobileHomeBtnAlt2;
 
     console.log("🔧 Setting up event listeners...");
     console.log("🔧 Contact button found:", contactBtn);
     console.log("🔧 Home button found:", homeBtn);
+    console.log("🔧 Mobile contact button found:", mobileContactBtn);
+    console.log("🔧 Mobile home button found:", mobileHomeBtn);
+    console.log("🔧 Final mobile home button found:", finalMobileHomeBtn);
+    console.log("🔧 Alternative mobile home buttons:", {
+        alt1: mobileHomeBtnAlt1,
+        alt2: mobileHomeBtnAlt2,
+        alt3: mobileHomeBtnAlt3
+    });
 
     // Contact button listeners
     if (contactBtn) {
@@ -166,37 +198,7 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
             console.log("🔥 Contact button POINTERDOWN detected");
         }, true);
         
-        // Force test the click handler directly
-        console.log("🔧 Testing click handler directly...");
-        setTimeout(() => {
-            console.log("🔧 Direct test: calling handleContactClick");
-            // Don't actually call it, just test that it exists
-            console.log("🔧 handleContactClick exists:", typeof handleContactClick === 'function');
-            
-            // Check if button is actually clickable
-            const computedStyle = window.getComputedStyle(contactBtn);
-            console.log("🔧 Contact button pointer-events:", computedStyle.pointerEvents);
-            console.log("🔧 Contact button z-index:", computedStyle.zIndex);
-            console.log("🔧 Contact button display:", computedStyle.display);
-            console.log("🔧 Contact button visibility:", computedStyle.visibility);
-            
-            // Check if button is in viewport
-            const rect = contactBtn.getBoundingClientRect();
-            console.log("🔧 Contact button position:", {
-                top: rect.top,
-                left: rect.left,
-                width: rect.width,
-                height: rect.height,
-                visible: rect.width > 0 && rect.height > 0
-            });
-            
-            // Button found but has zero dimensions - this explains why clicks don't work!
-            if (rect.width === 0 || rect.height === 0) {
-                console.warn("⚠️ Contact button has zero dimensions - this prevents user clicks!");
-                console.warn("⚠️ Button needs CSS fixes to be clickable");
-            }
-            
-        }, 1000);
+        console.log("🔧 Contact button setup complete");
         
     } else {
         console.warn("🔧 Contact button not found!");
@@ -232,6 +234,21 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
         logoBtn.addEventListener("click", handleHomeClick);
     }
 
+    // Mobile menu button listeners
+    if (mobileContactBtn) {
+        console.log("🔧 Attaching mobile contact button listeners");
+        mobileContactBtn.addEventListener("click", handleContactClick, true);
+    } else {
+        console.warn("🔧 Mobile contact button not found!");
+    }
+
+    if (finalMobileHomeBtn) {
+        console.log("🔧 Attaching mobile home button listeners to:", finalMobileHomeBtn);
+        finalMobileHomeBtn.addEventListener("click", handleHomeClick, true);
+    } else {
+        console.warn("🔧 Mobile home button not found with any selector!");
+    }
+
     // 🧼 CLEANUP:
     return () => {
         if (contactBtn) {
@@ -254,6 +271,12 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
         }
         if (logoBtn) {
             logoBtn.removeEventListener("click", handleHomeClick);
+        }
+        if (mobileContactBtn) {
+            mobileContactBtn.removeEventListener("click", handleContactClick);
+        }
+        if (finalMobileHomeBtn) {
+            finalMobileHomeBtn.removeEventListener("click", handleHomeClick);
         }
     };
     /* ===== BUTTON HOVER EFFECTS END ===== */
