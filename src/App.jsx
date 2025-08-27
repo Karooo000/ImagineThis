@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, Suspense } from "react"
 import {useProgress, Environment, OrbitControls, Sparkles, PerspectiveCamera} from "@react-three/drei";
 import { EffectComposer, Bloom, HueSaturation, DepthOfField } from '@react-three/postprocessing';
 
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 
 import Model from "./NeuralFractal.jsx"
 
@@ -54,13 +54,15 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
     /* Depth of field and blur ENDS*/
 
    useEffect(() => {
-    /* ===== BUTTON HOVER EFFECTS START ===== */
+    // Delay setup to ensure DOM is ready and Webflow has initialized
+    const setupEventListeners = () => {
+      /* ===== BUTTON HOVER EFFECTS START ===== */
 
-    /* ----- Contact Button ----- */
-    const contactText = new SplitType(".contactus-text", {
-        types: "words, chars",
-        tagName: "span",
-    });
+      /* ----- Contact Button ----- */
+      const contactText = new SplitType(".contactus-text", {
+          types: "words, chars",
+          tagName: "span",
+      });
 
     const contactAnim = gsap.to(contactText.chars, {
         paused: true,
@@ -118,15 +120,21 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
 
     /* ===== ROUTING FUNCTIONS ===== */
     const handleContactClick = (e) => {
+        console.log("🔥 Contact button clicked");
         e.preventDefault();
         e.stopPropagation();
         window.goToPath("/contact-us");
     };
 
     const handleHomeClick = (e) => {
+        console.log("🔥 Home button clicked");
+        console.log("🔥 Event target:", e.target);
+        console.log("🔥 Event type:", e.type);
         e.preventDefault();
         e.stopPropagation();
+        console.log("🔥 About to call window.goToPath");
         window.goToPath("/");
+        console.log("🔥 window.goToPath called");
     };
 
     /* ===== EVENT LISTENERS ===== */
@@ -136,11 +144,62 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
     const homeBtn = document.querySelector(".home-btn");
     const logoBtn = document.querySelector(".logo-btn");  // Add logo button selector
 
+    console.log("🔧 Setting up event listeners...");
+    console.log("🔧 Contact button found:", contactBtn);
+    console.log("🔧 Home button found:", homeBtn);
+
     // Contact button listeners
     if (contactBtn) {
+        console.log("🔧 Attaching contact button listeners");
+        
+        // Test multiple event types to see what's working
         contactBtn.addEventListener("mouseenter", handleContactEnter);
         contactBtn.addEventListener("mouseleave", handleContactLeave);
-        contactBtn.addEventListener("click", handleContactClick);
+        contactBtn.addEventListener("click", handleContactClick, true); // Use capture to get priority
+        
+        // Add additional test listeners
+        contactBtn.addEventListener("mousedown", (e) => {
+            console.log("🔥 Contact button MOUSEDOWN detected");
+        }, true);
+        
+        contactBtn.addEventListener("pointerdown", (e) => {
+            console.log("🔥 Contact button POINTERDOWN detected");
+        }, true);
+        
+        // Force test the click handler directly
+        console.log("🔧 Testing click handler directly...");
+        setTimeout(() => {
+            console.log("🔧 Direct test: calling handleContactClick");
+            // Don't actually call it, just test that it exists
+            console.log("🔧 handleContactClick exists:", typeof handleContactClick === 'function');
+            
+            // Check if button is actually clickable
+            const computedStyle = window.getComputedStyle(contactBtn);
+            console.log("🔧 Contact button pointer-events:", computedStyle.pointerEvents);
+            console.log("🔧 Contact button z-index:", computedStyle.zIndex);
+            console.log("🔧 Contact button display:", computedStyle.display);
+            console.log("🔧 Contact button visibility:", computedStyle.visibility);
+            
+            // Check if button is in viewport
+            const rect = contactBtn.getBoundingClientRect();
+            console.log("🔧 Contact button position:", {
+                top: rect.top,
+                left: rect.left,
+                width: rect.width,
+                height: rect.height,
+                visible: rect.width > 0 && rect.height > 0
+            });
+            
+            // Button found but has zero dimensions - this explains why clicks don't work!
+            if (rect.width === 0 || rect.height === 0) {
+                console.warn("⚠️ Contact button has zero dimensions - this prevents user clicks!");
+                console.warn("⚠️ Button needs CSS fixes to be clickable");
+            }
+            
+        }, 1000);
+        
+    } else {
+        console.warn("🔧 Contact button not found!");
     }
 
     // Works button listeners
@@ -157,9 +216,15 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
 
     // Home button listener
     if (homeBtn) {
+        console.log("🔧 Found home button:", homeBtn);
+        console.log("🔧 Home button href:", homeBtn.href);
+        console.log("🔧 Home button data-path:", homeBtn.getAttribute("data-path"));
+        
         homeBtn.addEventListener("mouseenter", handleHomeEnter);
         homeBtn.addEventListener("mouseleave", handleHomeLeave);
-        homeBtn.addEventListener("click", handleHomeClick);
+        homeBtn.addEventListener("click", handleHomeClick, true); // Use capture to ensure we get it first
+    } else {
+        console.warn("🔧 Home button not found!");
     }
 
     // Logo button listener - same functionality as home button
@@ -192,6 +257,10 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
         }
     };
     /* ===== BUTTON HOVER EFFECTS END ===== */
+    };
+
+    // Setup with delay to ensure Webflow has initialized
+    setTimeout(setupEventListeners, 100);
 }, []);
 
   return (
@@ -289,11 +358,16 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
 
 function PageContent() {
   const location = useLocation();
+  const navigate = useNavigate();
   const prevPath = useRef(location.pathname);
   const [shouldPlayContactIntro, setShouldPlayContactIntro] = useState(false);
   const [shouldPlayBackContact, setShouldPlayBackContact] = useState(false);
   const isAnimating = useRef(false);
   const is404 = location.pathname !== "/" && location.pathname !== "/contact-us";
+  const hasInitialized = useRef(false);
+  
+  console.log("🔄 PageContent render - location.pathname:", location.pathname);
+  console.log("🔄 PageContent state - shouldPlayContactIntro:", shouldPlayContactIntro, "shouldPlayBackContact:", shouldPlayBackContact);
 
   // Handle fade between home and contact containers
   useEffect(() => {
@@ -302,6 +376,9 @@ function PageContent() {
 
     const showHome = location.pathname === "/";
     const showContact = location.pathname === "/contact-us";
+    
+    console.log("🎨 Container visibility logic - showHome:", showHome, "showContact:", showContact);
+    console.log("🎨 Current pathname:", location.pathname);
 
     // Don't run animations for 404 page
     if (is404) return;
@@ -356,21 +433,45 @@ function PageContent() {
   useEffect(() => {
     const from = prevPath.current;
     const to = location.pathname;
+    
+    console.log("🎯 Animation trigger useEffect - from:", from, "to:", to, "hasInitialized:", hasInitialized.current);
+
+    // On first initialization, set the previous path properly
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      console.log("🎯 First initialization - current path:", to);
+      // If we're landing directly on contact page (from external navigation)
+      if (to === "/contact-us") {
+        console.log("Initial load on contact page - triggering intro animation");
+        console.log("Animation states - shouldPlayContactIntro: true, shouldPlayBackContact: false");
+        isAnimating.current = true;
+        setShouldPlayContactIntro(true);
+        setShouldPlayBackContact(false);
+        setTimeout(() => {
+          isAnimating.current = false;
+        }, 1000);
+        prevPath.current = to;
+        return;
+      }
+    }
 
     if (isAnimating.current || is404) {
       return;
     }
 
-    if (from === "/" && to === "/contact-us") {
-      console.log("Setting Contact Intro animation");
+    if ((from === "/" || from === undefined || from === "/index.html") && to === "/contact-us") {
+      // Trigger contact intro animation from home OR from external pages (undefined/index.html)
+      console.log("✅ Setting Contact Intro animation from:", from || "external page");
+      console.log("✅ Animation states - shouldPlayContactIntro: true, shouldPlayBackContact: false");
       isAnimating.current = true;
       setShouldPlayContactIntro(true);
       setShouldPlayBackContact(false);
       setTimeout(() => {
         isAnimating.current = false;
       }, 1000); // Adjust timeout based on your animation duration
-    } else if (from === "/contact-us" && to === "/") {
-      console.log("Setting Back Contact animation");
+    } else if (from === "/contact-us" && (to === "/" || to === "/index.html")) {
+      console.log("✅ Setting Back Contact animation from:", from, "to:", to);
+      console.log("✅ Animation states - shouldPlayContactIntro: false, shouldPlayBackContact: true");
       isAnimating.current = true;
       setShouldPlayContactIntro(false);
       setShouldPlayBackContact(true);
@@ -378,6 +479,7 @@ function PageContent() {
         isAnimating.current = false;
       }, 1000); // Adjust timeout based on your animation duration
     } else {
+      console.log("❌ No animation triggered - from:", from, "to:", to);
       setShouldPlayContactIntro(false);
       setShouldPlayBackContact(false);
     }
@@ -391,20 +493,39 @@ function PageContent() {
   />;
 }
 
-export function App() {
+function AppContent() {
+  const navigate = useNavigate();
+  
   useEffect(() => {
     window.goToPath = (path) => {
-      window.history.pushState({}, "", path);
-      const navEvent = new PopStateEvent("popstate");
-      window.dispatchEvent(navEvent);
+      console.log("🚀 window.goToPath called with:", path);
+      navigate(path);
     };
-  }, []);
+
+    // Check for intended route from sessionStorage (for navigation from standalone pages)
+    const intendedRoute = sessionStorage.getItem('intendedRoute');
+    if (intendedRoute) {
+      console.log("📱 Found intended route from sessionStorage:", intendedRoute);
+      sessionStorage.removeItem('intendedRoute');
+      // Small delay to ensure React Router is ready and components are mounted
+      setTimeout(() => {
+        console.log("📱 Navigating to intended route:", intendedRoute);
+        window.goToPath(intendedRoute);
+      }, 200);
+    }
+  }, [navigate]);
 
   return (
+    <Routes>
+      <Route path="*" element={<PageContent />} />
+    </Routes>
+  );
+}
+
+export function App() {
+  return (
     <BrowserRouter>
-      <Routes>
-        <Route path="*" element={<PageContent />} />
-      </Routes>
+      <AppContent />
     </BrowserRouter>
   );
 }

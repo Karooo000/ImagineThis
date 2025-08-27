@@ -25,11 +25,15 @@ export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBack
 
   /** Play animations based on navigation */
   useEffect(() => {
+    // Debug: Log all available animations
+    console.log("🎭 Available animations:", Object.keys(actions));
+    
     const contractIntroAction = actions["ContractIntroAction"];
     const backwardsContactAction = actions["BackwardsContact"];
 
     if (!contractIntroAction || !backwardsContactAction) {
-      //console.warn("One or both animation actions not found");
+      console.warn("One or both animation actions not found");
+      console.warn("Available actions:", Object.keys(actions));
       return;
     }
 
@@ -55,10 +59,24 @@ export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBack
     };
 
     if (shouldPlayContactIntro && lastPlayedAnimation.current !== contractIntroAction) {
-      //console.log("Playing ContractIntroAction");
+      console.log("🎬 Playing ContractIntroAction animation");
+      console.log("🎬 Previous animation was:", lastPlayedAnimation.current?.getClip()?.name || "none");
+      
+      // If no previous animation was played (coming from external page), 
+      // we might need to ensure the model is in the correct starting state
+      if (!lastPlayedAnimation.current) {
+        console.log("🎬 No previous animation - resetting model state before contact intro");
+        // Reset all actions to ensure clean state
+        Object.values(actions).forEach(action => {
+          action.stop();
+          action.reset();
+          action.enabled = false;
+        });
+      }
+      
       playAnimation(contractIntroAction);
     } else if (shouldPlayBackContact && lastPlayedAnimation.current !== backwardsContactAction) {
-      //console.log("Playing BackwardsContact");
+      console.log("🎬 Playing BackwardsContact animation");
       playAnimation(backwardsContactAction);
     }
 
