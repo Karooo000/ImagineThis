@@ -452,6 +452,42 @@ function PageContent() {
   console.log("🔄 PageContent render - location.pathname:", location.pathname);
   console.log("🔄 PageContent state - shouldPlayContactIntro:", shouldPlayContactIntro, "shouldPlayBackContact:", shouldPlayBackContact);
 
+  // WEBFLOW INTEGRATION FIX: Ensure contact container exists and is ready for animations
+  useEffect(() => {
+    if (location.pathname === "/contact-us") {
+      const prepareContactContainer = () => {
+        const contactContainer = document.querySelector(".container.contact");
+        if (contactContainer) {
+          console.log("🎨 WEBFLOW: Preparing contact container for animation");
+          
+          // Only ensure basic visibility and display, let animations handle opacity
+          contactContainer.style.visibility = "visible";
+          contactContainer.style.display = "flex";
+          
+          // Don't force opacity - let the animation system handle it
+          // Only force opacity as emergency fallback after animations should have completed
+          setTimeout(() => {
+            const currentOpacity = contactContainer.style.opacity || window.getComputedStyle(contactContainer).opacity;
+            if (currentOpacity === "0" || currentOpacity === "" || currentOpacity === "0px") {
+              console.log("🚨 EMERGENCY: Animation didn't work, forcing visibility");
+              contactContainer.style.opacity = "1";
+              if (window.gsap) {
+                window.gsap.set(contactContainer, { opacity: 1 });
+              }
+            }
+          }, 1200); // After intro animation should complete
+          
+        } else {
+          console.warn("🚨 WEBFLOW: Contact container not found in DOM");
+        }
+      };
+      
+      // Prepare container when found
+      setTimeout(prepareContactContainer, 100);
+      setTimeout(prepareContactContainer, 300);
+    }
+  });
+
   // Handle fade between home and contact containers
   useEffect(() => {
     const homeContainer = document.querySelector(".container.home");
@@ -462,9 +498,38 @@ function PageContent() {
     
     console.log("🎨 Container visibility logic - showHome:", showHome, "showContact:", showContact);
     console.log("🎨 Current pathname:", location.pathname);
+    console.log("🎨 Found containers - home:", !!homeContainer, "contact:", !!contactContainer);
+    
+    if (contactContainer) {
+      console.log("🎨 Contact container current styles:", {
+        opacity: gsap.getProperty(contactContainer, "opacity"),
+        visibility: gsap.getProperty(contactContainer, "visibility"),
+        display: gsap.getProperty(contactContainer, "display")
+      });
+    }
 
     // Don't run animations for 404 page
     if (is404) return;
+
+    // WEBFLOW SMART FIX: Prepare container for animation, don't override opacity immediately
+    if (showContact && contactContainer) {
+      console.log("🎨 WEBFLOW: Preparing contact container for smooth animation");
+      
+      // Ensure basic structure is ready, but let animations handle opacity
+      contactContainer.style.visibility = "visible";
+      contactContainer.style.display = "flex";
+      
+      // Don't immediately force opacity - let the timeline animation handle it
+      // Only clear any conflicting transforms that might prevent animation
+      if (window.gsap) {
+        gsap.set(contactContainer, { 
+          visibility: "visible",
+          display: "flex",
+          // Don't set opacity here - let the timeline handle it
+          clearProps: "transform" // Clear any conflicting transforms
+        });
+      }
+    }
 
     const tl = gsap.timeline({
       defaults: {
@@ -510,14 +575,43 @@ function PageContent() {
         yPercent: 0
       }, "-=0.4"); // Start slightly before previous animation ends
     }
+
+    // Gentle safety mechanism: ensure contact container becomes visible if animation fails
+    // This preserves the intro animation while providing fallback
+    if (showContact && contactContainer) {
+      // Only check after the intro animation should have completed
+      setTimeout(() => {
+        const currentOpacity = gsap.getProperty(contactContainer, "opacity");
+        console.log("🔍 Animation completion check: Contact container opacity is", currentOpacity);
+        
+        // Only intervene if opacity is still 0 after animation time
+        if (currentOpacity === 0 || currentOpacity === "0") {
+          console.log("🚨 Gentle fallback: Animation didn't complete, smoothly fading in");
+          
+          // Use a gentle fade in instead of immediate visibility
+          gsap.to(contactContainer, { 
+            opacity: 1,
+            yPercent: 0,
+            duration: 0.3,
+            ease: "power2.out"
+          });
+        }
+      }, 1000); // Wait for intro animation to complete (600ms timeline + buffer)
+    }
   }, [location, is404]);
 
   // Handle animation triggers
   useEffect(() => {
     const from = prevPath.current;
     const to = location.pathname;
+    const isExternalNav = sessionStorage.getItem('isExternalNavigation');
     
-    console.log("🎯 Animation trigger useEffect - from:", from, "to:", to, "hasInitialized:", hasInitialized.current);
+    console.log("🎯 Animation trigger useEffect - from:", from, "to:", to, "hasInitialized:", hasInitialized.current, "isExternalNav:", isExternalNav);
+
+    // Clear external navigation flag after checking it
+    if (isExternalNav) {
+      sessionStorage.removeItem('isExternalNavigation');
+    }
 
     // On first initialization, set the previous path properly
     if (!hasInitialized.current) {
@@ -542,15 +636,15 @@ function PageContent() {
       return;
     }
 
-    if ((from === "/" || from === undefined || from === "/index.html") && to === "/contact-us") {
-      // Trigger contact intro animation from home OR from external pages (undefined/index.html)
-      console.log("✅ Setting Contact Intro animation from:", from || "external page");
+        if (to === "/contact-us" && (from !== "/contact-us" || isExternalNav)) {
+      // Trigger contact intro animation when going TO contact from anywhere else (including external pages)
+      console.log("✅ Setting Contact Intro animation from:", from || "external/unknown page", "isExternalNav:", isExternalNav);
       console.log("✅ Animation states - shouldPlayContactIntro: true, shouldPlayBackContact: false");
       isAnimating.current = true;
       setShouldPlayContactIntro(true);
       setShouldPlayBackContact(false);
       setTimeout(() => {
-        isAnimating.current = false;
+isAnimating.current = false;
       }, 1000); // Adjust timeout based on your animation duration
     } else if (from === "/contact-us" && (to === "/" || to === "/index.html")) {
       console.log("✅ Setting Back Contact animation from:", from, "to:", to);
@@ -597,11 +691,26 @@ function AppContent() {
     if (intendedRoute) {
       console.log("📱 Found intended route from sessionStorage:", intendedRoute);
       sessionStorage.removeItem('intendedRoute');
-      // Small delay to ensure React Router is ready and components are mounted
-      setTimeout(() => {
-        console.log("📱 Navigating to intended route:", intendedRoute);
-        window.goToPath(intendedRoute);
-      }, 200);
+      
+      // Mark that this is an external navigation for the animation logic
+      sessionStorage.setItem('isExternalNavigation', 'true');
+      
+      // For Webflow integration, we need to ensure containers exist before navigating
+      const waitForWebflowContainers = () => {
+        const contactContainer = document.querySelector('.container.contact');
+        const homeContainer = document.querySelector('.container.home');
+        
+        if (contactContainer && homeContainer) {
+          console.log("📱 Webflow containers found, navigating to intended route:", intendedRoute);
+          window.goToPath(intendedRoute);
+        } else {
+          console.log("📱 Waiting for Webflow containers to load...");
+          setTimeout(waitForWebflowContainers, 100);
+        }
+      };
+      
+      // Small delay to ensure Webflow has loaded, then check for containers
+      setTimeout(waitForWebflowContainers, 300);
     }
   }, [navigate]);
 
