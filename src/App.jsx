@@ -452,41 +452,52 @@ function PageContent() {
   console.log("🔄 PageContent render - location.pathname:", location.pathname);
   console.log("🔄 PageContent state - shouldPlayContactIntro:", shouldPlayContactIntro, "shouldPlayBackContact:", shouldPlayBackContact);
 
-  // WEBFLOW INTEGRATION FIX: Ensure contact container exists and is ready for animations
+  // EMERGENCY CONTAINER CHECK: Ensure containers exist and are visible when needed
   useEffect(() => {
     if (location.pathname === "/contact-us") {
-      const prepareContactContainer = () => {
+      const checkAndForceVisibility = () => {
         const contactContainer = document.querySelector(".container.contact");
+        const homeContainer = document.querySelector(".container.home");
+        
+        console.log("🚨 EMERGENCY CHECK:", {
+          contactFound: !!contactContainer,
+          homeFound: !!homeContainer,
+          pathname: location.pathname
+        });
+
         if (contactContainer) {
-          console.log("🎨 WEBFLOW: Preparing contact container for animation");
+          const opacity = window.getComputedStyle(contactContainer).opacity;
+          const visibility = window.getComputedStyle(contactContainer).visibility;
+          console.log("🚨 Contact container current state:", { opacity, visibility });
           
-          // Only ensure basic visibility and display, let animations handle opacity
+          // Force visibility regardless of current state
           contactContainer.style.visibility = "visible";
           contactContainer.style.display = "flex";
+          contactContainer.style.opacity = "1";
+          contactContainer.style.zIndex = "25";
           
-          // Don't force opacity - let the animation system handle it
-          // Only force opacity as emergency fallback after animations should have completed
-          setTimeout(() => {
-            const currentOpacity = contactContainer.style.opacity || window.getComputedStyle(contactContainer).opacity;
-            if (currentOpacity === "0" || currentOpacity === "" || currentOpacity === "0px") {
-              console.log("🚨 EMERGENCY: Animation didn't work, forcing visibility");
-              contactContainer.style.opacity = "1";
-              if (window.gsap) {
-                window.gsap.set(contactContainer, { opacity: 1 });
-              }
-            }
-          }, 1200); // After intro animation should complete
-          
+          console.log("🚨 FORCED contact container visibility");
         } else {
-          console.warn("🚨 WEBFLOW: Contact container not found in DOM");
+          console.error("🚨 ERROR: Contact container not found in DOM!");
+        }
+
+        if (homeContainer) {
+          homeContainer.style.visibility = "hidden";
+          homeContainer.style.opacity = "0";
+          homeContainer.style.zIndex = "-1";
         }
       };
-      
-      // Prepare container when found
-      setTimeout(prepareContactContainer, 100);
-      setTimeout(prepareContactContainer, 300);
+
+      // Try multiple times to ensure it works
+      checkAndForceVisibility();
+      setTimeout(checkAndForceVisibility, 100);
+      setTimeout(checkAndForceVisibility, 300);
+      setTimeout(checkAndForceVisibility, 500);
+      setTimeout(checkAndForceVisibility, 1000);
     }
-  });
+  }, [location.pathname]);
+
+
 
   // Handle fade between home and contact containers
   useEffect(() => {
@@ -498,38 +509,8 @@ function PageContent() {
     
     console.log("🎨 Container visibility logic - showHome:", showHome, "showContact:", showContact);
     console.log("🎨 Current pathname:", location.pathname);
-    console.log("🎨 Found containers - home:", !!homeContainer, "contact:", !!contactContainer);
-    
-    if (contactContainer) {
-      console.log("🎨 Contact container current styles:", {
-        opacity: gsap.getProperty(contactContainer, "opacity"),
-        visibility: gsap.getProperty(contactContainer, "visibility"),
-        display: gsap.getProperty(contactContainer, "display")
-      });
-    }
 
-    // Don't run animations for 404 page
-    if (is404) return;
-
-    // WEBFLOW SMART FIX: Prepare container for animation, don't override opacity immediately
-    if (showContact && contactContainer) {
-      console.log("🎨 WEBFLOW: Preparing contact container for smooth animation");
-      
-      // Ensure basic structure is ready, but let animations handle opacity
-      contactContainer.style.visibility = "visible";
-      contactContainer.style.display = "flex";
-      
-      // Don't immediately force opacity - let the timeline animation handle it
-      // Only clear any conflicting transforms that might prevent animation
-      if (window.gsap) {
-        gsap.set(contactContainer, { 
-          visibility: "visible",
-          display: "flex",
-          // Don't set opacity here - let the timeline handle it
-          clearProps: "transform" // Clear any conflicting transforms
-        });
-      }
-    }
+    // Container animations should work on all pages
 
     const tl = gsap.timeline({
       defaults: {
@@ -576,8 +557,7 @@ function PageContent() {
       }, "-=0.4"); // Start slightly before previous animation ends
     }
 
-    // Gentle safety mechanism: ensure contact container becomes visible if animation fails
-    // This preserves the intro animation while providing fallback
+    // Safety mechanism: ensure contact container becomes visible if animation fails
     if (showContact && contactContainer) {
       // Only check after the intro animation should have completed
       setTimeout(() => {
@@ -586,7 +566,7 @@ function PageContent() {
         
         // Only intervene if opacity is still 0 after animation time
         if (currentOpacity === 0 || currentOpacity === "0") {
-          console.log("🚨 Gentle fallback: Animation didn't complete, smoothly fading in");
+          console.log("🚨 Safety fallback: Animation didn't complete, smoothly fading in");
           
           // Use a gentle fade in instead of immediate visibility
           gsap.to(contactContainer, { 
@@ -598,20 +578,14 @@ function PageContent() {
         }
       }, 1000); // Wait for intro animation to complete (600ms timeline + buffer)
     }
-  }, [location, is404]);
+  }, [location]);
 
   // Handle animation triggers
   useEffect(() => {
     const from = prevPath.current;
     const to = location.pathname;
-    const isExternalNav = sessionStorage.getItem('isExternalNavigation');
     
-    console.log("🎯 Animation trigger useEffect - from:", from, "to:", to, "hasInitialized:", hasInitialized.current, "isExternalNav:", isExternalNav);
-
-    // Clear external navigation flag after checking it
-    if (isExternalNav) {
-      sessionStorage.removeItem('isExternalNavigation');
-    }
+    console.log("🎯 Animation trigger useEffect - from:", from, "to:", to, "hasInitialized:", hasInitialized.current);
 
     // On first initialization, set the previous path properly
     if (!hasInitialized.current) {
@@ -632,13 +606,13 @@ function PageContent() {
       }
     }
 
-    if (isAnimating.current || is404) {
+    if (isAnimating.current) {
       return;
     }
 
-        if (to === "/contact-us" && (from !== "/contact-us" || isExternalNav)) {
-      // Trigger contact intro animation when going TO contact from anywhere else (including external pages)
-      console.log("✅ Setting Contact Intro animation from:", from || "external/unknown page", "isExternalNav:", isExternalNav);
+    if (to === "/contact-us" && from !== "/contact-us") {
+      // Trigger contact intro animation when going TO contact from anywhere else (including external pages like portfolio)
+      console.log("✅ Setting Contact Intro animation from:", from || "external/unknown page");
       console.log("✅ Animation states - shouldPlayContactIntro: true, shouldPlayBackContact: false");
       isAnimating.current = true;
       setShouldPlayContactIntro(true);
@@ -662,7 +636,7 @@ isAnimating.current = false;
     }
 
     prevPath.current = to;
-  }, [location, is404]);
+  }, [location]);
 
   return <Scene 
     shouldPlayContactIntro={shouldPlayContactIntro}
@@ -691,26 +665,11 @@ function AppContent() {
     if (intendedRoute) {
       console.log("📱 Found intended route from sessionStorage:", intendedRoute);
       sessionStorage.removeItem('intendedRoute');
-      
-      // Mark that this is an external navigation for the animation logic
-      sessionStorage.setItem('isExternalNavigation', 'true');
-      
-      // For Webflow integration, we need to ensure containers exist before navigating
-      const waitForWebflowContainers = () => {
-        const contactContainer = document.querySelector('.container.contact');
-        const homeContainer = document.querySelector('.container.home');
-        
-        if (contactContainer && homeContainer) {
-          console.log("📱 Webflow containers found, navigating to intended route:", intendedRoute);
-          window.goToPath(intendedRoute);
-        } else {
-          console.log("📱 Waiting for Webflow containers to load...");
-          setTimeout(waitForWebflowContainers, 100);
-        }
-      };
-      
-      // Small delay to ensure Webflow has loaded, then check for containers
-      setTimeout(waitForWebflowContainers, 300);
+      // Small delay to ensure React Router is ready and components are mounted
+      setTimeout(() => {
+        console.log("📱 Navigating to intended route:", intendedRoute);
+        window.goToPath(intendedRoute);
+      }, 200);
     }
   }, [navigate]);
 
