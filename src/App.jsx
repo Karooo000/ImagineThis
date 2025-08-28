@@ -35,7 +35,7 @@ if (typeof window !== 'undefined') {
 
 function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
   const location = useLocation();
-  const is404 = location.pathname !== "/" && location.pathname !== "/contact-us";
+  const is404 = location.pathname !== "/" && location.pathname !== "/index.html" && location.pathname !== "/contact-us";
 
   /* Depth of field and blur */
   const focusRef = useRef();
@@ -146,6 +146,7 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
             mobileMenuContainer.classList.remove('menu-open');
         }
         
+        // Always navigate to root path, not index.html
         window.goToPath("/");
     };
 
@@ -168,12 +169,34 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
     // Use the first found mobile home button
     const finalMobileHomeBtn = mobileHomeBtn || mobileHomeBtnAlt1 || mobileHomeBtnAlt2;
 
+    // Footer buttons (for case study pages)
+    const footerContactBtn = document.querySelector(".footer-contain .contactus-btn[data-path='/contact-us']");
+    const footerHomeBtn = document.querySelector(".footer-contain .home-btn[data-path='/']");
+    const footerLogoBtn = document.querySelector(".footer-contain .logo-btn[data-path='/']");
+    
+    // Try alternative selectors for footer home button
+    const footerHomeBtnAlt1 = document.querySelector(".footer-contain .home-btn");
+    const footerHomeBtnAlt2 = document.querySelector(".footer-contain a[href='index.html']");
+    const footerHomeBtnAlt3 = document.querySelector(".footer-contain .logo-btn");
+    
+    // Use the first found footer home button
+    const finalFooterHomeBtn = footerHomeBtn || footerHomeBtnAlt1 || footerHomeBtnAlt2 || footerLogoBtn;
+
     console.log("🔧 Setting up event listeners...");
     console.log("🔧 Contact button found:", contactBtn);
     console.log("🔧 Home button found:", homeBtn);
     console.log("🔧 Mobile contact button found:", mobileContactBtn);
     console.log("🔧 Mobile home button found:", mobileHomeBtn);
     console.log("🔧 Final mobile home button found:", finalMobileHomeBtn);
+    console.log("🔧 Footer contact button found:", footerContactBtn);
+    console.log("🔧 Footer home button found:", footerHomeBtn);
+    console.log("🔧 Footer logo button found:", footerLogoBtn);
+    console.log("🔧 Final footer home button found:", finalFooterHomeBtn);
+    console.log("🔧 Footer home button alternatives:", {
+        alt1: footerHomeBtnAlt1,
+        alt2: footerHomeBtnAlt2,
+        alt3: footerHomeBtnAlt3
+    });
     console.log("🔧 Alternative mobile home buttons:", {
         alt1: mobileHomeBtnAlt1,
         alt2: mobileHomeBtnAlt2,
@@ -249,6 +272,37 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
         console.warn("🔧 Mobile home button not found with any selector!");
     }
 
+    // Footer button listeners
+    if (footerContactBtn) {
+        console.log("🔧 Attaching footer contact button listeners");
+        footerContactBtn.addEventListener("click", handleContactClick, true);
+    }
+
+    if (finalFooterHomeBtn) {
+        console.log("🔧 Attaching footer home button listeners to:", finalFooterHomeBtn);
+        console.log("🔧 Footer home button href:", finalFooterHomeBtn.href);
+        console.log("🔧 Footer home button data-path:", finalFooterHomeBtn.getAttribute("data-path"));
+        finalFooterHomeBtn.addEventListener("click", handleHomeClick, true);
+        
+        // Test click detection
+        finalFooterHomeBtn.addEventListener("mousedown", (e) => {
+            console.log("🔥 Footer home button MOUSEDOWN detected");
+        }, true);
+        
+        // Test if button is clickable
+        const rect = finalFooterHomeBtn.getBoundingClientRect();
+        const styles = getComputedStyle(finalFooterHomeBtn);
+        console.log("🔧 Footer home button clickability:", {
+            rect: { top: rect.top, left: rect.left, width: rect.width, height: rect.height },
+            display: styles.display,
+            visibility: styles.visibility,
+            pointerEvents: styles.pointerEvents,
+            visible: rect.width > 0 && rect.height > 0
+        });
+    } else {
+        console.warn("🔧 Footer home button not found with any selector!");
+    }
+
     // 🧼 CLEANUP:
     return () => {
         if (contactBtn) {
@@ -277,6 +331,12 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
         }
         if (finalMobileHomeBtn) {
             finalMobileHomeBtn.removeEventListener("click", handleHomeClick);
+        }
+        if (footerContactBtn) {
+            footerContactBtn.removeEventListener("click", handleContactClick);
+        }
+        if (finalFooterHomeBtn) {
+            finalFooterHomeBtn.removeEventListener("click", handleHomeClick);
         }
     };
     /* ===== BUTTON HOVER EFFECTS END ===== */
@@ -386,7 +446,7 @@ function PageContent() {
   const [shouldPlayContactIntro, setShouldPlayContactIntro] = useState(false);
   const [shouldPlayBackContact, setShouldPlayBackContact] = useState(false);
   const isAnimating = useRef(false);
-  const is404 = location.pathname !== "/" && location.pathname !== "/contact-us";
+  const is404 = location.pathname !== "/" && location.pathname !== "/index.html" && location.pathname !== "/contact-us";
   const hasInitialized = useRef(false);
   
   console.log("🔄 PageContent render - location.pathname:", location.pathname);
@@ -397,7 +457,7 @@ function PageContent() {
     const homeContainer = document.querySelector(".container.home");
     const contactContainer = document.querySelector(".container.contact");
 
-    const showHome = location.pathname === "/";
+    const showHome = location.pathname === "/" || location.pathname === "/index.html";
     const showContact = location.pathname === "/contact-us";
     
     console.log("🎨 Container visibility logic - showHome:", showHome, "showContact:", showContact);
@@ -524,6 +584,13 @@ function AppContent() {
       console.log("🚀 window.goToPath called with:", path);
       navigate(path);
     };
+
+    // Redirect /index.html to / for consistency
+    if (window.location.pathname === '/index.html') {
+      console.log("🔀 Redirecting from /index.html to /");
+      navigate('/', { replace: true });
+      return;
+    }
 
     // Check for intended route from sessionStorage (for navigation from standalone pages)
     const intendedRoute = sessionStorage.getItem('intendedRoute');
