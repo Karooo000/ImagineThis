@@ -10,7 +10,7 @@ import gsap from 'gsap'
 const modelURL = "http://localhost:5173/FractalNeurals.glb"
 
 
-export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeToPortfolio, shouldPlayPortfolioToHome, ...props }) {
+export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeToPortfolio, shouldPlayPortfolioToHome, shouldPlayContactToPortfolio, ...props }) {
   const group = useRef()
   const glowingRef = useRef()
   const cameraRef = useRef()
@@ -32,21 +32,23 @@ export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBack
     const backwardsContactAction = actions["BackwardsContact"];
     const homeToPortfolioAction = actions["HomeToPortfolioAction"];
     const portfolioToHomeAction = actions["PortfolioToHomeAction"];
+    const contactToPortfolioAction = actions["ContactToPortfolioAction"];
 
-    if (!contractIntroAction || !backwardsContactAction || !homeToPortfolioAction || !portfolioToHomeAction) {
+    if (!contractIntroAction || !backwardsContactAction || !homeToPortfolioAction || !portfolioToHomeAction || !contactToPortfolioAction) {
       console.warn("One or more animation actions not found");
       console.warn("Available actions:", Object.keys(actions));
       console.warn("Missing actions:", {
         contractIntroAction: !!contractIntroAction,
         backwardsContactAction: !!backwardsContactAction,
         homeToPortfolioAction: !!homeToPortfolioAction,
-        portfolioToHomeAction: !!portfolioToHomeAction
+        portfolioToHomeAction: !!portfolioToHomeAction,
+        contactToPortfolioAction: !!contactToPortfolioAction
       });
       return;
     }
 
     // Configure animations
-    [contractIntroAction, backwardsContactAction, homeToPortfolioAction, portfolioToHomeAction].forEach(action => {
+    [contractIntroAction, backwardsContactAction, homeToPortfolioAction, portfolioToHomeAction, contactToPortfolioAction].forEach(action => {
       action.setLoop(THREE.LoopOnce, 1);
       action.clampWhenFinished = true;
     });
@@ -101,6 +103,9 @@ export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBack
       }
       
       playAnimation(homeToPortfolioAction);
+    } else if (shouldPlayContactToPortfolio && lastPlayedAnimation.current !== contactToPortfolioAction) {
+      console.log("🎬 Playing ContactToPortfolioAction animation");
+      playAnimation(contactToPortfolioAction);
     } else if (shouldPlayPortfolioToHome && lastPlayedAnimation.current !== portfolioToHomeAction) {
       console.log("🎬 Playing PortfolioToHomeAction animation");
       console.log("🎬 Previous animation was:", lastPlayedAnimation.current?.getClip()?.name || "none");
@@ -121,7 +126,7 @@ export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBack
     return () => {
       // Don't stop animations on cleanup to maintain positions
     };
-  }, [shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeToPortfolio, shouldPlayPortfolioToHome, actions]);
+  }, [shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeToPortfolio, shouldPlayContactToPortfolio, shouldPlayPortfolioToHome, actions]);
 
 
   // Set glowing mesh to layer 1

@@ -86,7 +86,7 @@ if (typeof window !== 'undefined') {
   window.currentPageState = window.getCurrentPageState();
 }
 
-function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeToPortfolio, shouldPlayPortfolioToHome }) {
+function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeToPortfolio, shouldPlayContactToPortfolio, shouldPlayPortfolioToHome }) {
   // In Webflow embedding context, detect page type from URL and DOM
   const getCurrentPath = () => {
     if (typeof window === 'undefined') return '/';
@@ -287,7 +287,8 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
       
       // Call completion callback when animation finishes
       timeline.eventCallback("onComplete", () => {
-
+        // Set white background just before navigation to prevent flicker
+        document.body.style.backgroundColor = '#ffffff';
         onComplete && onComplete();
       });
     };
@@ -382,44 +383,50 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
             mobileMenuContainer.classList.remove('menu-open');
         }
         
+        // Check if we're currently on contact and trigger proper state change
+        if (currentPageState === 'contact') {
+            console.log("🏠 Home clicked from contact - triggering state change");
+            // Dispatch custom event to ensure proper state tracking
+            window.dispatchEvent(new CustomEvent('pageStateChange', {
+                detail: { from: 'contact', to: 'home' }
+            }));
+        }
+        
         // Always navigate to root path, not index.html
         window.goToPath("/");
     };
 
-    const handleWorksClick = (e) => {
+    const handleContactPortfolioClick = (e) => {
         // Store the original href before preventing default
         const originalHref = e.currentTarget.href;
         
-        // Prevent default navigation temporarily
         e.preventDefault();
         e.stopPropagation();
         
-        // Check if we're clicking from mobile menu (check both possible menu containers)
-        const mobileMenuContainer1 = document.querySelector('.menu-open-wrap-dopo');
-        const mobileMenuContainer2 = document.querySelector('.menu-open-wrap');
-        const isFromMobileMenu1 = mobileMenuContainer1 && mobileMenuContainer1.classList.contains('menu-open');
-        const isFromMobileMenu2 = mobileMenuContainer2 && mobileMenuContainer2.classList.contains('menu-open');
-        const isFromMobileMenu = isFromMobileMenu1 || isFromMobileMenu2;
-        const activeMobileMenu = isFromMobileMenu1 ? mobileMenuContainer1 : mobileMenuContainer2;
-        
-
+        // Check if clicking from mobile menu
+        const isFromMobileMenu = e.currentTarget.closest('.menu-open-wrap-dopo') !== null;
+        const activeMobileMenu = document.querySelector('.menu-open-wrap-dopo.menu-open');
         
         const startAnimation = () => {
-            // Trigger animation
-            const animEvent = new CustomEvent('directPortfolioAnimation');
+            // Trigger contact to portfolio animation
+            const animEvent = new CustomEvent('directContactPortfolioAnimation');
             window.dispatchEvent(animEvent);
             
-            // Start oval animation slightly later
+            // Start oval animation with same timing as home to portfolio
             setTimeout(() => {
                 if (window.playOvalExpandAnimation) {
                     window.playOvalExpandAnimation(() => {
                         // Navigate after oval animation completes
-                        window.location.href = originalHref;
+                        const fullUrl = originalHref.startsWith('http') ? originalHref : `${window.location.origin}${originalHref}`;
+                        window.location.href = fullUrl;
                     });
                 } else {
-                    window.location.href = originalHref;
+                    // Fallback navigation without oval animation
+                    document.body.style.backgroundColor = '#ffffff';
+                    const fullUrl = originalHref.startsWith('http') ? originalHref : `${window.location.origin}${originalHref}`;
+                    window.location.href = fullUrl;
                 }
-            }, 1300);
+            }, 1300); // Same timing as home to portfolio
         };
         
         if (isFromMobileMenu) {
@@ -432,6 +439,68 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
         } else {
             // Not from mobile menu, start animation immediately
             startAnimation();
+        }
+    };
+
+    const handleWorksClick = (e) => {
+        // Store the original href before preventing default
+        const originalHref = e.currentTarget.href;
+        
+        // Prevent default navigation temporarily
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Check if we're on contact page by using the current page state
+        const isOnContactPage = currentPageState === 'contact';
+        
+        console.log("🎯 Works click - currentPageState:", currentPageState, "isOnContactPage:", isOnContactPage);
+        
+        // Use appropriate handler based on current page
+        if (isOnContactPage) {
+            handleContactPortfolioClick(e);
+        } else {
+            // Original home to portfolio logic
+            // Check if we're clicking from mobile menu (check both possible menu containers)
+            const mobileMenuContainer1 = document.querySelector('.menu-open-wrap-dopo');
+            const mobileMenuContainer2 = document.querySelector('.menu-open-wrap');
+            const isFromMobileMenu1 = mobileMenuContainer1 && mobileMenuContainer1.classList.contains('menu-open');
+            const isFromMobileMenu2 = mobileMenuContainer2 && mobileMenuContainer2.classList.contains('menu-open');
+            const isFromMobileMenu = isFromMobileMenu1 || isFromMobileMenu2;
+            const activeMobileMenu = isFromMobileMenu1 ? mobileMenuContainer1 : mobileMenuContainer2;
+            
+
+            
+                    const startAnimation = () => {
+            // Trigger animation
+            const animEvent = new CustomEvent('directPortfolioAnimation');
+            window.dispatchEvent(animEvent);
+            
+            // Start oval animation slightly later
+            setTimeout(() => {
+                if (window.playOvalExpandAnimation) {
+                    window.playOvalExpandAnimation(() => {
+                        // Navigate after oval animation completes
+                        window.location.href = originalHref;
+                    });
+                } else {
+                    // Fallback navigation without oval animation
+                    document.body.style.backgroundColor = '#ffffff';
+                    window.location.href = originalHref;
+                }
+            }, 1300);
+        };
+            
+            if (isFromMobileMenu) {
+                if (activeMobileMenu) {
+                    activeMobileMenu.classList.remove('menu-open');
+                }
+                
+                // Wait for menu close animation to complete before starting portfolio animation
+                setTimeout(startAnimation, 300); // Give menu time to close
+            } else {
+                // Not from mobile menu, start animation immediately
+                startAnimation();
+            }
         }
     };
 
@@ -585,6 +654,7 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
               shouldPlayContactIntro={shouldPlayContactIntro}
               shouldPlayBackContact={shouldPlayBackContact}
               shouldPlayHomeToPortfolio={shouldPlayHomeToPortfolio}
+              shouldPlayContactToPortfolio={shouldPlayContactToPortfolio}
               shouldPlayPortfolioToHome={shouldPlayPortfolioToHome}
             />
           ) : (
@@ -665,28 +735,63 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
 }
 
 function PageContent() {
-  // Webflow-compatible page state management
-  const [currentPageState, setCurrentPageState] = useState(() => 
-    typeof window !== 'undefined' ? window.getCurrentPageState() : 'home'
-  );
-  const prevPageState = useRef((() => {
-    // Detect if we came from portfolio/casestudy via referrer
-    if (typeof window !== 'undefined') {
-      const referrer = document.referrer;
-      if (referrer && (referrer.includes('portfolio') || referrer.includes('casestudy'))) {
-        return referrer.includes('portfolio') ? 'portfolio' : 'casestudy';
-      }
+  // SINGLE SOURCE OF TRUTH for page state
+  const [currentPageState, setCurrentPageState] = useState(() => {
+    if (typeof window === 'undefined') return 'home';
+    
+    // Detect page state from URL
+    const path = window.location.pathname;
+    const hash = window.location.hash;
+    
+    console.log("🔍 Initial page detection - path:", path, "hash:", hash);
+    
+    // Portfolio/casestudy pages
+    if (path.includes('portfolio') || path.includes('casestudy')) {
+      return path.includes('portfolio') ? 'portfolio' : 'casestudy';
     }
+    
+    // Contact via hash OR if contact container is visible
+    if (hash === '#contact') {
+      return 'contact';
+    }
+    
+    // Only check container visibility if we have a hash indicating contact
+    // Don't rely on container visibility for initial detection
+    
+    // Default to home
     return 'home';
-  })());
+  });
+  
+  const prevPageState = useRef('home'); // Track previous state - start with home
   const [shouldPlayContactIntro, setShouldPlayContactIntro] = useState(false);
   const [shouldPlayBackContact, setShouldPlayBackContact] = useState(false);
   const [shouldPlayHomeToPortfolio, setShouldPlayHomeToPortfolio] = useState(false);
+  const [shouldPlayContactToPortfolio, setShouldPlayContactToPortfolio] = useState(false);
   const [shouldPlayPortfolioToHome, setShouldPlayPortfolioToHome] = useState(false);
   const isAnimating = useRef(false);
   const hasInitialized = useRef(false);
+  // Removed complex navigation tracking for simplicity
   
 
+
+  // Background flicker prevention
+  useEffect(() => {
+    // Only set white background if we're NOT on portfolio pages
+    const isPortfolioPage = window.location.pathname.includes('portfolio') || 
+                           window.location.pathname.includes('casestudy');
+    
+    if (!isPortfolioPage) {
+      // Set white background to prevent flicker during navigation
+      document.body.style.backgroundColor = '#ffffff';
+      
+      // Restore after page loads
+      const timer = setTimeout(() => {
+        document.body.style.backgroundColor = '';
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   // Set up simple global animation trigger
   useEffect(() => {
@@ -706,6 +811,14 @@ function PageContent() {
     };
 
     window.addEventListener('directPortfolioAnimation', handleDirectPortfolioAnimation);
+
+    // Handle contact to portfolio animation trigger
+    const handleDirectContactPortfolioAnimation = () => {
+      setShouldPlayContactToPortfolio(true);
+      setTimeout(() => setShouldPlayContactToPortfolio(false), 2000);
+    };
+
+    window.addEventListener('directContactPortfolioAnimation', handleDirectContactPortfolioAnimation);
 
     // Check if we came from portfolio/casestudy pages on page load
     const checkPortfolioReturn = () => {
@@ -728,19 +841,81 @@ function PageContent() {
       
       // Handle contact navigation from external pages
       if (intendedRoute === '/contact-us') {
+        // Set page state to contact FIRST
+        setCurrentPageState('contact');
+        
         setShouldPlayContactIntro(true);
         setShouldPlayBackContact(false);
         setShouldPlayHomeToPortfolio(false);
+        setShouldPlayContactToPortfolio(false);
         setShouldPlayPortfolioToHome(false);
         sessionStorage.removeItem('intendedRoute');
+      }
+      
+      // Check if we came from portfolio/casestudy pages to contact (only if URL indicates contact)
+      const isFromPortfolioToContact = referrer && (
+        referrer.includes('portfolio') || 
+        referrer.includes('casestudy') ||
+        referrer.includes('oakley') ||
+        referrer.includes('dopo')
+      ) && isOnMainPage && (
+        window.location.hash === '#contact' || 
+        window.location.href.includes('#contact')
+      );
+      
+      if (isFromPortfolioToContact && !intendedRoute) {
+        // Set page state to contact when coming from portfolio TO CONTACT specifically
+        // Add small delay to allow smooth transition
+        setTimeout(() => {
+          setCurrentPageState('contact');
+        }, 100);
+        
+        setShouldPlayContactIntro(true);
+        setShouldPlayBackContact(false);
+        setShouldPlayHomeToPortfolio(false);
+        setShouldPlayContactToPortfolio(false);
+        setShouldPlayPortfolioToHome(false);
       }
     };
 
     checkPortfolioReturn();
+    
+    // SINGLE hash change handler
+    const handleHashChange = () => {
+      const newHash = window.location.hash;
+      const path = window.location.pathname;
+      console.log("🔧 Hash changed to:", newHash, "path:", path, "current state:", currentPageState);
+      
+      if (newHash === '#contact') {
+        console.log("🔧 Setting state to contact");
+        setCurrentPageState('contact');
+      } else if (newHash === '' && (path === '/' || path === '/index.html')) {
+        // Going back to home (either from contact or direct navigation)
+        console.log("🏠 Detected navigation to home from state:", currentPageState);
+        // Manually update prevPageState to ensure proper transition detection
+        if (currentPageState === 'contact') {
+          console.log("🏠 Manually setting prevPageState to contact for proper transition");
+          prevPageState.current = 'contact';
+        }
+        setCurrentPageState('home');
+      }
+    };
+    
+    // Also listen for popstate events (back/forward navigation)
+    const handlePopState = () => {
+      console.log("🔧 Popstate event - checking current state");
+      handleHashChange();
+    };
+    
+    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handlePopState);
 
     return () => {
       window.triggerHomeToPortfolioAnimation = null;
+      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('directPortfolioAnimation', handleDirectPortfolioAnimation);
+      window.removeEventListener('directContactPortfolioAnimation', handleDirectContactPortfolioAnimation);
     };
   }, []);
 
@@ -761,50 +936,8 @@ function PageContent() {
     };
   }, []);
 
-  // EMERGENCY CONTAINER CHECK: Ensure containers exist and are visible when needed
-  useEffect(() => {
-    if (currentPageState === "contact") {
-      const checkAndForceVisibility = () => {
-        const contactContainer = document.querySelector(".container.contact");
-        const homeContainer = document.querySelector(".container.home");
-        
-        console.log("🚨 EMERGENCY CHECK:", {
-          contactFound: !!contactContainer,
-          homeFound: !!homeContainer,
-          pageState: currentPageState
-        });
-
-        if (contactContainer) {
-          const opacity = window.getComputedStyle(contactContainer).opacity;
-          const visibility = window.getComputedStyle(contactContainer).visibility;
-          console.log("🚨 Contact container current state:", { opacity, visibility });
-          
-          // Force visibility regardless of current state
-          contactContainer.style.visibility = "visible";
-          contactContainer.style.display = "flex";
-          contactContainer.style.opacity = "1";
-          contactContainer.style.zIndex = "25";
-          
-          console.log("🚨 FORCED contact container visibility");
-        } else {
-          console.error("🚨 ERROR: Contact container not found in DOM!");
-        }
-
-        if (homeContainer) {
-          homeContainer.style.visibility = "hidden";
-          homeContainer.style.opacity = "0";
-          homeContainer.style.zIndex = "-1";
-        }
-      };
-
-      // Try multiple times to ensure it works
-      checkAndForceVisibility();
-      setTimeout(checkAndForceVisibility, 100);
-      setTimeout(checkAndForceVisibility, 300);
-      setTimeout(checkAndForceVisibility, 500);
-      setTimeout(checkAndForceVisibility, 1000);
-    }
-  }, [currentPageState]);
+  // Simplified container management - let GSAP handle everything
+  // Removed emergency check that was causing flicker
 
 
 
@@ -816,82 +949,44 @@ function PageContent() {
     const showHome = currentPageState === "home";
     const showContact = currentPageState === "contact";
     
-
-
-    // Container animations should work on all pages
-
-    const tl = gsap.timeline({
-      defaults: {
-        ease: "power2.inOut",
-        duration: 0.6
-      }
-    });
-
-    if (showHome && contactContainer && homeContainer) {
-      // First set initial states
-      gsap.set(homeContainer, { 
-        visibility: "visible",
-        opacity: 0,
-        yPercent: 3
-      });
-      
-      tl.to(contactContainer, {
-        opacity: 0,
-        yPercent: -3,
-        onComplete: () => gsap.set(contactContainer, { visibility: "hidden", yPercent: 0 })
-      })
-      .to(homeContainer, { 
-        opacity: 1,
-        yPercent: 0
-      }, "-=0.4"); // Start slightly before previous animation ends
-    }
-
-    if (showContact && homeContainer && contactContainer) {
-      // First set initial states
-      gsap.set(contactContainer, { 
-        visibility: "visible",
-        opacity: 0,
-        yPercent: 3
-      });
-
-      tl.to(homeContainer, {
-        opacity: 0,
-        yPercent: -3,
-        onComplete: () => gsap.set(homeContainer, { visibility: "hidden", yPercent: 0 })
-      })
-      .to(contactContainer, { 
-        opacity: 1,
-        yPercent: 0
-      }, "-=0.4"); // Start slightly before previous animation ends
-    }
-
-    // Safety mechanism: ensure contact container becomes visible if animation fails
-    if (showContact && contactContainer) {
-      // Only check after the intro animation should have completed
-      setTimeout(() => {
-        const currentOpacity = gsap.getProperty(contactContainer, "opacity");
-        console.log("🔍 Animation completion check: Contact container opacity is", currentOpacity);
+    // Debug container visibility
+    console.log("🎨 Container visibility - showHome:", showHome, "showContact:", showContact, "pageState:", currentPageState);
+    
+    // Container management with smooth animation for contact
+    if (homeContainer && contactContainer) {
+      if (showHome) {
+        homeContainer.style.display = 'flex';
+        homeContainer.style.visibility = 'visible';
+        homeContainer.style.opacity = '1';
+        contactContainer.style.display = 'none';
+      } else if (showContact) {
+        // Smooth animation for contact container
+        contactContainer.style.display = 'flex';
+        contactContainer.style.visibility = 'visible';
         
-        // Only intervene if opacity is still 0 after animation time
-        if (currentOpacity === 0 || currentOpacity === "0") {
-          console.log("🚨 Safety fallback: Animation didn't complete, smoothly fading in");
-          
-          // Use a gentle fade in instead of immediate visibility
-          gsap.to(contactContainer, { 
-            opacity: 1,
-            yPercent: 0,
-            duration: 0.3,
-            ease: "power2.out"
-          });
-        }
-      }, 1000); // Wait for intro animation to complete (600ms timeline + buffer)
+        // Animate contact container in smoothly
+        gsap.fromTo(contactContainer, 
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+        );
+        
+        homeContainer.style.display = 'none';
+      }
     }
+    
+
+
+    // Removed complex GSAP animations - using simple show/hide for reliability
   }, [currentPageState]);
 
   // Handle animation triggers based on page state changes
   useEffect(() => {
     const from = prevPageState.current;
     const to = currentPageState;
+    
+    console.log("🎯 ANIMATION TRIGGER - from:", from, "to:", to);
+    console.log("🎯 URL:", window.location.pathname + window.location.hash);
+    console.log("🎯 prevPageState.current:", prevPageState.current);
     
     // Helper function to check if a state is portfolio/casestudy page
     const isPortfolioOrCasestudy = (state) => {
@@ -921,24 +1016,27 @@ function PageContent() {
       setShouldPlayContactIntro(false);
       setShouldPlayBackContact(false);
       setShouldPlayHomeToPortfolio(false);
+      setShouldPlayContactToPortfolio(false);
       setShouldPlayPortfolioToHome(false);
     };
 
+    // Simplified navigation logic - each transition is independent
     if (to === "contact" && from !== "contact") {
-      // Trigger contact intro animation when going TO contact from anywhere else (including external pages like portfolio)
+      console.log("🎯 Going TO contact - triggering contact intro");
       isAnimating.current = true;
       resetAnimations();
       setShouldPlayContactIntro(true);
       setTimeout(() => {
         isAnimating.current = false;
-      }, 1000); // Adjust timeout based on your animation duration
+      }, 1000);
     } else if (from === "contact" && to === "home") {
+      console.log("🎯 Going FROM contact TO home - triggering backwards contact");
       isAnimating.current = true;
       resetAnimations();
       setShouldPlayBackContact(true);
       setTimeout(() => {
         isAnimating.current = false;
-      }, 1000); // Adjust timeout based on your animation duration
+      }, 1000);
     } else if (to === "home" && isPortfolioOrCasestudy(from)) {
       // Coming back to home from portfolio/casestudy pages
       isAnimating.current = true;
@@ -949,23 +1047,37 @@ function PageContent() {
       }, 1000);
     } else if (isPortfolioOrCasestudy(to) && from === "home") {
       // Going from home to portfolio/casestudy pages  
+      console.log("🎯 Triggering HOME to portfolio animation");
       isAnimating.current = true;
       resetAnimations();
       setShouldPlayHomeToPortfolio(true);
       setTimeout(() => {
         isAnimating.current = false;
       }, 1000);
+    } else if (isPortfolioOrCasestudy(to) && from === "contact") {
+      // Going from contact to portfolio/casestudy pages  
+      console.log("🎯 Triggering CONTACT to portfolio animation");
+      isAnimating.current = true;
+      resetAnimations();
+      setShouldPlayContactToPortfolio(true);
+      setTimeout(() => {
+        isAnimating.current = false;
+      }, 1000);
     } else {
+      console.log("🎯 No animation needed for transition:", from, "→", to);
       resetAnimations();
     }
 
+    // ALWAYS update prevPageState at the end
     prevPageState.current = to;
+    console.log("🎯 Updated prevPageState to:", to);
   }, [currentPageState]);
 
   return <Scene 
     shouldPlayContactIntro={shouldPlayContactIntro}
     shouldPlayBackContact={shouldPlayBackContact}
     shouldPlayHomeToPortfolio={shouldPlayHomeToPortfolio}
+    shouldPlayContactToPortfolio={shouldPlayContactToPortfolio}
     shouldPlayPortfolioToHome={shouldPlayPortfolioToHome}
   />;
 }
