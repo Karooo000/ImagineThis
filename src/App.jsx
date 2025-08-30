@@ -291,6 +291,8 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
 
 
 
+
+
     // Delay setup to ensure DOM is ready and Webflow has initialized
     const setupEventListeners = () => {
       /* ===== BUTTON HOVER EFFECTS START ===== */
@@ -481,10 +483,12 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
         e.preventDefault();
         e.stopPropagation();
         
-        // Check if we're on contact page by using the current page state
-        const isOnContactPage = currentPageState === 'contact';
+        // Check if we're on contact page by checking DOM state directly (more reliable)
+        const contactContainer = document.querySelector('.container.contact');
+        const isOnContactPage = contactContainer && contactContainer.style.display !== 'none' && 
+                               (contactContainer.style.display === 'flex' || contactContainer.style.visibility === 'visible');
         
-        console.log("🎯 Works click - currentPageState:", currentPageState, "isOnContactPage:", isOnContactPage);
+
         
         // Use appropriate handler based on current page
         if (isOnContactPage) {
@@ -1040,12 +1044,17 @@ function PageContent() {
       setShouldPlayPortfolioToHome(false);
     };
 
+
+
     // Simplified navigation logic - each transition is independent
     if (to === "contact" && from !== "contact") {
       console.log("🎯 Going TO contact - triggering contact intro");
       isAnimating.current = true;
       resetAnimations();
       setShouldPlayContactIntro(true);
+      
+
+      
       setTimeout(() => {
         isAnimating.current = false;
       }, 1000);
@@ -1059,6 +1068,7 @@ function PageContent() {
       }, 1000);
     } else if (to === "home" && isPortfolioOrCasestudy(from)) {
       // Coming back to home from portfolio/casestudy pages
+      console.log("🎯 Going FROM portfolio TO home - triggering portfolio to home");
       isAnimating.current = true;
       resetAnimations();
       setShouldPlayPortfolioToHome(true);
@@ -1068,6 +1078,7 @@ function PageContent() {
     } else if (isPortfolioOrCasestudy(to) && from === "home") {
       // Going from home to portfolio/casestudy pages  
       console.log("🎯 Triggering HOME to portfolio animation");
+
       isAnimating.current = true;
       resetAnimations();
       setShouldPlayHomeToPortfolio(true);
@@ -1077,6 +1088,7 @@ function PageContent() {
     } else if (isPortfolioOrCasestudy(to) && from === "contact") {
       // Going from contact to portfolio/casestudy pages  
       console.log("🎯 Triggering CONTACT to portfolio animation");
+
       isAnimating.current = true;
       resetAnimations();
       setShouldPlayContactToPortfolio(true);
