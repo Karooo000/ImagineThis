@@ -289,10 +289,6 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
       });
     };
 
-
-
-
-
     // Delay setup to ensure DOM is ready and Webflow has initialized
     const setupEventListeners = () => {
       /* ===== BUTTON HOVER EFFECTS START ===== */
@@ -790,6 +786,8 @@ function PageContent() {
       return 'contact';
     }
     
+    // Note: Referrer-based navigation detection moved to useEffect below
+    
     // Only check container visibility if we have a hash indicating contact
     // Don't rely on container visibility for initial detection
     
@@ -807,7 +805,151 @@ function PageContent() {
   const hasInitialized = useRef(false);
   // Removed complex navigation tracking for simplicity
   
+  // Outro oval animation - for coming FROM portfolio to home/contact
+  const playOvalOutroAnimation = (onComplete) => {
+    console.log("🟣 Starting oval outro animation");
+    
+    // Find the outro container and its ovals
+    const outroContainer = document.querySelector(".outro-anim-home");
+    const ovals = document.querySelectorAll(".outro-anim-home .oval-white-home-outro");
+    
+    if (!outroContainer) {
+      console.warn("⚠️ outro-anim-home container not found");
+      onComplete && onComplete();
+      return;
+    }
+    
+    if (ovals.length === 0) {
+      console.warn("⚠️ No ovals found in outro-anim-home container");
+      onComplete && onComplete();
+      return;
+    }
 
+    console.log("🟣 Found", ovals.length, "ovals in outro container");
+
+    // Ensure ovals are ready for animation (setup might already be done by referrer detection)
+    gsap.set(ovals, {
+      scale: 1,
+      opacity: 1,
+      transformOrigin: "center center"
+    });
+
+    // Create timeline for outro animation (from outside to center)
+    const timeline = gsap.timeline();
+    
+    // Animate opacity down first
+    timeline.to(ovals, {
+      opacity: 0,
+      duration: 0.4,
+      ease: "power2.out",
+      stagger: {
+        amount: 0.15,
+        from: "outside" // Animate from outside to center
+      }
+    });
+    
+    // Then animate scale down (starts 0.1s after opacity animation begins)
+    timeline.to(ovals, {
+      scale: 0,
+      duration: 0.5,
+      ease: "power2.in",
+      stagger: {
+        amount: 0.2,
+        from: "outside" // Animate from outside to center
+      }
+    }, 0.1);
+    
+    // Hide container and call completion callback when animation finishes
+    timeline.eventCallback("onComplete", () => {
+      console.log("🟣 Oval outro animation completed");
+      
+      // Hide the outro container
+      gsap.set(outroContainer, {
+        display: "none"
+      });
+      
+      onComplete && onComplete();
+    });
+  };
+
+  // Always play outro animation on page load, then trigger appropriate 3D animation
+  useEffect(() => {
+    const path = window.location.pathname;
+    const hash = window.location.hash;
+    const referrer = document.referrer;
+    
+    console.log("🔍 Starting outro animation on page load");
+    console.log("🔍 Current path:", path, "hash:", hash);
+    console.log("🔍 Referrer:", referrer);
+    
+    // IMMEDIATELY set up outro overlay before any content shows
+    const outroContainer = document.querySelector(".outro-anim-home");
+    if (outroContainer) {
+      console.log("🔍 Setting up immediate outro overlay");
+      
+      // Show outro container with ovals visible (covers everything)
+      gsap.set(outroContainer, {
+        display: "block",
+        visibility: "visible",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100vw",
+        height: "100vh",
+        zIndex: 9999,
+        pointerEvents: "none",
+        backgroundColor: "transparent" // Let ovals handle the coverage
+      });
+      
+      // Set ovals to full visibility immediately
+      const ovals = document.querySelectorAll(".outro-anim-home .oval-white-home-outro");
+      if (ovals.length > 0) {
+        gsap.set(ovals, {
+          scale: 1,
+          opacity: 1,
+          transformOrigin: "center center"
+        });
+        
+        console.log("🔍 Starting outro animation immediately");
+        
+        // Determine which 3D animation to play based on destination (not just referrer)
+        const cameFromPortfolio = referrer && (referrer.includes('portfolio') || referrer.includes('casestudy'));
+        const isHomePage = (path === '/' || path === '/index.html') && hash !== '#contact';
+        const isContactPage = hash === '#contact';
+        
+        // Start outro animation with minimal delay
+        setTimeout(() => {
+          playOvalOutroAnimation(() => {
+            console.log("🎯 Outro animation completed");
+          });
+        }, 50);
+        
+        // Start 3D animation almost immediately after outro (small delay for timing)
+        setTimeout(() => {
+          if (isHomePage) {
+            if (cameFromPortfolio) {
+              console.log("🎯 Came from portfolio to home - triggering PortfolioToHomeAction");
+              setShouldPlayPortfolioToHome(true);
+            } else {
+              console.log("🎯 Loading home page - triggering PortfolioToHomeAction for intro");
+              setShouldPlayPortfolioToHome(true);
+            }
+          } else if (isContactPage) {
+            if (cameFromPortfolio) {
+              console.log("🎯 Came from portfolio to contact - triggering ContractIntroAction");
+              setShouldPlayContactIntro(true);
+            } else {
+              console.log("🎯 Loading contact page - triggering ContractIntroAction for intro");
+              setShouldPlayContactIntro(true);
+            }
+          }
+        }, 200); // Small delay after outro starts
+      } else {
+        console.warn("⚠️ No outro ovals found, hiding container");
+        gsap.set(outroContainer, { display: "none" });
+      }
+    }
+  }, []); // Run once on mount
 
   // Background flicker prevention
   // Background flicker prevention is now handled only in oval animation
@@ -1008,14 +1150,17 @@ function PageContent() {
     const from = prevPageState.current;
     const to = currentPageState;
     
-    console.log("🎯 ANIMATION TRIGGER - from:", from, "to:", to);
-    console.log("🎯 URL:", window.location.pathname + window.location.hash);
-    console.log("🎯 prevPageState.current:", prevPageState.current);
-    
     // Helper function to check if a state is portfolio/casestudy page
     const isPortfolioOrCasestudy = (state) => {
       return state === 'portfolio' || state === 'casestudy';
     };
+    
+    console.log("🎯 ANIMATION TRIGGER - from:", from, "to:", to);
+    console.log("🎯 URL:", window.location.pathname + window.location.hash);
+    console.log("🎯 prevPageState.current:", prevPageState.current);
+    console.log("🎯 DEBUG - isPortfolioOrCasestudy(from):", isPortfolioOrCasestudy(from));
+    console.log("🎯 DEBUG - to === 'home':", to === 'home');
+    console.log("🎯 DEBUG - Should trigger portfolio→home:", to === "home" && isPortfolioOrCasestudy(from));
 
     // On first initialization, set the previous state properly
     if (!hasInitialized.current) {
@@ -1053,7 +1198,7 @@ function PageContent() {
       resetAnimations();
       setShouldPlayContactIntro(true);
       
-
+      // Note: Outro animation for portfolio → contact is handled by referrer detection
       
       setTimeout(() => {
         isAnimating.current = false;
@@ -1068,10 +1213,13 @@ function PageContent() {
       }, 1000);
     } else if (to === "home" && isPortfolioOrCasestudy(from)) {
       // Coming back to home from portfolio/casestudy pages
-      console.log("🎯 Going FROM portfolio TO home - triggering portfolio to home");
+      console.log("🎯 Going FROM portfolio TO home - triggering portfolio to home + outro animation");
       isAnimating.current = true;
       resetAnimations();
       setShouldPlayPortfolioToHome(true);
+      
+      // Note: Outro animation for portfolio → home is handled by referrer detection
+      
       setTimeout(() => {
         isAnimating.current = false;
       }, 1000);
