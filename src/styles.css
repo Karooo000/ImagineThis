@@ -22,6 +22,14 @@ body {
   padding: 0;
 }
 
+/* Ensure Canvas (3D model) stays behind UI containers */
+#root > canvas {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  z-index: -1 !important; /* Negative z-index to stay behind everything */
+}
+
 
 
 .oval-gray {

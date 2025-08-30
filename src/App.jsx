@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, Suspense } from "react"
 import {useProgress, Environment, OrbitControls, Sparkles, PerspectiveCamera} from "@react-three/drei";
 import { EffectComposer, Bloom, HueSaturation, DepthOfField } from '@react-three/postprocessing';
 
-import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
+// React Router removed for Webflow compatibility - navigation handled via page detection
 
 import Model from "./NeuralFractal.jsx"
 
@@ -25,17 +25,80 @@ function CameraLayerSetup() {
   return null;
 }
 
+// Webflow-compatible navigation system
 if (typeof window !== 'undefined') {
   window.goToPath = (path) => {
-    window.history.pushState({}, "", path);
-    const navEvent = new PopStateEvent("popstate");
-    window.dispatchEvent(navEvent);
+    // For Webflow embedding, we need to handle navigation differently
+    if (path === "/contact-us") {
+      // Handle contact navigation within the same page via DOM manipulation
+      const contactContainer = document.querySelector(".container.contact");
+      const homeContainer = document.querySelector(".container.home");
+      
+      if (contactContainer && homeContainer) {
+        // Trigger page state change event for animation system
+        window.dispatchEvent(new CustomEvent('pageStateChange', { 
+          detail: { from: window.currentPageState || 'home', to: 'contact' }
+        }));
+        window.currentPageState = 'contact';
+      }
+    } else if (path === "/") {
+      // Handle home navigation
+      const contactContainer = document.querySelector(".container.contact");
+      const homeContainer = document.querySelector(".container.home");
+      
+      if (contactContainer && homeContainer) {
+        // Trigger page state change event for animation system
+        window.dispatchEvent(new CustomEvent('pageStateChange', { 
+          detail: { from: window.currentPageState || 'contact', to: 'home' }
+        }));
+        window.currentPageState = 'home';
+      }
+    } else if (path === "/portfolio") {
+      // Handle portfolio navigation - this will trigger animation
+      // Note: The actual navigation to portfolio.html is handled by the button click handler
+      window.dispatchEvent(new CustomEvent('pageStateChange', { 
+        detail: { from: window.currentPageState || 'home', to: 'portfolio' }
+      }));
+      window.currentPageState = 'portfolio';
+    }
   };
+
+  // Initialize page state based on current URL or Webflow page indicators
+  window.getCurrentPageState = () => {
+    // Try to detect current page state from URL
+    const path = window.location.pathname;
+    const url = window.location.href;
+    
+    // Only return portfolio/casestudy if we're actually on those HTML files
+    if (path.endsWith('portfolio.html') || url.endsWith('portfolio.html')) return 'portfolio';
+    if (path.endsWith('casestudy.html') || url.endsWith('casestudy.html')) return 'casestudy';
+    if (path.includes('dopo-casestudy.html') || url.includes('dopo-casestudy.html')) return 'casestudy';
+    if (path.includes('oakley-casestudy.html') || url.includes('oakley-casestudy.html')) return 'casestudy';
+    
+    // Check for contact state via hash or path
+    if (path.includes('contact') || window.location.hash === '#contact') return 'contact';
+    
+    // For the main index page or any path that doesn't end with specific HTML files, assume home
+    return 'home';
+  };
+
+  // Set initial page state
+  window.currentPageState = window.getCurrentPageState();
 }
 
-function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
-  const location = useLocation();
-  const is404 = location.pathname !== "/" && location.pathname !== "/index.html" && location.pathname !== "/contact-us";
+function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeToPortfolio, shouldPlayPortfolioToHome }) {
+  // In Webflow embedding context, detect page type from URL and DOM
+  const getCurrentPath = () => {
+    if (typeof window === 'undefined') return '/';
+    return window.location.pathname;
+  };
+
+  const currentPath = getCurrentPath();
+  const is404 = currentPath !== "/" && 
+                currentPath !== "/index.html" && 
+                !currentPath.includes('/contact') &&
+                !currentPath.includes('/portfolio') &&
+                !currentPath.includes('/casestudy');
 
   /* Depth of field and blur */
   const focusRef = useRef();
@@ -54,6 +117,183 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
     /* Depth of field and blur ENDS*/
 
    useEffect(() => {
+    // Targeted portfolio click interceptor - only log and intercept portfolio-related clicks
+    const portfolioClickHandler = (e) => {
+      // Only process clicks that might be portfolio-related
+      const target = e.target;
+      const href = target.href || target.getAttribute('href');
+      const text = target.textContent?.trim().toLowerCase();
+      
+      // Quick check - only log if it might be portfolio-related
+      const mightBePortfolio = (
+        (href && (href.includes('portfolio') || href.includes('/portfolio'))) ||
+        (text && (text.includes('portfolio') || text.includes('work') || text.includes('works'))) ||
+        target.className.includes('works') ||
+        target.className.includes('portfolio')
+      );
+      
+      if (mightBePortfolio) {
+
+        
+        // Check the clicked element and its parents for portfolio links
+        let currentElement = target;
+        let depth = 0;
+        
+        while (currentElement && depth < 3) { // Check up to 3 levels up
+          const elemHref = currentElement.href || currentElement.getAttribute('href');
+          const elemText = currentElement.textContent?.trim().toLowerCase();
+          
+          // Check if this is definitely a portfolio link
+          const isPortfolioLink = (
+            (elemHref && (elemHref.includes('portfolio') || elemHref.includes('/portfolio'))) ||
+            (elemText && elemText.includes('portfolio'))
+          );
+          
+          if (isPortfolioLink) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            // Use the href or construct portfolio URL
+            const originalHref = elemHref || '/portfolio';
+            
+            // Check if click is from mobile menu
+            const mobileMenuContainer1 = document.querySelector('.menu-open-wrap-dopo');
+            const mobileMenuContainer2 = document.querySelector('.menu-open-wrap');
+            const isFromMobileMenu1 = mobileMenuContainer1 && mobileMenuContainer1.classList.contains('menu-open');
+            const isFromMobileMenu2 = mobileMenuContainer2 && mobileMenuContainer2.classList.contains('menu-open');
+            const isFromMobileMenu = isFromMobileMenu1 || isFromMobileMenu2;
+            const activeMobileMenu = isFromMobileMenu1 ? mobileMenuContainer1 : mobileMenuContainer2;
+            
+
+            
+            const startAnimation = () => {
+
+                
+                // Step 1: Trigger 3D model animation
+                const animEvent = new CustomEvent('directPortfolioAnimation');
+                window.dispatchEvent(animEvent);
+                
+                // Step 2: Start oval animation slightly later
+                setTimeout(() => {
+                    if (window.playOvalExpandAnimation) {
+                        window.playOvalExpandAnimation(() => {
+                            // Navigate after oval animation completes
+                            const fullUrl = originalHref.startsWith('http') ? originalHref : `${window.location.origin}${originalHref}`;
+                            window.location.href = fullUrl;
+                        });
+                    } else {
+                        setTimeout(() => {
+                            const fullUrl = originalHref.startsWith('http') ? originalHref : `${window.location.origin}${originalHref}`;
+                            window.location.href = fullUrl;
+                        }, 800);
+                    }
+                }, 1300); // Start ovals even later
+            };
+            
+            if (isFromMobileMenu) {
+                if (activeMobileMenu) {
+                    activeMobileMenu.classList.remove('menu-open');
+                }
+                setTimeout(startAnimation, 300);
+            } else {
+                startAnimation();
+            }
+            
+            return false;
+          }
+          
+          currentElement = currentElement.parentElement;
+          depth++;
+        }
+      }
+    };
+    
+    // Add targeted portfolio click listener
+    document.addEventListener('click', portfolioClickHandler, true);
+
+
+    // Simple oval initialization for home to portfolio animation
+    const initializeOvals = () => {
+      // Target the correct container by class instead of ID (due to duplicate IDs in Webflow)
+      const introAnimContainer = document.querySelector(".intro-anim-home");
+      
+      if (introAnimContainer) {
+        // Ensure container is ready but hidden initially
+        introAnimContainer.classList.add("finished");
+        
+        // Initialize ovals with scale 0 - use the correct Webflow class
+        gsap.set(".oval-white-home", { 
+          scale: 0,
+          transformOrigin: "center center"
+        });
+      }
+    };
+    
+    // Call initialization with delay to ensure Webflow is ready
+    setTimeout(initializeOvals, 100);
+
+    /**
+     * Simple oval transition animation for Home to Portfolio navigation
+     * 
+     * This function animates the ovals in the .intro-anim-home container
+     * from scale 0 to scale 1 with opacity 1, creating a smooth transition
+     * effect when navigating from the home page to the portfolio page.
+     * 
+     * The sequence is:
+     * 1. homeToPortfolioAction (3D model animation) plays first
+     * 2. After 1200ms, this oval animation starts (when 3D animation is almost done)
+     * 3. Ovals animate very quickly (0.5s) with tight stagger (0.03s)
+     * 4. Navigation to portfolio.html happens after animation completes
+     */
+    window.playOvalExpandAnimation = (onComplete) => {
+      // Target the correct container by class instead of ID (due to duplicate IDs in Webflow)
+      const introAnimContainer = document.querySelector(".intro-anim-home");
+      if (!introAnimContainer) {
+        onComplete && onComplete();
+        return;
+      }
+      
+      // Make container visible
+      introAnimContainer.classList.remove("finished");
+      introAnimContainer.style.opacity = "1";
+      introAnimContainer.style.visibility = "visible";
+      introAnimContainer.style.pointerEvents = "all";
+      
+      // Animate ovals with opacity faster than scale - center-out stagger
+      const timeline = gsap.timeline();
+      
+      // Opacity animates first and faster
+      timeline.to(".oval-white-home", {
+        opacity: 1,
+        duration: 0.25,
+        ease: "power2.out",
+        stagger: {
+          amount: 0.1,
+          from: "center"
+        }
+      }, 0);
+      
+      // Scale animates slightly after and slower
+      timeline.to(".oval-white-home", {
+        scale: 1,
+        duration: 0.4,
+        ease: "power2.out",
+        stagger: {
+          amount: 0.15,
+          from: "center"
+        }
+      }, 0.1);
+      
+      // Call completion callback when animation finishes
+      timeline.eventCallback("onComplete", () => {
+
+        onComplete && onComplete();
+      });
+    };
+
+
+
     // Delay setup to ensure DOM is ready and Webflow has initialized
     const setupEventListeners = () => {
       /* ===== BUTTON HOVER EFFECTS START ===== */
@@ -120,14 +360,12 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
 
     /* ===== ROUTING FUNCTIONS ===== */
     const handleContactClick = (e) => {
-        console.log("🔥 Contact button clicked");
         e.preventDefault();
         e.stopPropagation();
         
         // Close mobile menu if clicking from mobile menu
         const mobileMenuContainer = document.querySelector('.menu-open-wrap-dopo');
         if (mobileMenuContainer && mobileMenuContainer.classList.contains('menu-open')) {
-            console.log("🔥 Closing mobile menu");
             mobileMenuContainer.classList.remove('menu-open');
         }
         
@@ -135,20 +373,69 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
     };
 
     const handleHomeClick = (e) => {
-        console.log("🔥 Home button clicked");
         e.preventDefault();
         e.stopPropagation();
         
         // Close mobile menu if clicking from mobile menu
         const mobileMenuContainer = document.querySelector('.menu-open-wrap-dopo');
         if (mobileMenuContainer && mobileMenuContainer.classList.contains('menu-open')) {
-            console.log("🔥 Closing mobile menu");
             mobileMenuContainer.classList.remove('menu-open');
         }
         
         // Always navigate to root path, not index.html
         window.goToPath("/");
     };
+
+    const handleWorksClick = (e) => {
+        // Store the original href before preventing default
+        const originalHref = e.currentTarget.href;
+        
+        // Prevent default navigation temporarily
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Check if we're clicking from mobile menu (check both possible menu containers)
+        const mobileMenuContainer1 = document.querySelector('.menu-open-wrap-dopo');
+        const mobileMenuContainer2 = document.querySelector('.menu-open-wrap');
+        const isFromMobileMenu1 = mobileMenuContainer1 && mobileMenuContainer1.classList.contains('menu-open');
+        const isFromMobileMenu2 = mobileMenuContainer2 && mobileMenuContainer2.classList.contains('menu-open');
+        const isFromMobileMenu = isFromMobileMenu1 || isFromMobileMenu2;
+        const activeMobileMenu = isFromMobileMenu1 ? mobileMenuContainer1 : mobileMenuContainer2;
+        
+
+        
+        const startAnimation = () => {
+            // Trigger animation
+            const animEvent = new CustomEvent('directPortfolioAnimation');
+            window.dispatchEvent(animEvent);
+            
+            // Start oval animation slightly later
+            setTimeout(() => {
+                if (window.playOvalExpandAnimation) {
+                    window.playOvalExpandAnimation(() => {
+                        // Navigate after oval animation completes
+                        window.location.href = originalHref;
+                    });
+                } else {
+                    window.location.href = originalHref;
+                }
+            }, 1300);
+        };
+        
+        if (isFromMobileMenu) {
+            if (activeMobileMenu) {
+                activeMobileMenu.classList.remove('menu-open');
+            }
+            
+            // Wait for menu close animation to complete before starting portfolio animation
+            setTimeout(startAnimation, 300); // Give menu time to close
+        } else {
+            // Not from mobile menu, start animation immediately
+            startAnimation();
+        }
+    };
+
+
 
     /* ===== EVENT LISTENERS ===== */
     const contactBtn = document.querySelector(".contactus-btn");
@@ -182,55 +469,20 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
     // Use the first found footer home button
     const finalFooterHomeBtn = footerHomeBtn || footerHomeBtnAlt1 || footerHomeBtnAlt2 || footerLogoBtn;
 
-    console.log("🔧 Setting up event listeners...");
-    console.log("🔧 Contact button found:", contactBtn);
-    console.log("🔧 Home button found:", homeBtn);
-    console.log("🔧 Mobile contact button found:", mobileContactBtn);
-    console.log("🔧 Mobile home button found:", mobileHomeBtn);
-    console.log("🔧 Final mobile home button found:", finalMobileHomeBtn);
-    console.log("🔧 Footer contact button found:", footerContactBtn);
-    console.log("🔧 Footer home button found:", footerHomeBtn);
-    console.log("🔧 Footer logo button found:", footerLogoBtn);
-    console.log("🔧 Final footer home button found:", finalFooterHomeBtn);
-    console.log("🔧 Footer home button alternatives:", {
-        alt1: footerHomeBtnAlt1,
-        alt2: footerHomeBtnAlt2,
-        alt3: footerHomeBtnAlt3
-    });
-    console.log("🔧 Alternative mobile home buttons:", {
-        alt1: mobileHomeBtnAlt1,
-        alt2: mobileHomeBtnAlt2,
-        alt3: mobileHomeBtnAlt3
-    });
+
 
     // Contact button listeners
     if (contactBtn) {
-        console.log("🔧 Attaching contact button listeners");
-        
-        // Test multiple event types to see what's working
         contactBtn.addEventListener("mouseenter", handleContactEnter);
         contactBtn.addEventListener("mouseleave", handleContactLeave);
-        contactBtn.addEventListener("click", handleContactClick, true); // Use capture to get priority
-        
-        // Add additional test listeners
-        contactBtn.addEventListener("mousedown", (e) => {
-            console.log("🔥 Contact button MOUSEDOWN detected");
-        }, true);
-        
-        contactBtn.addEventListener("pointerdown", (e) => {
-            console.log("🔥 Contact button POINTERDOWN detected");
-        }, true);
-        
-        console.log("🔧 Contact button setup complete");
-        
-    } else {
-        console.warn("🔧 Contact button not found!");
+        contactBtn.addEventListener("click", handleContactClick, true);
     }
 
     // Works button listeners
     if (worksBtn) {
         worksBtn.addEventListener("mouseenter", handleWorksEnter);
         worksBtn.addEventListener("mouseleave", handleWorksLeave);
+        worksBtn.addEventListener("click", handleWorksClick, true);
     }
 
     // Submit button listeners
@@ -241,15 +493,9 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
 
     // Home button listener
     if (homeBtn) {
-        console.log("🔧 Found home button:", homeBtn);
-        console.log("🔧 Home button href:", homeBtn.href);
-        console.log("🔧 Home button data-path:", homeBtn.getAttribute("data-path"));
-        
         homeBtn.addEventListener("mouseenter", handleHomeEnter);
         homeBtn.addEventListener("mouseleave", handleHomeLeave);
-        homeBtn.addEventListener("click", handleHomeClick, true); // Use capture to ensure we get it first
-    } else {
-        console.warn("🔧 Home button not found!");
+        homeBtn.addEventListener("click", handleHomeClick, true);
     }
 
     // Logo button listener - same functionality as home button
@@ -259,48 +505,20 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
 
     // Mobile menu button listeners
     if (mobileContactBtn) {
-        console.log("🔧 Attaching mobile contact button listeners");
         mobileContactBtn.addEventListener("click", handleContactClick, true);
-    } else {
-        console.warn("🔧 Mobile contact button not found!");
     }
 
     if (finalMobileHomeBtn) {
-        console.log("🔧 Attaching mobile home button listeners to:", finalMobileHomeBtn);
         finalMobileHomeBtn.addEventListener("click", handleHomeClick, true);
-    } else {
-        console.warn("🔧 Mobile home button not found with any selector!");
     }
 
     // Footer button listeners
     if (footerContactBtn) {
-        console.log("🔧 Attaching footer contact button listeners");
         footerContactBtn.addEventListener("click", handleContactClick, true);
     }
 
     if (finalFooterHomeBtn) {
-        console.log("🔧 Attaching footer home button listeners to:", finalFooterHomeBtn);
-        console.log("🔧 Footer home button href:", finalFooterHomeBtn.href);
-        console.log("🔧 Footer home button data-path:", finalFooterHomeBtn.getAttribute("data-path"));
         finalFooterHomeBtn.addEventListener("click", handleHomeClick, true);
-        
-        // Test click detection
-        finalFooterHomeBtn.addEventListener("mousedown", (e) => {
-            console.log("🔥 Footer home button MOUSEDOWN detected");
-        }, true);
-        
-        // Test if button is clickable
-        const rect = finalFooterHomeBtn.getBoundingClientRect();
-        const styles = getComputedStyle(finalFooterHomeBtn);
-        console.log("🔧 Footer home button clickability:", {
-            rect: { top: rect.top, left: rect.left, width: rect.width, height: rect.height },
-            display: styles.display,
-            visibility: styles.visibility,
-            pointerEvents: styles.pointerEvents,
-            visible: rect.width > 0 && rect.height > 0
-        });
-    } else {
-        console.warn("🔧 Footer home button not found with any selector!");
     }
 
     // 🧼 CLEANUP:
@@ -313,6 +531,7 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
         if (worksBtn) {
             worksBtn.removeEventListener("mouseenter", handleWorksEnter);
             worksBtn.removeEventListener("mouseleave", handleWorksLeave);
+            worksBtn.removeEventListener("click", handleWorksClick);
         }
         if (submitBtn) {
             submitBtn.removeEventListener("mouseenter", handleSubmitEnter);
@@ -343,7 +562,11 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
     };
 
     // Setup with delay to ensure Webflow has initialized
-    setTimeout(setupEventListeners, 100);
+    setTimeout(setupEventListeners, 500); // Increased delay for Webflow loading
+    
+    return () => {
+        document.removeEventListener('click', portfolioClickHandler, true);
+    };
 }, []);
 
   return (
@@ -361,6 +584,8 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
               focusRef={focusRef} 
               shouldPlayContactIntro={shouldPlayContactIntro}
               shouldPlayBackContact={shouldPlayBackContact}
+              shouldPlayHomeToPortfolio={shouldPlayHomeToPortfolio}
+              shouldPlayPortfolioToHome={shouldPlayPortfolioToHome}
             />
           ) : (
             <group name="Empty_-_Camera" position={[-0.008, 0.823, -0.033]} scale={0.14}>
@@ -440,21 +665,105 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact }) {
 }
 
 function PageContent() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const prevPath = useRef(location.pathname);
+  // Webflow-compatible page state management
+  const [currentPageState, setCurrentPageState] = useState(() => 
+    typeof window !== 'undefined' ? window.getCurrentPageState() : 'home'
+  );
+  const prevPageState = useRef((() => {
+    // Detect if we came from portfolio/casestudy via referrer
+    if (typeof window !== 'undefined') {
+      const referrer = document.referrer;
+      if (referrer && (referrer.includes('portfolio') || referrer.includes('casestudy'))) {
+        return referrer.includes('portfolio') ? 'portfolio' : 'casestudy';
+      }
+    }
+    return 'home';
+  })());
   const [shouldPlayContactIntro, setShouldPlayContactIntro] = useState(false);
   const [shouldPlayBackContact, setShouldPlayBackContact] = useState(false);
+  const [shouldPlayHomeToPortfolio, setShouldPlayHomeToPortfolio] = useState(false);
+  const [shouldPlayPortfolioToHome, setShouldPlayPortfolioToHome] = useState(false);
   const isAnimating = useRef(false);
-  const is404 = location.pathname !== "/" && location.pathname !== "/index.html" && location.pathname !== "/contact-us";
   const hasInitialized = useRef(false);
   
-  console.log("🔄 PageContent render - location.pathname:", location.pathname);
-  console.log("🔄 PageContent state - shouldPlayContactIntro:", shouldPlayContactIntro, "shouldPlayBackContact:", shouldPlayBackContact);
+
+
+  // Set up simple global animation trigger
+  useEffect(() => {
+    window.triggerHomeToPortfolioAnimation = () => {
+      setShouldPlayHomeToPortfolio(true);
+      setShouldPlayContactIntro(false);
+      setShouldPlayBackContact(false);
+      setShouldPlayPortfolioToHome(false);
+    };
+
+    // Listen for direct animation trigger
+    const handleDirectPortfolioAnimation = () => {
+      setShouldPlayHomeToPortfolio(true);
+      setShouldPlayContactIntro(false);
+      setShouldPlayBackContact(false);
+      setShouldPlayPortfolioToHome(false);
+    };
+
+    window.addEventListener('directPortfolioAnimation', handleDirectPortfolioAnimation);
+
+    // Check if we came from portfolio/casestudy pages on page load
+    const checkPortfolioReturn = () => {
+      const referrer = document.referrer;
+      const intendedRoute = sessionStorage.getItem('intendedRoute');
+      
+      // Only trigger portfolio return animation if we're on the main index page AND came from portfolio
+      const currentPath = window.location.pathname;
+      const isOnMainPage = currentPath === '/' || currentPath === '/index.html' || currentPath.includes('index');
+      
+      // Much more strict referrer check - disable for now to prevent false positives
+      const isActualPortfolioReturn = false; // Temporarily disable to fix click issues
+      
+      if (isOnMainPage && isActualPortfolioReturn) {
+        setShouldPlayPortfolioToHome(true);
+        setShouldPlayContactIntro(false);
+        setShouldPlayBackContact(false);
+        setShouldPlayHomeToPortfolio(false);
+      }
+      
+      // Handle contact navigation from external pages
+      if (intendedRoute === '/contact-us') {
+        setShouldPlayContactIntro(true);
+        setShouldPlayBackContact(false);
+        setShouldPlayHomeToPortfolio(false);
+        setShouldPlayPortfolioToHome(false);
+        sessionStorage.removeItem('intendedRoute');
+      }
+    };
+
+    checkPortfolioReturn();
+
+    return () => {
+      window.triggerHomeToPortfolioAnimation = null;
+      window.removeEventListener('directPortfolioAnimation', handleDirectPortfolioAnimation);
+    };
+  }, []);
+
+  // Listen for page state changes from navigation system (for contact/home only)
+  useEffect(() => {
+    const handlePageStateChange = (event) => {
+      const { from, to } = event.detail;
+      console.log("🔄 Page state change:", from, "→", to);
+      
+      prevPageState.current = from;
+      setCurrentPageState(to);
+    };
+
+    window.addEventListener('pageStateChange', handlePageStateChange);
+    
+    return () => {
+      window.removeEventListener('pageStateChange', handlePageStateChange);
+    };
+  }, []);
 
   // EMERGENCY CONTAINER CHECK: Ensure containers exist and are visible when needed
   useEffect(() => {
-    if (location.pathname === "/contact-us") {
+    if (currentPageState === "contact") {
       const checkAndForceVisibility = () => {
         const contactContainer = document.querySelector(".container.contact");
         const homeContainer = document.querySelector(".container.home");
@@ -462,7 +771,7 @@ function PageContent() {
         console.log("🚨 EMERGENCY CHECK:", {
           contactFound: !!contactContainer,
           homeFound: !!homeContainer,
-          pathname: location.pathname
+          pageState: currentPageState
         });
 
         if (contactContainer) {
@@ -495,7 +804,7 @@ function PageContent() {
       setTimeout(checkAndForceVisibility, 500);
       setTimeout(checkAndForceVisibility, 1000);
     }
-  }, [location.pathname]);
+  }, [currentPageState]);
 
 
 
@@ -504,11 +813,10 @@ function PageContent() {
     const homeContainer = document.querySelector(".container.home");
     const contactContainer = document.querySelector(".container.contact");
 
-    const showHome = location.pathname === "/" || location.pathname === "/index.html";
-    const showContact = location.pathname === "/contact-us";
+    const showHome = currentPageState === "home";
+    const showContact = currentPageState === "contact";
     
-    console.log("🎨 Container visibility logic - showHome:", showHome, "showContact:", showContact);
-    console.log("🎨 Current pathname:", location.pathname);
+
 
     // Container animations should work on all pages
 
@@ -578,114 +886,112 @@ function PageContent() {
         }
       }, 1000); // Wait for intro animation to complete (600ms timeline + buffer)
     }
-  }, [location]);
+  }, [currentPageState]);
 
-  // Handle animation triggers
+  // Handle animation triggers based on page state changes
   useEffect(() => {
-    const from = prevPath.current;
-    const to = location.pathname;
+    const from = prevPageState.current;
+    const to = currentPageState;
     
-    console.log("🎯 Animation trigger useEffect - from:", from, "to:", to, "hasInitialized:", hasInitialized.current);
+    // Helper function to check if a state is portfolio/casestudy page
+    const isPortfolioOrCasestudy = (state) => {
+      return state === 'portfolio' || state === 'casestudy';
+    };
 
-    // On first initialization, set the previous path properly
+    // On first initialization, set the previous state properly
     if (!hasInitialized.current) {
       hasInitialized.current = true;
-      console.log("🎯 First initialization - current path:", to);
-      // If we're landing directly on contact page (from external navigation)
-      if (to === "/contact-us") {
-        console.log("Initial load on contact page - triggering intro animation");
-        console.log("Animation states - shouldPlayContactIntro: true, shouldPlayBackContact: false");
-        isAnimating.current = true;
-        setShouldPlayContactIntro(true);
-        setShouldPlayBackContact(false);
-        setTimeout(() => {
-          isAnimating.current = false;
-        }, 1000);
-        prevPath.current = to;
-        return;
-      }
+      
+      // IMPORTANT: Reset prevPageState to match current state on first load
+      // This prevents false animation triggers from cached/stale state
+      prevPageState.current = to;
+      
+      // EXIT EARLY - Don't trigger any animations on first load
+      return;
+      
+
     }
 
     if (isAnimating.current) {
       return;
     }
 
-    if (to === "/contact-us" && from !== "/contact-us") {
-      // Trigger contact intro animation when going TO contact from anywhere else (including external pages like portfolio)
-      console.log("✅ Setting Contact Intro animation from:", from || "external/unknown page");
-      console.log("✅ Animation states - shouldPlayContactIntro: true, shouldPlayBackContact: false");
-      isAnimating.current = true;
-      setShouldPlayContactIntro(true);
-      setShouldPlayBackContact(false);
-      setTimeout(() => {
-isAnimating.current = false;
-      }, 1000); // Adjust timeout based on your animation duration
-    } else if (from === "/contact-us" && (to === "/" || to === "/index.html")) {
-      console.log("✅ Setting Back Contact animation from:", from, "to:", to);
-      console.log("✅ Animation states - shouldPlayContactIntro: false, shouldPlayBackContact: true");
-      isAnimating.current = true;
+    // Reset all animations first
+    const resetAnimations = () => {
       setShouldPlayContactIntro(false);
+      setShouldPlayBackContact(false);
+      setShouldPlayHomeToPortfolio(false);
+      setShouldPlayPortfolioToHome(false);
+    };
+
+    if (to === "contact" && from !== "contact") {
+      // Trigger contact intro animation when going TO contact from anywhere else (including external pages like portfolio)
+      isAnimating.current = true;
+      resetAnimations();
+      setShouldPlayContactIntro(true);
+      setTimeout(() => {
+        isAnimating.current = false;
+      }, 1000); // Adjust timeout based on your animation duration
+    } else if (from === "contact" && to === "home") {
+      isAnimating.current = true;
+      resetAnimations();
       setShouldPlayBackContact(true);
       setTimeout(() => {
         isAnimating.current = false;
       }, 1000); // Adjust timeout based on your animation duration
+    } else if (to === "home" && isPortfolioOrCasestudy(from)) {
+      // Coming back to home from portfolio/casestudy pages
+      isAnimating.current = true;
+      resetAnimations();
+      setShouldPlayPortfolioToHome(true);
+      setTimeout(() => {
+        isAnimating.current = false;
+      }, 1000);
+    } else if (isPortfolioOrCasestudy(to) && from === "home") {
+      // Going from home to portfolio/casestudy pages  
+      isAnimating.current = true;
+      resetAnimations();
+      setShouldPlayHomeToPortfolio(true);
+      setTimeout(() => {
+        isAnimating.current = false;
+      }, 1000);
     } else {
-      console.log("❌ No animation triggered - from:", from, "to:", to);
-      setShouldPlayContactIntro(false);
-      setShouldPlayBackContact(false);
+      resetAnimations();
     }
 
-    prevPath.current = to;
-  }, [location]);
+    prevPageState.current = to;
+  }, [currentPageState]);
 
   return <Scene 
     shouldPlayContactIntro={shouldPlayContactIntro}
     shouldPlayBackContact={shouldPlayBackContact}
+    shouldPlayHomeToPortfolio={shouldPlayHomeToPortfolio}
+    shouldPlayPortfolioToHome={shouldPlayPortfolioToHome}
   />;
 }
 
+// Simplified app content for Webflow embedding - no routing needed
 function AppContent() {
-  const navigate = useNavigate();
-  
   useEffect(() => {
-    window.goToPath = (path) => {
-      console.log("🚀 window.goToPath called with:", path);
-      navigate(path);
-    };
-
-    // Redirect /index.html to / for consistency
-    if (window.location.pathname === '/index.html') {
-      console.log("🔀 Redirecting from /index.html to /");
-      navigate('/', { replace: true });
-      return;
-    }
-
     // Check for intended route from sessionStorage (for navigation from standalone pages)
     const intendedRoute = sessionStorage.getItem('intendedRoute');
     if (intendedRoute) {
-      console.log("📱 Found intended route from sessionStorage:", intendedRoute);
       sessionStorage.removeItem('intendedRoute');
-      // Small delay to ensure React Router is ready and components are mounted
+      // Small delay to ensure DOM is ready
       setTimeout(() => {
-        console.log("📱 Navigating to intended route:", intendedRoute);
-        window.goToPath(intendedRoute);
+        if (intendedRoute === '/contact-us') {
+          window.goToPath('/contact-us');
+        }
       }, 200);
     }
-  }, [navigate]);
+  }, []);
 
-  return (
-    <Routes>
-      <Route path="*" element={<PageContent />} />
-    </Routes>
-  );
+  return <PageContent />;
 }
 
 export function App() {
-  return (
-    <BrowserRouter>
-      <AppContent />
-    </BrowserRouter>
-  );
+  // No BrowserRouter needed for Webflow embedding
+  return <AppContent />;
 }
 
 export default App;

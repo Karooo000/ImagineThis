@@ -7,10 +7,10 @@ import * as THREE from 'three'
 import gsap from 'gsap'
 
 //const modelURL = 'https://imaginethiscode.netlify.app/fractalNEWV4.glb'
-const modelURL = "http://localhost:5173/Fractal7.glb"
+const modelURL = "http://localhost:5173/FractalNeurals.glb"
 
 
-export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBackContact, ...props }) {
+export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeToPortfolio, shouldPlayPortfolioToHome, ...props }) {
   const group = useRef()
   const glowingRef = useRef()
   const cameraRef = useRef()
@@ -30,15 +30,23 @@ export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBack
     
     const contractIntroAction = actions["ContractIntroAction"];
     const backwardsContactAction = actions["BackwardsContact"];
+    const homeToPortfolioAction = actions["HomeToPortfolioAction"];
+    const portfolioToHomeAction = actions["PortfolioToHomeAction"];
 
-    if (!contractIntroAction || !backwardsContactAction) {
-      console.warn("One or both animation actions not found");
+    if (!contractIntroAction || !backwardsContactAction || !homeToPortfolioAction || !portfolioToHomeAction) {
+      console.warn("One or more animation actions not found");
       console.warn("Available actions:", Object.keys(actions));
+      console.warn("Missing actions:", {
+        contractIntroAction: !!contractIntroAction,
+        backwardsContactAction: !!backwardsContactAction,
+        homeToPortfolioAction: !!homeToPortfolioAction,
+        portfolioToHomeAction: !!portfolioToHomeAction
+      });
       return;
     }
 
     // Configure animations
-    [contractIntroAction, backwardsContactAction].forEach(action => {
+    [contractIntroAction, backwardsContactAction, homeToPortfolioAction, portfolioToHomeAction].forEach(action => {
       action.setLoop(THREE.LoopOnce, 1);
       action.clampWhenFinished = true;
     });
@@ -78,12 +86,42 @@ export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBack
     } else if (shouldPlayBackContact && lastPlayedAnimation.current !== backwardsContactAction) {
       console.log("🎬 Playing BackwardsContact animation");
       playAnimation(backwardsContactAction);
+    } else if (shouldPlayHomeToPortfolio && lastPlayedAnimation.current !== homeToPortfolioAction) {
+      console.log("🎬 Playing HomeToPortfolioAction animation");
+      console.log("🎬 Previous animation was:", lastPlayedAnimation.current?.getClip()?.name || "none");
+      
+      // If no previous animation was played, reset to ensure clean state
+      if (!lastPlayedAnimation.current) {
+        console.log("🎬 No previous animation - resetting model state before home to portfolio");
+        Object.values(actions).forEach(action => {
+          action.stop();
+          action.reset();
+          action.enabled = false;
+        });
+      }
+      
+      playAnimation(homeToPortfolioAction);
+    } else if (shouldPlayPortfolioToHome && lastPlayedAnimation.current !== portfolioToHomeAction) {
+      console.log("🎬 Playing PortfolioToHomeAction animation");
+      console.log("🎬 Previous animation was:", lastPlayedAnimation.current?.getClip()?.name || "none");
+      
+      // If no previous animation was played, reset to ensure clean state
+      if (!lastPlayedAnimation.current) {
+        console.log("🎬 No previous animation - resetting model state before portfolio to home");
+        Object.values(actions).forEach(action => {
+          action.stop();
+          action.reset();
+          action.enabled = false;
+        });
+      }
+      
+      playAnimation(portfolioToHomeAction);
     }
 
     return () => {
       // Don't stop animations on cleanup to maintain positions
     };
-  }, [shouldPlayContactIntro, shouldPlayBackContact, actions]);
+  }, [shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeToPortfolio, shouldPlayPortfolioToHome, actions]);
 
 
   // Set glowing mesh to layer 1
