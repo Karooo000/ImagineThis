@@ -35,10 +35,8 @@ if (typeof window !== 'undefined') {
       const homeContainer = document.querySelector(".container.home");
       
       if (contactContainer && homeContainer) {
-        // Trigger page state change event for animation system
-        window.dispatchEvent(new CustomEvent('pageStateChange', { 
-          detail: { from: window.currentPageState || 'home', to: 'contact' }
-        }));
+        // Don't dispatch conflicting events - let React handle state management
+        console.log("🌐 goToPath - navigating to contact (React handles state)");
         window.currentPageState = 'contact';
       }
     } else if (path === "/") {
@@ -47,10 +45,8 @@ if (typeof window !== 'undefined') {
       const homeContainer = document.querySelector(".container.home");
       
       if (contactContainer && homeContainer) {
-        // Trigger page state change event for animation system
-        window.dispatchEvent(new CustomEvent('pageStateChange', { 
-          detail: { from: window.currentPageState || 'contact', to: 'home' }
-        }));
+        // Don't dispatch conflicting events - let React handle state management
+        console.log("🌐 goToPath - navigating to home (React handles state)");
         window.currentPageState = 'home';
       }
     } else if (path === "/portfolio") {
@@ -370,6 +366,28 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
             mobileMenuContainer.classList.remove('menu-open');
         }
         
+        // Check if we're currently on home and trigger proper state change
+        const homeContainer = document.querySelector('.container.home');
+        const isOnHome = homeContainer && homeContainer.style.display !== 'none' && 
+                        (homeContainer.style.display === 'flex' || homeContainer.style.visibility === 'visible');
+        
+        console.log("📞 Contact clicked - checking home state via DOM");
+        console.log("📞 Home container display:", homeContainer?.style.display);
+        console.log("📞 Home container visibility:", homeContainer?.style.visibility);
+        console.log("📞 Is on home:", isOnHome);
+        
+        if (isOnHome) {
+            console.log("📞 Contact clicked from home - triggering state change event");
+            // Dispatch custom event to ensure proper state tracking
+            const event = new CustomEvent('pageStateChange', {
+                detail: { from: 'home', to: 'contact' }
+            });
+            console.log("📞 Dispatching event with detail:", event.detail);
+            window.dispatchEvent(event);
+        } else {
+            console.log("📞 Not on home page");
+        }
+        
         window.goToPath("/contact-us");
     };
 
@@ -383,13 +401,26 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
             mobileMenuContainer.classList.remove('menu-open');
         }
         
-        // Check if we're currently on contact and trigger proper state change
-        if (currentPageState === 'contact') {
-            console.log("🏠 Home clicked from contact - triggering state change");
+        // Check if we're currently on contact by checking DOM state directly
+        const contactContainer = document.querySelector('.container.contact');
+        const isOnContact = contactContainer && contactContainer.style.display !== 'none' && 
+                           (contactContainer.style.display === 'flex' || contactContainer.style.visibility === 'visible');
+        
+        console.log("🏠 Home clicked - checking contact state via DOM");
+        console.log("🏠 Contact container display:", contactContainer?.style.display);
+        console.log("🏠 Contact container visibility:", contactContainer?.style.visibility);
+        console.log("🏠 Is on contact:", isOnContact);
+        
+        if (isOnContact) {
+            console.log("🏠 Home clicked from contact - triggering state change event");
             // Dispatch custom event to ensure proper state tracking
-            window.dispatchEvent(new CustomEvent('pageStateChange', {
+            const event = new CustomEvent('pageStateChange', {
                 detail: { from: 'contact', to: 'home' }
-            }));
+            });
+            console.log("🏠 Dispatching event with detail:", event.detail);
+            window.dispatchEvent(event);
+        } else {
+            console.log("🏠 Not on contact page");
         }
         
         // Always navigate to root path, not index.html
@@ -775,23 +806,8 @@ function PageContent() {
 
 
   // Background flicker prevention
-  useEffect(() => {
-    // Only set white background if we're NOT on portfolio pages
-    const isPortfolioPage = window.location.pathname.includes('portfolio') || 
-                           window.location.pathname.includes('casestudy');
-    
-    if (!isPortfolioPage) {
-      // Set white background to prevent flicker during navigation
-      document.body.style.backgroundColor = '#ffffff';
-      
-      // Restore after page loads
-      const timer = setTimeout(() => {
-        document.body.style.backgroundColor = '';
-      }, 300);
-      
-      return () => clearTimeout(timer);
-    }
-  }, []);
+  // Background flicker prevention is now handled only in oval animation
+  // (when going TO portfolio) - removed global page load background change
 
   // Set up simple global animation trigger
   useEffect(() => {
@@ -923,10 +939,14 @@ function PageContent() {
   useEffect(() => {
     const handlePageStateChange = (event) => {
       const { from, to } = event.detail;
-      console.log("🔄 Page state change:", from, "→", to);
+      console.log("🔄 Page state change event received:", from, "→", to);
+      console.log("🔄 Event detail:", event.detail);
+      console.log("🔄 Current prevPageState before update:", prevPageState.current);
       
       prevPageState.current = from;
       setCurrentPageState(to);
+      
+      console.log("🔄 Set prevPageState to:", from, "and currentPageState to:", to);
     };
 
     window.addEventListener('pageStateChange', handlePageStateChange);
