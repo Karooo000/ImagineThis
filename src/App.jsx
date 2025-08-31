@@ -209,83 +209,104 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
     document.addEventListener('click', portfolioClickHandler, true);
 
 
-    // Simple oval initialization for home to portfolio animation
-    const initializeOvals = () => {
-      // Target the correct container by class instead of ID (due to duplicate IDs in Webflow)
+    // ROBUST: Initialize oval containers for navigation animations
+    const initializeNavigationOvals = () => {
+      // Initialize white ovals for navigation (home to portfolio)
       const introAnimContainer = document.querySelector(".intro-anim-home");
-      
       if (introAnimContainer) {
-        // Ensure container is ready but hidden initially
-        introAnimContainer.classList.add("finished");
+        // DON'T add finished class - it sets opacity: 0 via CSS
+        // Instead, just hide it with display: none
+        introAnimContainer.style.display = "none";
         
-        // Initialize ovals with scale 0 - use the correct Webflow class
-        gsap.set(".oval-white-home", { 
+        // Initialize intro ovals (for home to portfolio animation)
+        const introOvals = document.querySelectorAll(".intro-anim-home .oval-white-home");
+        gsap.set(introOvals, { 
           scale: 0,
+          opacity: 0,
+          transformOrigin: "center center"
+        });
+      }
+      
+      // Ensure white outro container is ready but hidden
+      const whiteOutroContainer = document.querySelector(".outro-anim-home");
+      if (whiteOutroContainer) {
+        // CRITICAL: Remove finished class that would set opacity: 0
+        whiteOutroContainer.classList.remove('finished');
+        whiteOutroContainer.style.display = 'none'; // Hidden by default
+        
+        const whiteOvals = whiteOutroContainer.querySelectorAll(".oval-white-home-outro");
+        gsap.set(whiteOvals, {
+          scale: 1, // Keep at scale 1 (visible size) - will animate to 0 during navigation
+          opacity: 1, // Keep at opacity 1 (visible) - will animate to 0 during navigation
           transformOrigin: "center center"
         });
       }
     };
     
-    // Call initialization with delay to ensure Webflow is ready
-    setTimeout(initializeOvals, 100);
+    // Initialize with delay to ensure Webflow is ready
+    setTimeout(initializeNavigationOvals, 100);
 
     /**
-     * Simple oval transition animation for Home to Portfolio navigation
+     * ROBUST: Oval expand animation for Home/Contact to Portfolio navigation
      * 
-     * This function animates the ovals in the .intro-anim-home container
-     * from scale 0 to scale 1 with opacity 1, creating a smooth transition
-     * effect when navigating from the home page to the portfolio page.
-     * 
+     * This creates a smooth transition when navigating TO portfolio pages.
      * The sequence is:
-     * 1. homeToPortfolioAction (3D model animation) plays first
-     * 2. After 1200ms, this oval animation starts (when 3D animation is almost done)
-     * 3. Ovals animate very quickly (0.5s) with tight stagger (0.03s)
+     * 1. 3D model animation plays first
+     * 2. After delay, this oval animation starts
+     * 3. Ovals expand from center outward to cover screen
      * 4. Navigation to portfolio.html happens after animation completes
      */
     window.playOvalExpandAnimation = (onComplete) => {
-      // Target the correct container by class instead of ID (due to duplicate IDs in Webflow)
       const introAnimContainer = document.querySelector(".intro-anim-home");
-      if (!introAnimContainer) {
+      const introOvals = introAnimContainer?.querySelectorAll(".oval-white-home");
+      
+      if (!introAnimContainer || !introOvals || introOvals.length === 0) {
+        console.warn("⚠️ Intro animation container or ovals not found");
         onComplete && onComplete();
         return;
       }
       
-      // Make container visible
-      introAnimContainer.classList.remove("finished");
-      introAnimContainer.style.opacity = "1";
-      introAnimContainer.style.visibility = "visible";
-      introAnimContainer.style.pointerEvents = "all";
+      console.log("🟣 Starting oval expand animation for portfolio navigation");
       
-      // Animate ovals with opacity faster than scale - center-out stagger
+      // Make container visible
+      // Don't use finished class - just control display directly
+      introAnimContainer.style.display = 'block';
+      introAnimContainer.style.visibility = 'visible';
+      introAnimContainer.style.opacity = '1';
+      introAnimContainer.style.pointerEvents = 'none';
+      
+      // Animate ovals expanding from center outward
       const timeline = gsap.timeline();
       
-      // Opacity animates first and faster
-      timeline.to(".oval-white-home", {
+      // Opacity animates first
+      timeline.to(introOvals, {
         opacity: 1,
-        duration: 0.25,
-        ease: "power2.out",
-        stagger: {
-          amount: 0.1,
-          from: "center"
-        }
-      }, 0);
-      
-      // Scale animates slightly after and slower
-      timeline.to(".oval-white-home", {
-        scale: 1,
-        duration: 0.4,
+        duration: 0.3,
         ease: "power2.out",
         stagger: {
           amount: 0.15,
           from: "center"
         }
+      }, 0);
+      
+      // Scale animates slightly after
+      timeline.to(introOvals, {
+        scale: 1,
+        duration: 0.5,
+        ease: "power2.out",
+        stagger: {
+          amount: 0.2,
+          from: "center"
+        }
       }, 0.1);
       
-      // Call completion callback when animation finishes
+      // Complete animation
       timeline.eventCallback("onComplete", () => {
-        // Set white background just before navigation to prevent flicker
-        console.log("🎯 Setting white background before portfolio navigation");
+        console.log("🟣 Oval expand animation completed");
+        
+        // Set white background to prevent flicker during navigation
         document.body.style.backgroundColor = '#ffffff';
+        
         onComplete && onComplete();
       });
     };
@@ -769,135 +790,163 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
 }
 
 function PageContent() {
-  // Track if this is the very first load of the application
-  const [isFirstLoad, setIsFirstLoad] = useState(() => {
-    if (typeof window === 'undefined') return true;
-    
-    // BULLETPROOF: Use performance API to detect actual reload vs navigation
-    const navigationType = performance.getEntriesByType('navigation')[0]?.type;
-    const isActualReload = navigationType === 'reload';
-    
-    // Check referrer for navigation detection
-    const referrer = document.referrer;
-    const isNavigationFromPortfolio = referrer && (
-      referrer.includes('portfolio') || 
-      referrer.includes('casestudy') ||
-      referrer.includes('oakley') ||
-      referrer.includes('dopo')
-    );
-    
-    // Simple logic: If it's an actual reload, always treat as first load
-    // If it's navigation from portfolio, don't treat as first load
-    const hasLoaded = sessionStorage.getItem('appHasLoaded');
-    const isFirst = isActualReload || (!isNavigationFromPortfolio && !hasLoaded);
-    
-    console.log("🔍 Initializing first load state:", {
-      navigationType,
-      isActualReload,
-      hasLoaded,
-      isFirst,
-      isNavigationFromPortfolio,
-      referrer,
-      sessionStorage: sessionStorage.getItem('appHasLoaded')
-    });
-    return isFirst;
-  });
-  
-  // Track 3D model loading progress
+  // SIMPLIFIED: Track 3D model loading progress
   const { progress } = useProgress();
   const [modelLoaded, setModelLoaded] = useState(false);
-  // Track if preloader has been shown during this session
-  const [preloaderFinished, setPreloaderFinished] = useState(() => {
-    // BULLETPROOF: Use performance API to detect actual reload vs navigation
-    const navigationType = performance.getEntriesByType('navigation')[0]?.type;
-    const isActualReload = navigationType === 'reload';
+  
+  // SIMPLIFIED: Single state for preloader status
+  const [preloaderState, setPreloaderState] = useState(() => {
+    if (typeof window === 'undefined') return 'hidden';
     
-    // Check referrer for navigation detection
+    // ROBUST: Use performance API to detect actual reload vs navigation
+    const navigationType = performance.getEntriesByType('navigation')[0]?.type;
+    const isHardReload = navigationType === 'reload';
+    
+    // Check if coming from portfolio pages (more comprehensive check)
     const referrer = document.referrer;
-    const isNavigationFromPortfolio = referrer && (
+    const currentUrl = window.location.href;
+    
+    // CRITICAL: Hard reload should NEVER be considered "from portfolio"
+    // Even if referrer shows portfolio, a hard reload means user refreshed the page
+    const isFromPortfolio = !isHardReload && referrer && (
       referrer.includes('portfolio') || 
       referrer.includes('casestudy') ||
       referrer.includes('oakley') ||
       referrer.includes('dopo')
     );
     
-    // Simple logic: If it's an actual reload, always show preloader
-    // Only skip preloader if it's navigation from portfolio AND was already shown
-    const wasShown = sessionStorage.getItem('preloaderShown') === 'true';
-    const shouldSkipPreloader = !isActualReload && wasShown && isNavigationFromPortfolio;
+    // Check if we're on the home page (not portfolio)
+    const isOnHomePage = currentUrl.includes('index.html') || 
+                        currentUrl.endsWith('/') || 
+                        (!currentUrl.includes('portfolio') && !currentUrl.includes('casestudy'));
     
-    console.log("🔍 Preloader session check:", { 
-      navigationType,
-      isActualReload,
-      wasShown, 
-      isNavigationFromPortfolio, 
-      shouldSkipPreloader,
-      referrer 
-    });
+    // BULLETPROOF RULE: Show preloader ONLY on:
+    // 1. Hard reload (F5, Ctrl+R, browser refresh)
+    // 2. AND we're on the home page
+    // 3. AND we're NOT coming from portfolio pages
+    // Note: Reset session storage on hard reload to ensure fresh state
+    let hasPreloaderShown = sessionStorage.getItem('preloaderShown') === 'true';
     
-    return shouldSkipPreloader;
-  });
-
-  // SIMPLE AND BULLETPROOF: New preloader logic with dark ovals as background
-  useEffect(() => {
-    console.log("🚀 SIMPLE PRELOADER SETUP STARTING");
+    // CRITICAL: Reset preloader session on hard reload (unless from portfolio)
+    if (isHardReload && !isFromPortfolio) {
+      sessionStorage.removeItem('preloaderShown');
+      hasPreloaderShown = false;
+      console.log("🔄 Hard reload detected - reset preloader session");
+    }
     
-    // Detect if this is a hard reload vs navigation
-    const navigationType = performance.getEntriesByType('navigation')[0]?.type;
-    const isHardReload = navigationType === 'reload';
-    const isFromPortfolio = document.referrer.includes('portfolio');
-    const hasPreloaderShown = sessionStorage.getItem('preloaderShown') === 'true';
+    const shouldShowPreloader = isHardReload && isOnHomePage && !isFromPortfolio && !hasPreloaderShown;
     
-    console.log("🔍 NAVIGATION DETECTION:", {
+    // AGGRESSIVE: Hide preloader immediately if it shouldn't be shown
+    if (!shouldShowPreloader) {
+      // IMMEDIATE: Inject CSS into head to hide preloader before any rendering
+      const immediateStyle = document.createElement('style');
+      immediateStyle.textContent = '.pre-loader { display: none !important; }';
+      document.head.insertBefore(immediateStyle, document.head.firstChild);
+      
+      const preloader = document.querySelector('.pre-loader');
+      if (preloader) {
+        // Multiple methods to ensure it's hidden
+        preloader.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important;';
+        preloader.setAttribute('data-permanently-hidden', 'true');
+        preloader.classList.add('hide');
+        preloader.classList.remove('show');
+        console.log("🚫 AGGRESSIVELY hid preloader with multiple methods");
+      }
+    }
+    
+    console.log("🎯 PRELOADER INIT:", {
       navigationType,
       isHardReload,
       isFromPortfolio,
+      isOnHomePage,
       hasPreloaderShown,
-      referrer: document.referrer
+      shouldShowPreloader,
+      referrer,
+      currentUrl
     });
     
-    // SIMPLE RULE: Show preloader ONLY on hard reload AND not from portfolio
-    const shouldShowPreloader = isHardReload && !isFromPortfolio && !hasPreloaderShown;
+    return shouldShowPreloader ? 'visible' : 'hidden';
+  });
+  
+  // Track preloader timing
+  const [preloaderStartTime] = useState(Date.now());
+
+  // ROBUST: Initialize preloader and oval containers on mount
+  useEffect(() => {
+    console.log("🚀 INITIALIZING PRELOADER SYSTEM");
     
-    if (shouldShowPreloader) {
-      console.log("🎯 SHOWING PRELOADER - Hard reload detected");
-      // Preloader is already visible by default, dark ovals are its background
-      // Just ensure it's visible (shouldn't need to do anything)
       const preloader = document.querySelector('.pre-loader');
-      if (preloader) {
+    const whiteOvalContainer = document.querySelector('.outro-anim-home');
+    const darkOvalContainer = document.querySelector('.outro-anim-home-dark');
+    
+    if (preloaderState === 'visible') {
+      console.log("🎯 SHOWING PRELOADER for hard reload");
+      
+      // Only show if not permanently hidden
+      if (preloader && !preloader.getAttribute('data-permanently-hidden')) {
         preloader.style.display = 'flex';
         preloader.style.visibility = 'visible';
-        console.log("🎯 Preloader confirmed visible");
+        preloader.classList.add('show');
+        console.log("✅ Showed preloader for hard reload");
+      }
+      
+      // Hide white ovals during preloader
+      if (whiteOvalContainer) {
+        whiteOvalContainer.style.display = 'none';
+      }
+      
+      // Ensure dark ovals are ready (they're part of preloader)
+      if (darkOvalContainer) {
+        darkOvalContainer.style.display = 'block';
+        darkOvalContainer.style.visibility = 'visible';
+        
+        // Set dark ovals to initial state
+        const darkOvals = darkOvalContainer.querySelectorAll('.oval-white-home-outro');
+        gsap.set(darkOvals, {
+          scale: 1,
+          opacity: 1,
+          transformOrigin: "center center"
+        });
       }
     } else {
-      console.log("🎯 HIDING PRELOADER - Navigation or already shown");
-      // Hide preloader immediately for navigation
-      const preloader = document.querySelector('.pre-loader');
+      console.log("🎯 ENSURING PRELOADER HIDDEN for navigation");
+      
+      // Ensure preloader is permanently hidden
       if (preloader) {
-        preloader.classList.add('finished');
         preloader.style.display = 'none';
-        console.log("🎯 Preloader hidden for navigation");
+        preloader.setAttribute('data-permanently-hidden', 'true');
+        console.log("🚫 Confirmed preloader permanently hidden");
+      }
+      
+      // Prepare white ovals for navigation animations (but keep container hidden)
+      if (whiteOvalContainer) {
+        whiteOvalContainer.style.display = 'none'; // Hidden by default - only show during navigation
+        whiteOvalContainer.style.visibility = 'visible';
+        
+        // Set white ovals to initial state (ready for navigation animation)
+        const whiteOvals = whiteOvalContainer.querySelectorAll('.oval-white-home-outro');
+        gsap.set(whiteOvals, {
+          scale: 1, // Keep at scale 1 - will animate to 0 during navigation
+          opacity: 1, // Keep at opacity 1 - will animate to 0 during navigation  
+          transformOrigin: "center center"
+        });
+      }
+      
+      // Hide dark ovals for navigation
+      if (darkOvalContainer) {
+        darkOvalContainer.style.display = 'none';
       }
     }
     
-    // Always ensure white ovals are available for navigation
-    const whiteContainer = document.querySelector('.outro-anim-home');
-    if (whiteContainer && !shouldShowPreloader) {
-      whiteContainer.style.display = 'block';
-      whiteContainer.style.visibility = 'visible';
-      console.log("🎯 White ovals enabled for navigation");
-    }
-    
-    console.log("🚀 SIMPLE SETUP COMPLETE");
-  }, []);
+    console.log("🚀 PRELOADER SYSTEM INITIALIZED");
+  }, [preloaderState]);
 
 
   
-  // SINGLE SOURCE OF TRUTH for page state
+  // ROBUST: Single source of truth for page state
   const [currentPageState, setCurrentPageState] = useState(() => {
     if (typeof window === 'undefined') return 'home';
     
-    // Detect page state from URL
     const path = window.location.pathname;
     const hash = window.location.hash;
     
@@ -908,21 +957,17 @@ function PageContent() {
       return path.includes('portfolio') ? 'portfolio' : 'casestudy';
     }
     
-    // Contact via hash OR if contact container is visible
+    // Contact via hash
     if (hash === '#contact') {
       return 'contact';
     }
-    
-    // Note: Referrer-based navigation detection moved to useEffect below
-    
-    // Only check container visibility if we have a hash indicating contact
-    // Don't rely on container visibility for initial detection
     
     // Default to home
     return 'home';
   });
   
-  const prevPageState = useRef('home'); // Track previous state - start with home
+  // ROBUST: Animation state management
+  const prevPageState = useRef('home');
   const [shouldPlayContactIntro, setShouldPlayContactIntro] = useState(false);
   const [shouldPlayBackContact, setShouldPlayBackContact] = useState(false);
   const [shouldPlayHomeToPortfolio, setShouldPlayHomeToPortfolio] = useState(false);
@@ -930,75 +975,64 @@ function PageContent() {
   const [shouldPlayPortfolioToHome, setShouldPlayPortfolioToHome] = useState(false);
   const isAnimating = useRef(false);
   const hasInitialized = useRef(false);
-  // Removed complex navigation tracking for simplicity
   
-  // Monitor 3D model loading progress
+  // SIMPLIFIED: Monitor 3D model loading progress
   useEffect(() => {
     console.log("🔍 3D Model loading progress:", progress, "%");
     
     if (progress === 100 && !modelLoaded) {
-      console.log("🎯 3D Model fully loaded via progress!");
+      console.log("🎯 3D Model fully loaded!");
       setModelLoaded(true);
     }
   }, [progress, modelLoaded]);
 
-  // Fallback mechanism to ensure preloader finishes even if 3D progress doesn't work
+  // SIMPLIFIED: Fallback timer for model loading
   useEffect(() => {
-    if (isFirstLoad && !modelLoaded) {
-      // Set a fallback timer to mark model as loaded after a reasonable time
+    if (preloaderState === 'visible' && !modelLoaded) {
       const fallbackTimer = setTimeout(() => {
-        console.log("🎯 Fallback: Marking model as loaded after timeout");
+        console.log("🎯 Fallback: Marking model as loaded after 3s");
         setModelLoaded(true);
-      }, 3000); // 3 seconds fallback
+      }, 3000);
 
       return () => clearTimeout(fallbackTimer);
     }
-  }, [isFirstLoad, modelLoaded]);
+  }, [preloaderState, modelLoaded]);
 
-  // Track preloader timing for minimum 4-second display
-  const [preloaderStartTime, setPreloaderStartTime] = useState(null);
-
-  // Start timing when page loads
+  // ROBUST: Handle preloader completion when model loads
   useEffect(() => {
-    if (!preloaderStartTime) {
-      setPreloaderStartTime(Date.now());
-      console.log("🕐 Preloader timing started");
-    }
-  }, [preloaderStartTime]);
-
-  // NEW SIMPLE PRELOADER LOGIC: Handle model loading and timing
-  useEffect(() => {
-    const isHardReload = performance.getEntriesByType('navigation')[0]?.type === 'reload';
-    const shouldProcessPreloader = isHardReload && !document.referrer.includes('portfolio') && !preloaderFinished && modelLoaded;
-    
-    if (shouldProcessPreloader) {
-      console.log("🎯 PROCESSING PRELOADER - Model loaded");
+    if (preloaderState === 'visible' && modelLoaded) {
+      console.log("🎯 MODEL LOADED - Processing preloader completion");
       
-      const elapsed = Date.now() - (preloaderStartTime || Date.now());
-      const modelLoadedFast = elapsed < 1000;
-      const minDisplayTime = 4000;
+      const elapsed = Date.now() - preloaderStartTime;
+      const minDisplayTime = 4000; // 4 seconds minimum
+      
+      // Calculate delay to ensure minimum display time
+      const delay = Math.max(0, minDisplayTime - elapsed);
       
       console.log("🕐 Preloader timing:", {
         elapsed: elapsed + "ms",
-        modelLoadedFast,
-        decision: modelLoadedFast ? "Show minimum 4s" : "Finish immediately"
+        delay: delay + "ms",
+        decision: delay > 0 ? "Wait for minimum 4s" : "Finish immediately"
       });
       
-      const delay = modelLoadedFast ? Math.max(0, minDisplayTime - elapsed) : 0;
-      
       setTimeout(() => {
-        console.log("🎯 Finishing preloader sequence");
+        console.log("🎯 Starting preloader finish sequence");
         finishPreloader();
       }, delay);
     }
-  }, [modelLoaded, preloaderFinished, preloaderStartTime]);
+  }, [preloaderState, modelLoaded, preloaderStartTime]);
 
-  // SIMPLE preloader finish function
+  // ROBUST: Preloader finish sequence - clean and simple
   const finishPreloader = () => {
     console.log("🎯 STARTING PRELOADER FINISH SEQUENCE");
     
-    // 1. Animate preloader content up and fade out
+    // Step 1: Animate preloader content up and fade out
     const preloaderContent = document.querySelector('.preloader-content');
+    
+    // Step 2: Prepare dark oval container and ovals (BEFORE content animation)
+    const darkOvalContainer = document.querySelector('.outro-anim-home-dark');
+    const darkOvals = darkOvalContainer?.querySelectorAll('.oval-white-home-outro');
+    
     if (preloaderContent) {
       gsap.to(preloaderContent, {
         y: -100,
@@ -1007,486 +1041,608 @@ function PageContent() {
         ease: "power2.out",
         onComplete: () => {
           console.log("🎯 Preloader content animated out");
-          
-          // 2. Now animate dark ovals from scale 1 to 0
-          const darkOvals = document.querySelectorAll('.outro-anim-home-dark .oval-white-home-outro');
-          if (darkOvals.length > 0) {
-            console.log("🟣 Starting dark ovals outro animation");
-            
-            gsap.to(darkOvals, {
-              scale: 0,
-              opacity: 0,
-              duration: 1.5,
-              ease: "power2.in",
-              stagger: {
-                amount: 0.3,
-                from: "outside"
-              },
-              onComplete: () => {
-                console.log("🟣 Dark ovals animation completed");
-                
-                // 3. Hide preloader completely
-                const preloader = document.querySelector('.pre-loader');
-                if (preloader) {
-                  preloader.classList.add('finished');
-                  preloader.style.display = 'none';
-                  console.log("🎯 Preloader hidden");
-                }
-                
-                // 4. Mark as finished and trigger 3D animation
-                setPreloaderFinished(true);
-                sessionStorage.setItem('preloaderShown', 'true');
-                
-                // Trigger 3D animation
-                const isContactPage = window.location.hash === '#contact';
-                if (isContactPage) {
-                  setShouldPlayContactIntro(true);
-                  console.log("🎯 Triggered contact intro");
-                } else {
-                  setShouldPlayPortfolioToHome(true);
-                  console.log("🎯 Triggered home intro");
-                }
-              }
-            });
-          }
         }
       });
+      
+      // Start dark ovals animation with TIGHT OVERLAP (after 0.1s for minimal gap)
+      setTimeout(() => {
+        if (darkOvals && darkOvals.length > 0) {
+            console.log("🟣 Starting dark ovals outro animation with", darkOvals.length, "ovals");
+            
+            // CRITICAL: Make dark oval container visible
+            darkOvalContainer.style.display = 'block';
+            darkOvalContainer.style.visibility = 'visible';
+            
+            // Ensure dark ovals are fully visible before animation
+            gsap.set(darkOvals, {
+              scale: 1,
+              opacity: 1,
+              transformOrigin: "center center"
+            });
+            
+            console.log("🔍 Dark container now visible:", {
+              display: darkOvalContainer.style.display,
+              visibility: darkOvalContainer.style.visibility
+            });
+            
+            // Step 3: Start 3D animation IMMEDIATELY (parallel with oval animation)
+            const isContactPage = window.location.hash === '#contact';
+            if (isContactPage) {
+              setShouldPlayContactIntro(true);
+              console.log("🎯 Triggered contact intro animation (parallel with ovals)");
+            } else {
+              setShouldPlayPortfolioToHome(true);
+              console.log("🎯 Triggered home intro animation (parallel with ovals)");
+            }
+            
+            // Create timeline for dark ovals with scale starting before opacity
+            const darkTimeline = gsap.timeline({
+              onStart: () => {
+                console.log("🟣 Dark ovals animation STARTED");
+              },
+            });
+            
+            // Scale animation starts immediately
+            darkTimeline.to(darkOvals, {
+              scale: 0,
+              duration: 1.0, // Slightly faster: 1.0s instead of 1.2s
+              ease: "power2.in",
+              stagger: {
+                amount: 0.35, // Slightly faster stagger
+                from: "outside"
+              }
+            }, 0);
+            
+            // Opacity animation starts 0.2s later
+            darkTimeline.to(darkOvals, {
+              opacity: 0,
+              duration: 0.8, // Faster opacity
+              ease: "power2.in",
+              stagger: {
+                amount: 0.35,
+                from: "outside"
+              }
+            }, 0.2); // Start opacity 0.2s after scale
+            
+            // Add onComplete callback to the timeline
+            darkTimeline.call(() => {
+                console.log("🟣 Dark ovals animation completed");
+                
+              // Step 4: Clean up after oval animation finishes (shorter gap)
+              setTimeout(() => {
+                  // Hide preloader PERMANENTLY
+                const preloader = document.querySelector('.pre-loader');
+                if (preloader) {
+                  preloader.style.display = 'none';
+                    preloader.setAttribute('data-permanently-hidden', 'true');
+                    console.log("🚫 Preloader permanently hidden after animation");
+                  }
+                  
+                  // Hide dark oval container after animation
+                  darkOvalContainer.style.display = 'none';
+                  
+                  // Prepare white ovals for navigation (but keep container hidden)
+                  const whiteOvalContainer = document.querySelector('.outro-anim-home');
+                  if (whiteOvalContainer) {
+                    whiteOvalContainer.style.display = 'none'; // Hidden by default - only show during navigation
+                    whiteOvalContainer.style.visibility = 'visible';
+                    
+                    const whiteOvals = whiteOvalContainer.querySelectorAll('.oval-white-home-outro');
+                    gsap.set(whiteOvals, {
+                      scale: 1, // Keep at scale 1 - ready for navigation animations
+                      opacity: 1, // Keep at opacity 1 - ready for navigation animations
+                      transformOrigin: "center center"
+                    });
+                  }
+                  
+                  // Update state (3D animation already started)
+                  setPreloaderState('finished');
+                  sessionStorage.setItem('preloaderShown', 'true');
+                  
+                  console.log("🎯 PRELOADER SEQUENCE COMPLETED - 3D animation running");
+                }, 50); // Shorter gap between content and ovals
+            });
+          } else {
+            console.warn("⚠️ No dark ovals found for overlapped animation");
+          }
+        }, 100); // Start ovals 0.1s into content animation (tight overlap!)
+    } else {
+      console.warn("⚠️ No preloader content found, skipping animation");
+      setPreloaderState('finished');
     }
   };
 
-  // Add manual debugging function to window for testing
+  // DEBUGGING: Add manual testing functions for development
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.debugPreloader = () => {
-        console.log("🔍 Manual preloader debug:", {
-          isFirstLoad,
+        console.log("🔍 Preloader debug:", {
+          preloaderState,
           modelLoaded,
-          preloaderFinished,
           progress,
-          preloaderElement: document.querySelector(".pre-loader")
+          preloaderElement: document.querySelector(".pre-loader"),
+          whiteContainer: document.querySelector(".outro-anim-home"),
+          darkContainer: document.querySelector(".outro-anim-home-dark")
         });
       };
       
       window.forceFinishPreloader = () => {
         console.log("🎯 Manually finishing preloader");
-        const preloader = document.querySelector(".pre-loader");
-        if (preloader) {
-          preloader.classList.add("finished");
-          console.log("🎯 Manually added 'finished' combo class");
+        finishPreloader();
+      };
+
+      window.resetPreloader = () => {
+        console.log("🔄 Resetting preloader state");
+        sessionStorage.removeItem('preloaderShown');
+        setPreloaderState('visible');
+        setModelLoaded(false);
+        console.log("🔄 State reset - reload page to see preloader");
+      };
+
+      window.testNavigationOvals = () => {
+        console.log("🧪 Testing navigation oval animation");
+        playNavigationOvalAnimation(() => {
+          console.log("🧪 Navigation oval test completed");
+        });
+      };
+
+      window.testExpandOvals = () => {
+        console.log("🧪 Testing expand oval animation");
+        if (window.playOvalExpandAnimation) {
+          window.playOvalExpandAnimation(() => {
+            console.log("🧪 Expand oval test completed");
+          });
         }
-        setPreloaderFinished(true);
-        sessionStorage.setItem('preloaderShown', 'true');
-        console.log("🎯 Preloader marked as shown in session (manual)");
-        setIsFirstLoad(false);
-        setModelLoaded(true);
       };
 
-      window.resetFirstLoad = () => {
-        console.log("🔄 Resetting to first load state");
-        sessionStorage.removeItem('appHasLoaded');
-        sessionStorage.removeItem('preloaderShown');
-        setIsFirstLoad(true);
-        setModelLoaded(false);
-        setPreloaderFinished(false);
-        console.log("🔄 State reset - reload page to see first load behavior");
-      };
-
-      window.simulateFirstLoad = () => {
-        console.log("🎯 Simulating first load sequence");
-        sessionStorage.removeItem('appHasLoaded');
-        sessionStorage.removeItem('preloaderShown');
+      window.testDarkOvals = () => {
+        console.log("🧪 Testing dark oval visibility and animation");
+        const darkContainer = document.querySelector('.outro-anim-home-dark');
+        const darkOvals = darkContainer?.querySelectorAll('.oval-white-home-outro');
         
-        // Force first load state
-        setIsFirstLoad(true);
-        setModelLoaded(false);
-        setPreloaderFinished(false);
+        console.log("🔍 Dark container:", darkContainer);
+        console.log("🔍 Dark ovals found:", darkOvals?.length);
+        console.log("🔍 Dark container styles:", {
+          display: darkContainer?.style.display,
+          visibility: darkContainer?.style.visibility,
+          zIndex: darkContainer?.style.zIndex
+        });
         
-        // After a short delay, simulate model loading
-        setTimeout(() => {
-          setModelLoaded(true);
-        }, 1000);
-      };
-
-      // Test oval animations manually
-      window.testOvalAnimationDark = () => {
-        console.log("🧪 Testing oval outro animation with DARK container");
-        playOvalOutroAnimation(() => {
-          console.log("🧪 Test DARK oval animation completed");
-        }, true);
-      };
-
-      window.testOvalAnimationWhite = () => {
-        console.log("🧪 Testing oval outro animation with WHITE container");
-        playOvalOutroAnimation(() => {
-          console.log("🧪 Test WHITE oval animation completed");
-        }, false);
-      };
-
-      window.testContactOvalAnimationDark = () => {
-        console.log("🧪 Testing contact oval outro animation with DARK container");
-        playContactOvalOutroAnimation(() => {
-          console.log("🧪 Test DARK contact oval animation completed");
-        }, true);
-      };
-
-      window.testContactOvalAnimationWhite = () => {
-        console.log("🧪 Testing contact oval outro animation with WHITE container");
-        playContactOvalOutroAnimation(() => {
-          console.log("🧪 Test WHITE contact oval animation completed");
-        }, false);
+        if (darkOvals && darkOvals.length > 0) {
+          // Make them visible and animate
+          gsap.set(darkOvals, {
+            scale: 1,
+            opacity: 1,
+            transformOrigin: "center center"
+          });
+          
+          setTimeout(() => {
+            gsap.to(darkOvals, {
+              scale: 0,
+              opacity: 0,
+              duration: 2.0,
+              ease: "power2.in",
+              stagger: {
+                amount: 0.5,
+                from: "outside"
+              }
+            });
+          }, 1000);
+        }
       };
     }
-  }, [isFirstLoad, modelLoaded, preloaderFinished, progress]);
+  }, [preloaderState, modelLoaded, progress]);
 
-  // Outro oval animation - for coming FROM portfolio to home/contact OR first load
-  // SIMPLIFIED: Only white oval animation for navigation
-  const playOvalOutroAnimation = (onComplete) => {
-    console.log("🟣 Starting WHITE oval outro animation for navigation");
+  // PROTECTION: Prevent multiple white oval animations
+  const isWhiteOvalAnimating = useRef(false);
+
+  // ROBUST: White oval animation for navigation FROM portfolio TO home/contact
+  const playNavigationOvalAnimation = (onComplete) => {
+    console.log("🔍 playNavigationOvalAnimation CALLED - this should appear when navigating from portfolio");
     
-    const outroContainer = document.querySelector(".outro-anim-home");
-    const ovals = document.querySelectorAll(".outro-anim-home .oval-white-home-outro");
-    
-    console.log("🔍 Oval debugging:", {
-      containerClass,
-      outroContainer,
-      ovalsFound: ovals.length,
-      containerClasses: outroContainer?.className,
-      useDarkVersion
-    });
-    
-    if (!outroContainer) {
-      console.warn(`⚠️ ${containerClass} container not found`);
-      console.log("🔍 Available outro containers:", 
-        Array.from(document.querySelectorAll('*')).filter(el => 
-          el.className && el.className.includes && el.className.includes('outro-anim-home')
-        ).map(el => ({ tag: el.tagName, class: el.className }))
-      );
+    // Prevent multiple simultaneous animations
+    if (isWhiteOvalAnimating.current) {
+      console.warn("⚠️ White oval animation already running - skipping");
       onComplete && onComplete();
       return;
     }
+    isWhiteOvalAnimating.current = true;
     
-    if (ovals.length === 0) {
-      console.warn(`⚠️ No ovals found in ${containerClass} container`);
-      console.log("🔍 Container innerHTML:", outroContainer.innerHTML.substring(0, 200));
+    // Find the white oval container and ovals
+    
+    const whiteContainer = document.querySelector(".outro-anim-home");
+    const whiteOvals = whiteContainer?.querySelectorAll(".oval-white-home-outro");
+    
+    if (!whiteContainer || !whiteOvals || whiteOvals.length === 0) {
+      console.warn("⚠️ White oval container or ovals not found for navigation");
       onComplete && onComplete();
       return;
     }
 
-    console.log("🟣 Found", ovals.length, "ovals in", useDarkVersion ? "DARK" : "WHITE", "outro container");
-
-    // AGGRESSIVE: Ensure we're using the right container
-    if (useDarkVersion) {
-      console.log("🎯 DARK VERSION - Ensuring white container is hidden");
-      const whiteContainer = document.querySelector('.outro-anim-home');
-      if (whiteContainer) {
-        whiteContainer.style.display = 'none !important';
-        whiteContainer.style.visibility = 'hidden !important';
-        whiteContainer.style.zIndex = '-1';
-      }
-    } else {
-      console.log("🎯 WHITE VERSION - Ensuring dark container is hidden");
+    // Ensure dark container is hidden during navigation
       const darkContainer = document.querySelector('.outro-anim-home-dark');
       if (darkContainer) {
-        darkContainer.style.display = 'none !important';
-        darkContainer.style.visibility = 'hidden !important';
-        darkContainer.style.zIndex = '-1';
-      }
+      darkContainer.style.display = 'none';
     }
 
-    // Set up container for animation with inline styles
-    outroContainer.style.display = 'block';
-    outroContainer.style.visibility = 'visible';
-    outroContainer.style.position = 'fixed';
-    outroContainer.style.top = '0';
-    outroContainer.style.left = '0';
-    outroContainer.style.width = '100vw';
-    outroContainer.style.height = '100vh';
-    outroContainer.style.zIndex = '9999';
-    outroContainer.style.pointerEvents = 'none';
+    // CRITICAL: Set body background to white immediately to prevent dark flash
+    document.body.style.backgroundColor = 'white';
     
-    console.log("🎯 Container setup complete:", {
-      container: useDarkVersion ? "DARK" : "WHITE",
-      display: outroContainer.style.display,
-      visibility: outroContainer.style.visibility,
-      zIndex: outroContainer.style.zIndex
-    });
+    // Set up white container for navigation animation
+    // CRITICAL: Remove finished class that sets opacity: 0
+    whiteContainer.classList.remove('finished');
+    whiteContainer.style.display = 'block';
+    whiteContainer.style.visibility = 'visible';
+    whiteContainer.style.opacity = '1'; // Explicitly set opacity to 1
+    whiteContainer.style.position = 'fixed';
+    whiteContainer.style.top = '0';
+    whiteContainer.style.left = '0';
+    whiteContainer.style.width = '100vw';
+    whiteContainer.style.height = '100vh';
+    whiteContainer.style.zIndex = '999999'; // Much higher z-index
+    whiteContainer.style.pointerEvents = 'none';
+    // CRITICAL: Override Webflow's 'overflow: clip' with cssText
+    whiteContainer.style.cssText += 'overflow: visible !important;';
+    
 
-    // Ensure ovals are ready for animation
-    gsap.set(ovals, {
+
+    // GENTLE RESET: Use GSAP-friendly initialization
+    whiteOvals.forEach((oval, index) => {
+      // Add visible class for Webflow combo class
+      oval.classList.add('visible');
+    });
+    
+    // Set initial state via GSAP only (no cssText interference)
+    gsap.set(whiteOvals, {
       scale: 1,
       opacity: 1,
+      display: "block",
       transformOrigin: "center center"
     });
 
-    // Start animation
-    setTimeout(() => {
-      console.log("🟣 Starting oval animation with", useDarkVersion ? "DARK" : "WHITE", "ovals");
 
-    // Create timeline for outro animation (from outside to center)
-    const timeline = gsap.timeline();
-    
-      // Animate opacity down first (MUCH SLOWER for debugging)
-    timeline.to(ovals, {
-      opacity: 0,
-        duration: 3.0, // Increased from 0.4 to 3.0 seconds
-      ease: "power2.out",
-      stagger: {
-          amount: 1.0, // Increased from 0.15 to 1.0 seconds
-        from: "outside" // Animate from outside to center
-      }
-    });
-    
-      // Then animate scale down (starts 0.5s after opacity animation begins)
-    timeline.to(ovals, {
-      scale: 0,
-        duration: 3.5, // Increased from 0.5 to 3.5 seconds
-      ease: "power2.in",
-      stagger: {
-          amount: 1.5, // Increased from 0.2 to 1.5 seconds
-        from: "outside" // Animate from outside to center
-      }
-      }, 0.5); // Increased from 0.1 to 0.5 seconds
-    
-    // Hide container and call completion callback when animation finishes
-    timeline.eventCallback("onComplete", () => {
-        console.log("🟣", useDarkVersion ? "DARK" : "WHITE", "oval outro animation completed");
+
+
+
+    // Start immediately - no delay, sync with 3D animation
+    setTimeout(() => {
       
-      // Hide the outro container
-      gsap.set(outroContainer, {
-        display: "none",
-        visibility: "hidden"
-      });
+      // CRITICAL: Remove 'finished' class and aggressive protection
+      whiteContainer.classList.remove('finished');
       
-      console.log("🎯", useDarkVersion ? "DARK" : "WHITE", "outro container hidden after animation");
+      // SETUP-ONLY PROTECTION: Aggressive protection during setup, then stop completely
+      let protectionInterval;
       
-      // For white container navigation, ensure body background is reset
-      if (!useDarkVersion) {
+      const setupProtection = () => {
+        let setupChecks = 0;
+        const maxSetupChecks = 10; // Run for about 0.5 seconds (10 * 50ms)
+        
+        protectionInterval = setInterval(() => {
+          setupChecks++;
+          
+          // CRITICAL: Prevent 'finished' class from being added by Webflow
+          if (whiteContainer.classList.contains('finished')) {
+            whiteContainer.classList.remove('finished');
+          }
+          
+          // Force container properties during setup
+          const containerStyles = window.getComputedStyle(whiteContainer);
+          if (containerStyles.display === 'none') {
+            whiteContainer.style.display = 'block';
+          }
+          if (containerStyles.visibility === 'hidden') {
+            whiteContainer.style.visibility = 'visible';
+          }
+          
+          // Gentle oval protection during setup only
+          whiteOvals.forEach((oval, index) => {
+            const computed = window.getComputedStyle(oval);
+            if (computed.display === 'none') {
+              oval.style.display = 'block';
+            }
+            // Don't force transform during setup to avoid GSAP conflicts
+          });
+          
+          // Stop protection after setup period
+          if (setupChecks >= maxSetupChecks) {
+            clearInterval(protectionInterval);
+            console.log("🛡️ Setup protection completed - ready for flicker-free animation");
+          }
+        }, 50); // Fast checks during setup only
+      };
+      
+      // Start setup protection immediately
+      setupProtection();
+
+      // Delay animation start until after setup protection completes
+      setTimeout(() => {
+        console.log("🎬 Starting flicker-free GSAP animation");
+        
+        // Use GSAP timeline for smooth animation
+        const timeline = gsap.timeline({
+          onStart: () => {
+            // Reset body background as soon as animation starts (brief white flash only)
         document.body.style.backgroundColor = '';
-        console.log("🎯 Body background reset after WHITE oval animation");
-      }
+            console.log("🎬 Animation started - body background reset");
+          },
+          onComplete: () => {
+            console.log("🟣 TIMELINE COMPLETED - animation finished");
+            
+            // Hide the container
+            whiteContainer.style.display = 'none';
+            whiteContainer.style.visibility = 'hidden';
+            
+            // Reset animation flag
+            isWhiteOvalAnimating.current = false;
       
       onComplete && onComplete();
-    });
-    }, 10);
+          }
+        });
+      
+      // Add scale animation to timeline (starts immediately)
+      timeline.to(whiteOvals, {
+        scale: 0,
+        duration: 1.2, // Visible duration: 1.2s
+        ease: "power2.out",
+        stagger: 0.12, // Visible stagger: 0.12s
+
+        onStart: () => {
+          console.log("🟣 White ovals scale animation STARTED");
+        }
+      }, 0); // Start at time 0
+      
+      // Add opacity animation to timeline (starts 0.3s later)
+      timeline.to(whiteOvals, {
+        opacity: 0,
+        duration: 1.0, // Visible duration: 1.0s
+        ease: "power2.out",
+        stagger: 0.12, // Visible stagger: 0.12s
+  
+        onStart: () => {
+          console.log("🟣 White ovals opacity animation STARTED");
+        }
+      }, 0.3); // Start 0.3 seconds after timeline begins
+      
+      }, 600); // Wait for setup protection to complete (0.6 seconds)
+      
+    }, 100); // Minimal delay - start almost immediately
   };
 
-  // Contact oval outro animation - specifically for contact page intros
-  const playContactOvalOutroAnimation = (onComplete, useDarkVersion = false) => {
-    console.log("🟣 Starting contact oval outro animation", useDarkVersion ? "(using DARK container)" : "(using WHITE container)");
+  // ROBUST: Contact-specific oval animation for navigation FROM portfolio TO contact
+  const playContactNavigationOvalAnimation = (onComplete) => {
     
-    // Choose container based on whether we want dark or white version
-    const containerClass = useDarkVersion ? ".outro-anim-home-dark" : ".outro-anim-home";
-    const outroContainer = document.querySelector(containerClass);
-    const ovals = document.querySelectorAll(`${containerClass} .oval-white-home-outro`);
-    
-    console.log("🔍 Contact oval debugging:", {
-      containerClass,
-      outroContainer,
-      ovalsFound: ovals.length,
-      containerClasses: outroContainer?.className,
-      useDarkVersion
-    });
-    
-    if (!outroContainer) {
-      console.warn(`⚠️ ${containerClass} container not found for contact`);
-      console.log("🔍 Available outro containers for contact:", 
-        Array.from(document.querySelectorAll('*')).filter(el => 
-          el.className && el.className.includes && el.className.includes('outro-anim-home')
-        ).map(el => ({ tag: el.tagName, class: el.className }))
-      );
+    // Prevent multiple simultaneous animations
+    if (isWhiteOvalAnimating.current) {
+      console.warn("⚠️ White oval animation already running - skipping contact animation");
       onComplete && onComplete();
       return;
     }
+    isWhiteOvalAnimating.current = true;
     
-    if (ovals.length === 0) {
-      console.warn(`⚠️ No ovals found in ${containerClass} container for contact`);
-      console.log("🔍 Contact container innerHTML:", outroContainer.innerHTML.substring(0, 200));
+    // Use white container for contact navigation (same as home navigation)
+    const whiteContainer = document.querySelector(".outro-anim-home");
+    const whiteOvals = whiteContainer?.querySelectorAll(".oval-white-home-outro");
+    
+    if (!whiteContainer || !whiteOvals || whiteOvals.length === 0) {
+      console.warn("⚠️ White oval container or ovals not found for contact navigation");
       onComplete && onComplete();
       return;
     }
 
-    console.log("🟣 Found", ovals.length, "contact ovals in", useDarkVersion ? "DARK" : "WHITE", "outro container");
+    console.log("🟣 Found", whiteOvals.length, "white ovals for contact navigation");
+
+    // Ensure dark container is hidden
+    const darkContainer = document.querySelector('.outro-anim-home-dark');
+    if (darkContainer) {
+      darkContainer.style.display = 'none';
+    }
+
+    // CRITICAL: Set body background to white immediately to prevent dark flash
+    document.body.style.backgroundColor = 'white';
 
     // Set up container for animation
-    gsap.set(outroContainer, {
-      display: "block",
-      visibility: "visible",
-      position: "fixed",
-      top: 0,
-      left: 0,
-      width: "100vw",
-      height: "100vh",
-      zIndex: 9999,
-      pointerEvents: "none"
+    // CRITICAL: Remove finished class that sets opacity: 0
+    whiteContainer.classList.remove('finished');
+    whiteContainer.style.display = 'block';
+    whiteContainer.style.visibility = 'visible';
+    whiteContainer.style.opacity = '1'; // Explicitly set opacity to 1
+    whiteContainer.style.position = 'fixed';
+    whiteContainer.style.top = '0';
+    whiteContainer.style.left = '0';
+    whiteContainer.style.width = '100vw';
+    whiteContainer.style.height = '100vh';
+    whiteContainer.style.zIndex = '9999';
+    whiteContainer.style.pointerEvents = 'none';
+    // CRITICAL: Override Webflow's 'overflow: clip' with cssText
+    whiteContainer.style.cssText += 'overflow: visible !important;';
+
+    // Set up ovals for animation
+    whiteOvals.forEach((oval, index) => {
+      oval.classList.add('visible');
+      
+      // FIX Z-FIGHTING: Give each oval a distinct z-index to prevent layering conflicts
+      oval.style.zIndex = 100 + index; // Each oval gets a unique z-index
+      oval.style.position = 'relative'; // Ensure z-index takes effect
+      
+      // Restore original radial gradient background
+      oval.style.backgroundImage = ''; // Reset to CSS default
+      oval.style.backgroundColor = '';
+      oval.style.borderRadius = '50%';
     });
 
-    // Ensure ovals are ready for animation
-    gsap.set(ovals, {
+    // Set ovals to full visibility initially
+    gsap.set(whiteOvals, {
       scale: 1,
       opacity: 1,
       transformOrigin: "center center"
     });
 
-    // Start animation
-    setTimeout(() => {
-      console.log("🟣 Starting contact oval animation with", useDarkVersion ? "DARK" : "WHITE", "ovals");
-      
-      // Create timeline for contact outro animation (from outside to center)
-      const timeline = gsap.timeline();
-      
-      // First play the oval outro animation (MUCH SLOWER for debugging)
-      timeline.to(ovals, {
-        opacity: 0,
-        duration: 3.0, // Increased from 0.4 to 3.0 seconds
+    // Start FAST outro animation immediately - sync with 3D, scale first
+
+    
+    // Start scale animation immediately
+    gsap.to(whiteOvals, {
+      scale: 0,
+      duration: 1.2, // Visible duration: 1.2s
         ease: "power2.out",
-        stagger: {
-          amount: 1.0, // Increased from 0.15 to 1.0 seconds
-          from: "outside"
-        }
-      });
-      
-      timeline.to(ovals, {
-        scale: 0,
-        duration: 3.5, // Increased from 0.5 to 3.5 seconds
-        ease: "power2.in",
-        stagger: {
-          amount: 1.5, // Increased from 0.2 to 1.5 seconds
-          from: "outside"
-        }
-      }, 0.5); // Increased from 0.1 to 0.5 seconds
-      
-      // When outro completes
-      timeline.eventCallback("onComplete", () => {
-        console.log("🟣 Contact", useDarkVersion ? "DARK" : "WHITE", "oval outro animation completed");
-      
-      // Hide the outro container
-      gsap.set(outroContainer, {
-        display: "none"
-      });
+      stagger: 0.12, // Visible stagger: 0.12s
+
+      z: 0.01, // Maintain 3D context
+      onStart: () => {
+        // Reset body background as soon as animation starts (brief white flash only)
+        document.body.style.backgroundColor = '';
+        console.log("🎬 Contact animation started - body background reset");
+      }
+    });
+    
+    // Start opacity animation slightly later (0.3s delay)
+    gsap.to(whiteOvals, {
+      opacity: 0,
+      duration: 1.0, // Visible duration: 1.0s
+      ease: "power2.out",
+      stagger: 0.12, // Visible stagger: 0.12s
+      delay: 0.3, // Start 0.3 seconds after scale begins
+
+      onComplete: () => {
+        
+        // Hide the container
+        whiteContainer.style.display = 'none';
+        whiteContainer.style.visibility = 'hidden';
+        
+        // Reset animation flag
+        isWhiteOvalAnimating.current = false;
       
       onComplete && onComplete();
+      }
     });
-    }, 10);
   };
 
-  // Page load intro functionality - different for first load vs navigations
+  
+  // ROBUST: Handle navigation from portfolio pages
   useEffect(() => {
+    // Only run this logic if NOT showing preloader (i.e., navigation scenario)
+    if (preloaderState !== 'visible') {
     const path = window.location.pathname;
     const hash = window.location.hash;
     const referrer = document.referrer;
+      const currentUrl = window.location.href;
     
-    console.log("🔍 Starting page load intro logic");
-    console.log("🔍 Current path:", path, "hash:", hash);
+      console.log("🔍 Navigation intro logic - path:", path, "hash:", hash);
     console.log("🔍 Referrer:", referrer);
-    console.log("🔍 Is first load:", isFirstLoad);
-    console.log("🔍 Model loaded:", modelLoaded);
     
-    // BULLETPROOF: Use performance API to detect actual reload vs navigation
+      // ROBUST: Check if this is navigation from portfolio
+      // CRITICAL: Only consider it navigation from portfolio if it's NOT a hard reload
     const navigationType = performance.getEntriesByType('navigation')[0]?.type;
-    const isActualReload = navigationType === 'reload';
+      const isHardReload = navigationType === 'reload';
     
-    // Check if this is navigation from portfolio
-    const isNavigationFromPortfolio = referrer && (
+      const isNavigationFromPortfolio = !isHardReload && referrer && (
       referrer.includes('portfolio') || 
       referrer.includes('casestudy') ||
       referrer.includes('oakley') ||
       referrer.includes('dopo')
     );
     
-    console.log("🔍 Page intro logic check:", {
-      navigationType,
-      isActualReload,
-      isFirstLoad,
-      preloaderFinished,
-      isNavigationFromPortfolio,
-      referrer
+      // Ensure we're on the home page (not on portfolio pages)
+      const isOnHomePage = currentUrl.includes('index.html') || 
+                          currentUrl.endsWith('/') || 
+                          (!currentUrl.includes('portfolio') && !currentUrl.includes('casestudy'));
+      
+      if (isNavigationFromPortfolio && isOnHomePage) {
+        console.log("🔍 Navigation FROM portfolio TO home detected - setting up white oval outro");
+        console.log("🔍 About to call playNavigationOvalAnimation...");
+        
+        const whiteContainer = document.querySelector(".outro-anim-home");
+        if (whiteContainer) {
+          // CRITICAL: Set body background to white immediately to prevent dark flash
+          document.body.style.backgroundColor = 'white';
+          
+          // Set up immediate outro overlay (covers screen during navigation)
+          whiteContainer.style.display = 'block';
+          whiteContainer.style.visibility = 'visible';
+          whiteContainer.style.position = 'fixed';
+          whiteContainer.style.top = '0';
+          whiteContainer.style.left = '0';
+          // FIX: Use window dimensions instead of viewport units to prevent flicker
+          whiteContainer.style.width = window.innerWidth + 'px';
+          whiteContainer.style.height = window.innerHeight + 'px';
+          whiteContainer.style.zIndex = '9999';
+          whiteContainer.style.pointerEvents = 'none';
+          // CRITICAL: Override Webflow's 'overflow: clip' with cssText
+          whiteContainer.style.cssText += 'overflow: visible !important;';
+          
+          // CRITICAL: Set ovals to FULL visibility initially (scale 1, opacity 1)
+          const whiteOvals = whiteContainer.querySelectorAll(".oval-white-home-outro");
+          if (whiteOvals.length > 0) {
+            console.log("🟣 Setting up", whiteOvals.length, "white ovals for outro animation");
+            
+            // DEBUG: Check initial oval state
+            console.log("🔍 INITIAL WHITE OVAL STATE:", {
+              containerFound: !!whiteContainer,
+              containerClasses: whiteContainer.className,
+              ovalCount: whiteOvals.length,
+              firstOvalClasses: whiteOvals[0]?.className,
+              containerRect: whiteContainer.getBoundingClientRect(),
+              firstOvalRect: whiteOvals[0]?.getBoundingClientRect()
+            });
+            
+                // Set up ovals for animation
+    whiteOvals.forEach((oval, index) => {
+      oval.classList.add('visible');
+      
+      // FIX Z-FIGHTING: Give each oval a distinct z-index to prevent layering conflicts
+      oval.style.zIndex = 100 + index; // Each oval gets a unique z-index
+      oval.style.position = 'relative'; // Ensure z-index takes effect
+      
+      // Restore original radial gradient background
+      oval.style.backgroundImage = ''; // Reset to CSS default
+      oval.style.backgroundColor = '';
+      oval.style.borderRadius = '50%';
     });
 
-    // Skip intro logic if it's a reload (preloader handles this) OR if preloader was already used
-    if (isActualReload || (preloaderFinished && !isNavigationFromPortfolio)) {
-      console.log("🔍 Reload or preloader finished - skipping intro logic (preloader handles this)");
-      console.log("🔍 State:", { isActualReload, isFirstLoad, preloaderFinished, isNavigationFromPortfolio });
-      return;
-    }
-    
-    // For navigation from portfolio, we WANT the intro logic to run (white ovals)
-    if (isNavigationFromPortfolio) {
-      console.log("🔍 Navigation from portfolio detected - running WHITE oval intro logic");
-    }
-    
-    // IMMEDIATELY set up outro overlay before any content shows (for subsequent navigations)
-    // Use WHITE outro container for navigation from portfolio
-    const outroContainer = document.querySelector(".outro-anim-home");
-    if (outroContainer) {
-      console.log("🔍 Setting up immediate outro overlay for navigation");
-      
-      // Show outro container with ovals visible (covers everything)
-      gsap.set(outroContainer, {
-        display: "block",
-        visibility: "visible",
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        zIndex: 9999,
-        pointerEvents: "none",
-        backgroundColor: "transparent" // Let ovals handle the coverage
-      });
-      
-      // Set ovals to full visibility immediately
-      const ovals = document.querySelectorAll(".outro-anim-home .oval-white-home-outro");
-      if (ovals.length > 0) {
-        gsap.set(ovals, {
+            gsap.set(whiteOvals, {
           scale: 1,
           opacity: 1,
           transformOrigin: "center center"
         });
         
-        console.log("🔍 Starting outro animation for navigation");
-        
-        // Determine which 3D animation to play based on destination (not just referrer)
-        const cameFromPortfolio = referrer && (referrer.includes('portfolio') || referrer.includes('casestudy'));
-        const isHomePage = (path === '/' || path === '/index.html') && hash !== '#contact';
+            // Determine destination and play appropriate animation
         const isContactPage = hash === '#contact';
+            const isHomePage = (path === '/' || path === '/index.html') && hash !== '#contact';
         
-        // Use different outro animations based on destination
         if (isContactPage) {
-          // For contact page, use contact-specific outro animation which triggers portfoliotocontact
-        setTimeout(() => {
-            playContactOvalOutroAnimation(() => {
-              console.log("🎯 Contact navigation outro animation completed");
-            }, false); // false = no dark combo for navigations
-        }, 50);
-        } else {
-          // For home page, use regular outro animation and trigger portfoliotohome
-        setTimeout(() => {
-            playOvalOutroAnimation(() => {
-              console.log("🎯 Home navigation outro animation completed");
+              // Start 3D animation immediately (parallel with ovals)
+              setShouldPlayContactIntro(true);
+              console.log("🎯 Started contact intro animation (parallel with ovals)");
               
-              // Trigger portfoliotohome action after outro completes for home
-          if (isHomePage) {
-            if (cameFromPortfolio) {
-              console.log("🎯 Came from portfolio to home - triggering PortfolioToHomeAction");
+              // Start oval animation immediately (no delay)
+              playContactNavigationOvalAnimation(() => {
+                console.log("🎯 Contact navigation oval animation completed");
+              });
+            } else if (isHomePage) {
+              // Start 3D animation immediately (parallel with ovals)
               setShouldPlayPortfolioToHome(true);
-            } else {
-              console.log("🎯 Loading home page - triggering PortfolioToHomeAction for intro");
-              setShouldPlayPortfolioToHome(true);
+              console.log("🎯 Started home intro animation (parallel with ovals)");
+              
+              // Start oval animation immediately (no delay)
+              playNavigationOvalAnimation(() => {
+                console.log("🎯 Home navigation oval animation completed");
+              });
             }
-              }
-            }, false); // false = no dark combo for navigations
-          }, 50);
+            } else {
+            console.warn("⚠️ No white ovals found for navigation animation");
         }
       } else {
-        console.warn("⚠️ No outro ovals found, hiding container");
-        gsap.set(outroContainer, { display: "none" });
+          console.warn("⚠️ White oval container not found");
       }
+      } else if (isNavigationFromPortfolio && !isOnHomePage) {
+        console.log("🔍 Navigation from portfolio detected but not to home page - skipping oval animation");
+            } else if (!isNavigationFromPortfolio) {
+        console.log("🔍 Not navigation from portfolio - no oval animation needed");
     }
-  }, [isFirstLoad, modelLoaded, preloaderFinished]); // Depend on first load, model loaded, and preloader finished states
+    }
+  }, [preloaderState]); // Only depend on preloader state
 
-  // Background flicker prevention
-  // Background flicker prevention is now handled only in oval animation
-  // (when going TO portfolio) - removed global page load background change
+  // Background flicker prevention is handled in oval animations
 
   // Set up simple global animation trigger
   useEffect(() => {
@@ -1515,65 +1671,19 @@ function PageContent() {
 
     window.addEventListener('directContactPortfolioAnimation', handleDirectContactPortfolioAnimation);
 
-    // Check if we came from portfolio/casestudy pages on page load
-    const checkPortfolioReturn = () => {
-      const referrer = document.referrer;
+    // ROBUST: Handle intended routes from external pages
+    const handleIntendedRoute = () => {
       const intendedRoute = sessionStorage.getItem('intendedRoute');
       
-      // Only trigger portfolio return animation if we're on the main index page AND came from portfolio
-      const currentPath = window.location.pathname;
-      const isOnMainPage = currentPath === '/' || currentPath === '/index.html' || currentPath.includes('index');
-      
-      // Much more strict referrer check - disable for now to prevent false positives
-      const isActualPortfolioReturn = false; // Temporarily disable to fix click issues
-      
-      if (isOnMainPage && isActualPortfolioReturn) {
-        setShouldPlayPortfolioToHome(true);
-        setShouldPlayContactIntro(false);
-        setShouldPlayBackContact(false);
-        setShouldPlayHomeToPortfolio(false);
-      }
-      
-      // Handle contact navigation from external pages
       if (intendedRoute === '/contact-us') {
-        // Set page state to contact FIRST
         setCurrentPageState('contact');
-        
         setShouldPlayContactIntro(true);
-        setShouldPlayBackContact(false);
-        setShouldPlayHomeToPortfolio(false);
-        setShouldPlayContactToPortfolio(false);
-        setShouldPlayPortfolioToHome(false);
         sessionStorage.removeItem('intendedRoute');
-      }
-      
-      // Check if we came from portfolio/casestudy pages to contact (only if URL indicates contact)
-      const isFromPortfolioToContact = referrer && (
-        referrer.includes('portfolio') || 
-        referrer.includes('casestudy') ||
-        referrer.includes('oakley') ||
-        referrer.includes('dopo')
-      ) && isOnMainPage && (
-        window.location.hash === '#contact' || 
-        window.location.href.includes('#contact')
-      );
-      
-      if (isFromPortfolioToContact && !intendedRoute) {
-        // Set page state to contact when coming from portfolio TO CONTACT specifically
-        // Add small delay to allow smooth transition
-        setTimeout(() => {
-          setCurrentPageState('contact');
-        }, 100);
-        
-        setShouldPlayContactIntro(true);
-        setShouldPlayBackContact(false);
-        setShouldPlayHomeToPortfolio(false);
-        setShouldPlayContactToPortfolio(false);
-        setShouldPlayPortfolioToHome(false);
+        console.log("🎯 Handled intended contact route");
       }
     };
 
-    checkPortfolioReturn();
+    handleIntendedRoute();
     
     // SINGLE hash change handler
     const handleHashChange = () => {
@@ -1635,8 +1745,7 @@ function PageContent() {
     };
   }, []);
 
-  // Simplified container management - let GSAP handle everything
-  // Removed emergency check that was causing flicker
+  // Container management is now handled by individual animation functions
 
 
 
@@ -1695,18 +1804,11 @@ function PageContent() {
     console.log("🎯 DEBUG - to === 'home':", to === 'home');
     console.log("🎯 DEBUG - Should trigger portfolio→home:", to === "home" && isPortfolioOrCasestudy(from));
 
-    // On first initialization, set the previous state properly
+    // Initialize properly on first run
     if (!hasInitialized.current) {
       hasInitialized.current = true;
-      
-      // IMPORTANT: Reset prevPageState to match current state on first load
-      // This prevents false animation triggers from cached/stale state
       prevPageState.current = to;
-      
-      // EXIT EARLY - Don't trigger any animations on first load
-      return;
-      
-
+      return; // Don't trigger animations on initialization
     }
 
     if (isAnimating.current) {
@@ -1724,72 +1826,44 @@ function PageContent() {
 
 
 
-    // Simplified navigation logic - each transition is independent
+    // ROBUST: Handle page transitions with appropriate animations
     if (to === "contact" && from !== "contact") {
-      console.log("🎯 Going TO contact - triggering contact intro");
+      console.log("🎯 Transitioning TO contact");
       isAnimating.current = true;
       resetAnimations();
       setShouldPlayContactIntro(true);
+      setTimeout(() => { isAnimating.current = false; }, 1000);
       
-      // Note: Outro animation for portfolio → contact is handled by referrer detection
-      
-      setTimeout(() => {
-        isAnimating.current = false;
-      }, 1000);
     } else if (from === "contact" && to === "home") {
-      console.log("🎯 Going FROM contact TO home - triggering backwards contact");
+      console.log("🎯 Transitioning FROM contact TO home");
       isAnimating.current = true;
       resetAnimations();
       setShouldPlayBackContact(true);
-      setTimeout(() => {
-        isAnimating.current = false;
-      }, 1000);
+      setTimeout(() => { isAnimating.current = false; }, 1000);
+      
     } else if (to === "home" && isPortfolioOrCasestudy(from)) {
-      // Coming back to home from portfolio/casestudy pages
-      console.log("🎯 Going FROM portfolio TO home - triggering portfolio to home + outro animation");
+      console.log("🎯 Transitioning FROM portfolio TO home");
       isAnimating.current = true;
       resetAnimations();
       setShouldPlayPortfolioToHome(true);
+      setTimeout(() => { isAnimating.current = false; }, 1000);
       
-      // Note: Outro animation for portfolio → home is handled by referrer detection
-      
-      setTimeout(() => {
-        isAnimating.current = false;
-      }, 1000);
     } else if (isPortfolioOrCasestudy(to) && from === "home") {
-      // Going from home to portfolio/casestudy pages  
-      console.log("🎯 Triggering HOME to portfolio animation");
-
-      // SIMPLE: Trigger white oval outro animation for portfolio transition
-      console.log("🟣 Triggering white ovals for HOME→PORTFOLIO");
-      playOvalOutroAnimation(() => {
-        console.log("🎯 HOME→PORTFOLIO outro completed");
-      });
-
+      console.log("🎯 Transitioning FROM home TO portfolio");
       isAnimating.current = true;
       resetAnimations();
       setShouldPlayHomeToPortfolio(true);
-      setTimeout(() => {
-        isAnimating.current = false;
-      }, 1000);
+      setTimeout(() => { isAnimating.current = false; }, 1000);
+      
     } else if (isPortfolioOrCasestudy(to) && from === "contact") {
-      // Going from contact to portfolio/casestudy pages  
-      console.log("🎯 Triggering CONTACT to portfolio animation");
-
-      // SIMPLE: Trigger white oval outro animation for portfolio transition
-      console.log("🟣 Triggering white ovals for CONTACT→PORTFOLIO");
-      playContactOvalOutroAnimation(() => {
-        console.log("🎯 CONTACT→PORTFOLIO outro completed");
-      });
-
+      console.log("🎯 Transitioning FROM contact TO portfolio");
       isAnimating.current = true;
       resetAnimations();
       setShouldPlayContactToPortfolio(true);
-      setTimeout(() => {
-        isAnimating.current = false;
-      }, 1000);
+      setTimeout(() => { isAnimating.current = false; }, 1000);
+      
     } else {
-      console.log("🎯 No animation needed for transition:", from, "→", to);
+      console.log("🎯 No animation needed for:", from, "→", to);
       resetAnimations();
     }
 

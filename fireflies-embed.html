@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Fireflies Animation</title>
+    <style>
+        .fireflies-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .firefly {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(1px);
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+            animation-direction: alternate;
+        }
+
+        /* Firefly colors matching your 3D sparkles */
+        .firefly-cyan {
+            background: radial-gradient(circle, #34ebe8 0%, transparent 70%);
+        }
+
+        .firefly-blue {
+            background: radial-gradient(circle, #365f9c 0%, transparent 70%);
+        }
+
+        .firefly-yellow {
+            background: radial-gradient(circle, #f7f389 0%, transparent 70%);
+        }
+
+        .firefly-white {
+            background: radial-gradient(circle, #ffffff 0%, transparent 70%);
+        }
+
+        /* Different firefly sizes with more variation - responsive vw units */
+        .firefly-tiny {
+            width: 0.3vw;
+            height: 0.3vw;
+            min-width: 3px;
+            min-height: 3px;
+        }
+
+        .firefly-small {
+            width: 0.5vw;
+            height: 0.5vw;
+            min-width: 5px;
+            min-height: 5px;
+        }
+
+        .firefly-medium {
+            width: 0.7vw;
+            height: 0.7vw;
+            min-width: 7px;
+            min-height: 7px;
+        }
+
+        .firefly-large {
+            width: 1vw;
+            height: 1vw;
+            min-width: 10px;
+            min-height: 10px;
+        }
+
+        .firefly-xl {
+            width: 1.8vw;
+            height: 1.8vw;
+            min-width: 16px;
+            min-height: 16px;
+        }
+
+        .firefly-xxl {
+            width: 2.3vw;
+            height: 2.3vw;
+            min-width: 22px;
+            min-height: 22px;
+        }
+
+        /* Floating animations with different patterns */
+        @keyframes float1 {
+            0% { transform: translate(0px, 0px) rotate(0deg); opacity: 0.6; }
+            33% { transform: translate(30px, -30px) rotate(120deg); opacity: 1; }
+            66% { transform: translate(-20px, 20px) rotate(240deg); opacity: 0.8; }
+            100% { transform: translate(0px, 0px) rotate(360deg); opacity: 0.6; }
+        }
+
+        @keyframes float2 {
+            0% { transform: translate(0px, 0px) rotate(0deg); opacity: 0.8; }
+            50% { transform: translate(-25px, -40px) rotate(180deg); opacity: 0.5; }
+            100% { transform: translate(0px, 0px) rotate(360deg); opacity: 0.8; }
+        }
+
+        @keyframes float3 {
+            0% { transform: translate(0px, 0px) rotate(0deg); opacity: 0.7; }
+            25% { transform: translate(35px, 15px) rotate(90deg); opacity: 1; }
+            50% { transform: translate(-15px, -25px) rotate(180deg); opacity: 0.4; }
+            75% { transform: translate(-30px, 30px) rotate(270deg); opacity: 0.9; }
+            100% { transform: translate(0px, 0px) rotate(360deg); opacity: 0.7; }
+        }
+
+        @keyframes float4 {
+            0% { transform: translate(0px, 0px); opacity: 0.5; }
+            33% { transform: translate(-20px, -35px); opacity: 1; }
+            66% { transform: translate(25px, -10px); opacity: 0.6; }
+            100% { transform: translate(0px, 0px); opacity: 0.5; }
+        }
+
+        @keyframes float5 {
+            0% { transform: translate(0px, 0px) scale(1); opacity: 0.6; }
+            50% { transform: translate(15px, 30px) scale(1.2); opacity: 1; }
+            100% { transform: translate(0px, 0px) scale(1); opacity: 0.6; }
+        }
+
+        @keyframes float6 {
+            0% { transform: translate(0px, 0px) rotate(0deg); opacity: 0.8; }
+            40% { transform: translate(-30px, 20px) rotate(144deg); opacity: 0.4; }
+            80% { transform: translate(20px, -30px) rotate(288deg); opacity: 1; }
+            100% { transform: translate(0px, 0px) rotate(360deg); opacity: 0.8; }
+        }
+
+        /* Animation assignment classes */
+        .anim-1 { animation: float1 8s infinite; }
+        .anim-2 { animation: float2 12s infinite; }
+        .anim-3 { animation: float3 10s infinite; }
+        .anim-4 { animation: float4 15s infinite; }
+        .anim-5 { animation: float5 9s infinite; }
+        .anim-6 { animation: float6 11s infinite; }
+
+        /* Delay variations */
+        .delay-1 { animation-delay: 0s; }
+        .delay-2 { animation-delay: 2s; }
+        .delay-3 { animation-delay: 4s; }
+        .delay-4 { animation-delay: 6s; }
+        .delay-5 { animation-delay: 1s; }
+        .delay-6 { animation-delay: 3s; }
+        .delay-7 { animation-delay: 5s; }
+        .delay-8 { animation-delay: 7s; }
+    </style>
+</head>
+<body>
+    <div class="fireflies-container">
+        <!-- Cyan fireflies -->
+        <div class="firefly firefly-cyan firefly-tiny anim-1 delay-1" style="left: 15%; top: 20%;"></div>
+        <div class="firefly firefly-cyan firefly-medium anim-3 delay-4" style="left: 65%; top: 70%;"></div>
+        <div class="firefly firefly-cyan firefly-xl anim-5 delay-7" style="left: 85%; top: 30%;"></div>
+        <div class="firefly firefly-cyan firefly-small anim-2 delay-3" style="left: 25%; top: 80%;"></div>
+        <div class="firefly firefly-cyan firefly-large anim-6 delay-1" style="left: 45%; top: 15%;"></div>
+        <div class="firefly firefly-cyan firefly-tiny anim-4 delay-6" style="left: 75%; top: 60%;"></div>
+        <div class="firefly firefly-cyan firefly-xxl anim-1 delay-2" style="left: 10%; top: 50%;"></div>
+        <div class="firefly firefly-cyan firefly-medium anim-3 delay-8" style="left: 90%; top: 85%;"></div>
+
+        <!-- Blue fireflies -->
+        <div class="firefly firefly-blue firefly-large anim-2 delay-2" style="left: 35%; top: 25%;"></div>
+        <div class="firefly firefly-blue firefly-tiny anim-4 delay-5" style="left: 55%; top: 75%;"></div>
+        <div class="firefly firefly-blue firefly-xxl anim-6 delay-1" style="left: 80%; top: 10%;"></div>
+        <div class="firefly firefly-blue firefly-small anim-1 delay-7" style="left: 20%; top: 65%;"></div>
+        <div class="firefly firefly-blue firefly-xl anim-5 delay-4" style="left: 70%; top: 40%;"></div>
+        <div class="firefly firefly-blue firefly-tiny anim-3 delay-8" style="left: 40%; top: 90%;"></div>
+        <div class="firefly firefly-blue firefly-medium anim-2 delay-3" style="left: 5%; top: 35%;"></div>
+        <div class="firefly firefly-blue firefly-large anim-4 delay-6" style="left: 95%; top: 55%;"></div>
+
+        <!-- Yellow fireflies -->
+        <div class="firefly firefly-yellow firefly-xl anim-3 delay-3" style="left: 30%; top: 45%;"></div>
+        <div class="firefly firefly-yellow firefly-tiny anim-5 delay-1" style="left: 60%; top: 25%;"></div>
+        <div class="firefly firefly-yellow firefly-small anim-1 delay-6" style="left: 15%; top: 75%;"></div>
+        <div class="firefly firefly-yellow firefly-medium anim-6 delay-4" style="left: 85%; top: 65%;"></div>
+        <div class="firefly firefly-yellow firefly-xxl anim-2 delay-8" style="left: 50%; top: 10%;"></div>
+        <div class="firefly firefly-yellow firefly-large anim-4 delay-2" style="left: 25%; top: 55%;"></div>
+        <div class="firefly firefly-yellow firefly-tiny anim-3 delay-7" style="left: 75%; top: 85%;"></div>
+
+        <!-- White fireflies -->
+        <div class="firefly firefly-white firefly-xl anim-6 delay-5" style="left: 40%; top: 35%;"></div>
+        <div class="firefly firefly-white firefly-tiny anim-1 delay-8" style="left: 70%; top: 20%;"></div>
+        <div class="firefly firefly-white firefly-large anim-4 delay-2" style="left: 20%; top: 40%;"></div>
+        <div class="firefly firefly-white firefly-small anim-2 delay-4" style="left: 80%; top: 80%;"></div>
+        <div class="firefly firefly-white firefly-xxl anim-5 delay-7" style="left: 50%; top: 60%;"></div>
+        <div class="firefly firefly-white firefly-tiny anim-3 delay-1" style="left: 10%; top: 10%;"></div>
+        <div class="firefly firefly-white firefly-medium anim-6 delay-6" style="left: 90%; top: 45%;"></div>
+        <div class="firefly firefly-white firefly-large anim-1 delay-3" style="left: 35%; top: 85%;"></div>
+    </div>
+</body>
+</html>

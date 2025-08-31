@@ -1,0 +1,115 @@
+/* Loading Dots Animation */
+.loading-text-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.dots-container {
+    display: flex;
+    align-items: center;
+    gap: 0.2em;
+}
+
+.dot {
+    font-size: inherit;
+    animation: dotBounce 1.4s infinite ease-in-out both;
+}
+
+/* Each dot has a different delay to create the wave effect */
+.dot:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.dot:nth-child(2) {
+    animation-delay: 0.16s;
+}
+
+.dot:nth-child(3) {
+    animation-delay: 0.32s;
+}
+
+/* The bouncing animation */
+@keyframes dotBounce {
+    0%, 80%, 100% {
+        transform: translateY(0);
+        opacity: 0.7;
+    }
+    40% {
+        transform: translateY(-0.6em);
+        opacity: 1;
+    }
+}
+
+/* Alternative smoother version */
+@keyframes dotBounceSmoooth {
+    0%, 60%, 100% {
+        transform: translateY(0);
+    }
+    30% {
+        transform: translateY(-0.8em);
+    }
+}
+
+/* Alternative pulsing version */
+@keyframes dotPulse {
+    0%, 80%, 100% {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+    40% {
+        transform: scale(1.3);
+        opacity: 1;
+    }
+}
+
+/* Alternative elastic version */
+@keyframes dotElastic {
+    0%, 70%, 100% {
+        transform: translateY(0) scaleY(1);
+    }
+    35% {
+        transform: translateY(-0.7em) scaleY(1.1);
+    }
+}
+
+/* USAGE EXAMPLES: */
+
+/* To use the smooth version instead: */
+/*
+.dot {
+    animation: dotBounceSmoooth 1.6s infinite ease-in-out both;
+}
+*/
+
+/* To use the pulse version instead: */
+/*
+.dot {
+    animation: dotPulse 1.2s infinite ease-in-out both;
+}
+*/
+
+/* To use the elastic version instead: */
+/*
+.dot {
+    animation: dotElastic 1.8s infinite ease-in-out both;
+}
+*/
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dots-container {
+        gap: 0.15em;
+    }
+    
+    @keyframes dotBounce {
+        0%, 80%, 100% {
+            transform: translateY(0);
+            opacity: 0.7;
+        }
+        40% {
+            transform: translateY(-0.4em); /* Less movement on mobile */
+            opacity: 1;
+        }
+    }
+}
