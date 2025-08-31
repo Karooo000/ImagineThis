@@ -4,7 +4,46 @@ import React, { useState, useEffect, useRef, Suspense } from "react"
 import {useProgress, Environment, OrbitControls, Sparkles, PerspectiveCamera} from "@react-three/drei";
 import { EffectComposer, Bloom, HueSaturation, DepthOfField } from '@react-three/postprocessing';
 import Lottie from 'lottie-react';
-import darkOvalsAnimation from '/dark-ovals.json';
+
+// Inline Lottie animation data to avoid file loading issues in Webflow
+const darkOvalsAnimation = {
+  "nm": "Main Scene",
+  "ddd": 0,
+  "h": 2000,
+  "w": 2000,
+  "meta": {"g":"@lottiefiles/creator 1.47.2"},
+  "layers":[
+    {"ty":4,"nm":"Ellipse 2","sr":1,"st":0,"op":45,"ip":0,"hd":false,"ddd":0,"bm":0,"hasMask":false,"ao":0,
+      "ks":{"a":{"a":0,"k":[0,0]},"s":{"a":1,"k":[{"o":{"x":0.167,"y":0.167},"i":{"x":0.833,"y":0.833},"s":[320,320],"t":0},{"s":[0,0],"t":45}]},"sk":{"a":0,"k":0},"p":{"a":0,"k":[2000,0]},"r":{"a":0,"k":0},"sa":{"a":0,"k":0},"o":{"a":0,"k":100}},
+      "shapes":[{"ty":"el","bm":0,"hd":false,"nm":"Ellipse Path 2","d":1,"p":{"a":0,"k":[0,0]},"s":{"a":0,"k":[776,776]}},
+      {"ty":"gf","bm":0,"hd":false,"nm":"Fill","e":{"a":0,"k":[388,0]},"g":{"p":3,"k":{"a":0,"k":[0,0.06666666666666667,0.06666666666666667,0.06666666666666667,0.7029702970297029,0.06666666666666667,0.06666666666666667,0.06666666666666667,1,0.06666666666666667,0.06666666666666667,0.06666666666666667,0,1,0.7029702970297029,1,1,0]}},"t":2,"a":{"a":0,"k":0},"h":{"a":0,"k":0},"s":{"a":0,"k":[0,0]},"r":1,"o":{"a":0,"k":100}}],"ind":1},
+    {"ty":4,"nm":"Ellipse 4","sr":1,"st":0,"op":45,"ip":0,"hd":false,"ddd":0,"bm":0,"hasMask":false,"ao":0,
+      "ks":{"a":{"a":0,"k":[0,0]},"s":{"a":1,"k":[{"o":{"x":0.167,"y":0.167},"i":{"x":0.833,"y":0.833},"s":[320,320],"t":8},{"s":[0,0],"t":45}]},"sk":{"a":0,"k":0},"p":{"a":0,"k":[1228.9775,1462.2159]},"r":{"a":0,"k":0},"sa":{"a":0,"k":0},"o":{"a":0,"k":100}},
+      "shapes":[{"ty":"el","bm":0,"hd":false,"nm":"Ellipse Path 2","d":1,"p":{"a":0,"k":[0,0]},"s":{"a":0,"k":[776,776]}},
+      {"ty":"gf","bm":0,"hd":false,"nm":"Fill","e":{"a":0,"k":[388,0]},"g":{"p":3,"k":{"a":0,"k":[0,0.06666666666666667,0.06666666666666667,0.06666666666666667,0.7029702970297029,0.06666666666666667,0.06666666666666667,0.06666666666666667,1,0.06666666666666667,0.06666666666666667,0.06666666666666667,0,1,0.7029702970297029,1,1,0]}},"t":2,"a":{"a":0,"k":0},"h":{"a":0,"k":0},"s":{"a":0,"k":[0,0]},"r":1,"o":{"a":0,"k":100}}],"ind":2},
+    {"ty":4,"nm":"Ellipse 5","sr":1,"st":0,"op":45,"ip":0,"hd":false,"ddd":0,"bm":0,"hasMask":false,"ao":0,
+      "ks":{"a":{"a":0,"k":[0,0]},"s":{"a":1,"k":[{"o":{"x":0.167,"y":0.167},"i":{"x":0.833,"y":0.833},"s":[320,320],"t":4},{"s":[0,0],"t":45}]},"sk":{"a":0,"k":0},"p":{"a":0,"k":[834.4533,479.4244]},"r":{"a":0,"k":0},"sa":{"a":0,"k":0},"o":{"a":0,"k":100}},
+      "shapes":[{"ty":"el","bm":0,"hd":false,"nm":"Ellipse Path 2","d":1,"p":{"a":0,"k":[0,0]},"s":{"a":0,"k":[776,776]}},
+      {"ty":"gf","bm":0,"hd":false,"nm":"Fill","e":{"a":0,"k":[388,0]},"g":{"p":3,"k":{"a":0,"k":[0,0.06666666666666667,0.06666666666666667,0.06666666666666667,0.7029702970297029,0.06666666666666667,0.06666666666666667,0.06666666666666667,1,0.06666666666666667,0.06666666666666667,0.06666666666666667,0,1,0.7029702970297029,1,1,0]}},"t":2,"a":{"a":0,"k":0},"h":{"a":0,"k":0},"s":{"a":0,"k":[0,0]},"r":1,"o":{"a":0,"k":100}}],"ind":3},
+    {"ty":4,"nm":"Ellipse 6","sr":1,"st":0,"op":45,"ip":0,"hd":false,"ddd":0,"bm":0,"hasMask":false,"ao":0,
+      "ks":{"a":{"a":0,"k":[0,0]},"s":{"a":1,"k":[{"o":{"x":0.167,"y":0.167},"i":{"x":0.833,"y":0.833},"s":[320,320],"t":12},{"s":[0,0],"t":45}]},"sk":{"a":0,"k":0},"p":{"a":0,"k":[669.8444,1615.4442]},"r":{"a":0,"k":0},"sa":{"a":0,"k":0},"o":{"a":0,"k":100}},
+      "shapes":[{"ty":"el","bm":0,"hd":false,"nm":"Ellipse Path 2","d":1,"p":{"a":0,"k":[0,0]},"s":{"a":0,"k":[776,776]}},
+      {"ty":"gf","bm":0,"hd":false,"nm":"Fill","e":{"a":0,"k":[388,0]},"g":{"p":3,"k":{"a":0,"k":[0,0.06666666666666667,0.06666666666666667,0.06666666666666667,0.7029702970297029,0.06666666666666667,0.06666666666666667,0.06666666666666667,1,0.06666666666666667,0.06666666666666667,0.06666666666666667,0,1,0.7029702970297029,1,1,0]}},"t":2,"a":{"a":0,"k":0},"h":{"a":0,"k":0},"s":{"a":0,"k":[0,0]},"r":1,"o":{"a":0,"k":100}}],"ind":4},
+    {"ty":4,"nm":"Ellipse 7","sr":1,"st":0,"op":45,"ip":0,"hd":false,"ddd":0,"bm":0,"hasMask":false,"ao":0,
+      "ks":{"a":{"a":0,"k":[0,0]},"s":{"a":1,"k":[{"o":{"x":0.167,"y":0.167},"i":{"x":0.833,"y":0.833},"s":[320,320],"t":16},{"s":[0,0],"t":45}]},"sk":{"a":0,"k":0},"p":{"a":0,"k":[45.8784,0]},"r":{"a":0,"k":0},"sa":{"a":0,"k":0},"o":{"a":0,"k":100}},
+      "shapes":[{"ty":"el","bm":0,"hd":false,"nm":"Ellipse Path 2","d":1,"p":{"a":0,"k":[0,0]},"s":{"a":0,"k":[776,776]}},
+      {"ty":"gf","bm":0,"hd":false,"nm":"Fill","e":{"a":0,"k":[388,0]},"g":{"p":3,"k":{"a":0,"k":[0,0.06666666666666667,0.06666666666666667,0.06666666666666667,0.7029702970297029,0.06666666666666667,0.06666666666666667,0.06666666666666667,1,0.06666666666666667,0.06666666666666667,0.06666666666666667,0,1,0.7029702970297029,1,1,0]}},"t":2,"a":{"a":0,"k":0},"h":{"a":0,"k":0},"s":{"a":0,"k":[0,0]},"r":1,"o":{"a":0,"k":100}}],"ind":5},
+    {"ty":4,"nm":"Ellipse 8","sr":1,"st":0,"op":45,"ip":0,"hd":false,"ddd":0,"bm":0,"hasMask":false,"ao":0,
+      "ks":{"a":{"a":0,"k":[0,0]},"s":{"a":1,"k":[{"o":{"x":0.167,"y":0.167},"i":{"x":0.833,"y":0.833},"s":[320,320],"t":20},{"s":[0,0],"t":45}]},"sk":{"a":0,"k":0},"p":{"a":0,"k":[496.4952,1000]},"r":{"a":0,"k":0},"sa":{"a":0,"k":0},"o":{"a":0,"k":100}},
+      "shapes":[{"ty":"el","bm":0,"hd":false,"nm":"Ellipse Path 2","d":1,"p":{"a":0,"k":[0,0]},"s":{"a":0,"k":[776,776]}},
+      {"ty":"gf","bm":0,"hd":false,"nm":"Fill","e":{"a":0,"k":[388,0]},"g":{"p":3,"k":{"a":0,"k":[0,0.06666666666666667,0.06666666666666667,0.06666666666666667,0.7029702970297029,0.06666666666666667,0.06666666666666667,0.06666666666666667,1,0.06666666666666667,0.06666666666666667,0.06666666666666667,0,1,0.7029702970297029,1,1,0]}},"t":2,"a":{"a":0,"k":0},"h":{"a":0,"k":0},"s":{"a":0,"k":[0,0]},"r":1,"o":{"a":0,"k":100}}],"ind":6}
+  ],
+  "fr":30,
+  "op":45,
+  "ip":0,
+  "assets":[],
+  "v":"5.7.0"
+};
 
 // React Router removed for Webflow compatibility - navigation handled via page detection
 
@@ -836,25 +875,21 @@ function PageContent() {
       console.log("🔄 Hard reload detected - reset preloader session");
     }
     
+    // Match the Webflow script logic exactly
+    const shouldHidePreloader = isFromPortfolio && isOnHomePage && !isHardReload;
     const shouldShowPreloader = isHardReload && isOnHomePage && !isFromPortfolio && !hasPreloaderShown;
     
-    // AGGRESSIVE: Hide preloader immediately if it shouldn't be shown
-    if (!shouldShowPreloader) {
-      // IMMEDIATE: Inject CSS into head to hide preloader before any rendering
-      const immediateStyle = document.createElement('style');
-      immediateStyle.textContent = '.pre-loader { display: none !important; }';
-      document.head.insertBefore(immediateStyle, document.head.firstChild);
-      
-      const preloader = document.querySelector('.pre-loader');
-      if (preloader) {
-        // Multiple methods to ensure it's hidden
-        preloader.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important;';
-        preloader.setAttribute('data-permanently-hidden', 'true');
-        preloader.classList.add('hide');
-        preloader.classList.remove('show');
-        console.log("🚫 AGGRESSIVELY hid preloader with multiple methods");
-      }
-    }
+    console.log("🔍 PRELOADER DECISION:", {
+      shouldShowPreloader,
+      shouldHidePreloader,
+      isHardReload,
+      isOnHomePage,
+      isFromPortfolio,
+      hasPreloaderShown
+    });
+    
+    // Simple approach: Trust the Webflow script for hiding, we only handle showing
+    console.log("🎯 WEBFLOW SCRIPT HANDLES HIDING - React handles showing and animations");
     
     console.log("🎯 PRELOADER INIT:", {
       navigationType,
@@ -867,81 +902,15 @@ function PageContent() {
       currentUrl
     });
     
+    // If Webflow script already hid preloader, start hidden
+    // Otherwise, show preloader for hard reloads on home page
     return shouldShowPreloader ? 'visible' : 'hidden';
   });
   
   // Track preloader timing
   const [preloaderStartTime] = useState(Date.now());
 
-  // ROBUST: Initialize preloader and oval containers on mount
-  useEffect(() => {
-    console.log("🚀 INITIALIZING PRELOADER SYSTEM");
-    
-      const preloader = document.querySelector('.pre-loader');
-    const whiteOvalContainer = document.querySelector('.outro-anim-home');
-    const darkOvalContainer = document.querySelector('.outro-anim-home-dark');
-    
-    if (preloaderState === 'visible') {
-      console.log("🎯 SHOWING PRELOADER for hard reload");
-      
-      // Only show if not permanently hidden
-      if (preloader && !preloader.getAttribute('data-permanently-hidden')) {
-        preloader.style.display = 'flex';
-        preloader.style.visibility = 'visible';
-        preloader.classList.add('show');
-        console.log("✅ Showed preloader for hard reload");
-      }
-      
-      // Hide white ovals during preloader
-      if (whiteOvalContainer) {
-        whiteOvalContainer.style.display = 'none';
-      }
-      
-      // Ensure dark ovals are ready (they're part of preloader)
-      if (darkOvalContainer) {
-        darkOvalContainer.style.display = 'block';
-        darkOvalContainer.style.visibility = 'visible';
-        
-        // Set dark ovals to initial state
-        const darkOvals = darkOvalContainer.querySelectorAll('.oval-white-home-outro');
-        gsap.set(darkOvals, {
-          scale: 1,
-          opacity: 1,
-          transformOrigin: "center center"
-        });
-      }
-    } else {
-      console.log("🎯 ENSURING PRELOADER HIDDEN for navigation");
-      
-      // Ensure preloader is permanently hidden
-      if (preloader) {
-        preloader.style.display = 'none';
-        preloader.setAttribute('data-permanently-hidden', 'true');
-        console.log("🚫 Confirmed preloader permanently hidden");
-      }
-      
-      // Prepare white ovals for navigation animations (but keep container hidden)
-      if (whiteOvalContainer) {
-        whiteOvalContainer.style.display = 'none'; // Hidden by default - only show during navigation
-        whiteOvalContainer.style.visibility = 'visible';
-        
-        // Set white ovals to initial state (ready for navigation animation)
-        const whiteOvals = whiteOvalContainer.querySelectorAll('.oval-white-home-outro');
-        gsap.set(whiteOvals, {
-          scale: 1, // Keep at scale 1 - will animate to 0 during navigation
-          opacity: 1, // Keep at opacity 1 - will animate to 0 during navigation  
-          transformOrigin: "center center"
-        });
-      }
-      
-      // Hide dark ovals for navigation
-      if (darkOvalContainer) {
-        darkOvalContainer.style.display = 'none';
-      }
-    }
-    
-    console.log("🚀 PRELOADER SYSTEM INITIALIZED");
-  }, [preloaderState]);
+  // REMOVED: useEffect was interfering - finishPreloader handles everything
 
 
   
@@ -1000,13 +969,30 @@ function PageContent() {
     }
   }, [preloaderState, modelLoaded]);
 
+  // EMERGENCY: Ultimate fallback for completely stuck preloader
+  useEffect(() => {
+    if (preloaderState === 'visible') {
+      const emergencyTimer = setTimeout(() => {
+        console.log("🚨 EMERGENCY FALLBACK: Preloader completely stuck - forcing finish after 10s");
+        finishPreloader();
+      }, 10000); // 10 second emergency fallback
+      
+      return () => clearTimeout(emergencyTimer);
+    }
+  }, [preloaderState]);
+
+  // DEBUG: Monitor 3D animation state changes
+  useEffect(() => {
+    console.log("🎬 3D Animation State Changed - shouldPlayPortfolioToHome:", shouldPlayPortfolioToHome);
+  }, [shouldPlayPortfolioToHome]);
+
   // ROBUST: Handle preloader completion when model loads
   useEffect(() => {
     if (preloaderState === 'visible' && modelLoaded) {
       console.log("🎯 MODEL LOADED - Processing preloader completion");
       
       const elapsed = Date.now() - preloaderStartTime;
-      const minDisplayTime = 4000; // 4 seconds minimum
+      const minDisplayTime = 2000; // 2 seconds minimum
       
       // Calculate delay to ensure minimum display time
       const delay = Math.max(0, minDisplayTime - elapsed);
@@ -1014,7 +1000,7 @@ function PageContent() {
       console.log("🕐 Preloader timing:", {
         elapsed: elapsed + "ms",
         delay: delay + "ms",
-        decision: delay > 0 ? "Wait for minimum 4s" : "Finish immediately"
+        decision: delay > 0 ? "Wait for minimum 2s" : "Finish immediately"
       });
       
       setTimeout(() => {
@@ -1028,100 +1014,83 @@ function PageContent() {
   const [shouldPlayLottie, setShouldPlayLottie] = useState(false);
   const lottieRef = useRef(null);
   
-  // Safety flag to prevent accidental Lottie triggering
+  // Safety flags to prevent conflicts
   const canPlayLottie = useRef(false);
+  const preloaderAnimating = useRef(false);
   
-  // DEBUG: Log any changes to shouldPlayLottie
-  useEffect(() => {
-    console.log("🔍 shouldPlayLottie changed to:", shouldPlayLottie);
-    console.log("🔍 canPlayLottie flag:", canPlayLottie.current);
-  }, [shouldPlayLottie]);
 
-  // UPDATED: Preloader finish sequence with Lottie animation
+  
+
+
+  // DEAD SIMPLE TEST - see what's actually happening
   const finishPreloader = () => {
-    console.log("🎯 STARTING PRELOADER FINISH SEQUENCE");
-    console.log("🔍 Current preloaderState:", preloaderState);
-    console.log("🔍 Current shouldPlayLottie:", shouldPlayLottie);
+    console.log("🔥 FINISHPRELOADER CALLED");
+    const preloader = document.querySelector('.pre-loader');
     
-    // Step 1: Animate preloader content up and fade out
-    const preloaderContent = document.querySelector('.preloader-content');
-    
-    if (preloaderContent) {
-      gsap.to(preloaderContent, {
-        y: -100,
+    if (preloader) {
+      console.log("🔥 FOUND PRELOADER, CURRENT CLASSES:", preloader.className);
+      console.log("🔥 CURRENT COMPUTED STYLE:", window.getComputedStyle(preloader).transition);
+      
+      // NUCLEAR: Bypass Webflow CSS entirely - use GSAP
+      console.log("🔥 NUCLEAR OPTION - GSAP animation bypassing Webflow CSS");
+      
+      // Clear all CSS classes and transitions
+      preloader.className = 'pre-loader';
+      preloader.style.transition = 'none';
+      
+      // Use GSAP to animate
+      gsap.to(preloader, {
         opacity: 0,
-        duration: 0.8,
+        y: '-110%',
+        duration: 1,
         ease: "power2.out",
         onComplete: () => {
-          console.log("🎯 Preloader content animated out");
+          console.log("🔥 GSAP ANIMATION COMPLETE");
+          if (preloader.parentNode) {
+            preloader.parentNode.removeChild(preloader);
+            console.log("🔥 PRELOADER REMOVED FROM DOM");
+          }
         }
       });
       
-      // Start Lottie animation with TIGHT OVERLAP (after 0.1s for minimal gap)
-      setTimeout(() => {
-        console.log("🟣 Starting Lottie dark ovals animation");
-        
-        // Step 2: Start 3D animation IMMEDIATELY (parallel with Lottie)
-        const isContactPage = window.location.hash === '#contact';
-        if (isContactPage) {
-          setShouldPlayContactIntro(true);
-          console.log("🎯 Triggered contact intro animation (parallel with Lottie)");
-        } else {
-          setShouldPlayPortfolioToHome(true);
-          console.log("🎯 Triggered home intro animation (parallel with Lottie)");
-        }
-        
-        // Step 3: Enable and trigger Lottie animation
-        canPlayLottie.current = true;
-        setShouldPlayLottie(true);
-        
-        // Manually start the Lottie animation after a brief delay
-        setTimeout(() => {
-          if (lottieRef.current) {
-            lottieRef.current.play();
-            console.log("🟣 Manually started Lottie animation");
-          }
-        }, 100);
-        
-        // Step 4: Clean up after Lottie animation completes (estimated duration)
-        setTimeout(() => {
-          console.log("🟣 Lottie animation completed");
-          
-          // Hide preloader PERMANENTLY
-          const preloader = document.querySelector('.pre-loader');
-          if (preloader) {
-            preloader.style.display = 'none';
-            preloader.setAttribute('data-permanently-hidden', 'true');
-            console.log("🚫 Preloader permanently hidden after animation");
-          }
-          
-          // Hide Lottie animation
-          setShouldPlayLottie(false);
-          
-          // Prepare white ovals for navigation (but keep container hidden)
-          const whiteOvalContainer = document.querySelector('.outro-anim-home');
-          if (whiteOvalContainer) {
-            whiteOvalContainer.style.display = 'none'; // Hidden by default - only show during navigation
-            whiteOvalContainer.style.visibility = 'visible';
+      console.log("🔥 GSAP ANIMATION STARTED");
+      
+                  // Check transition progress at different intervals
+            setTimeout(() => {
+              console.log("🔥 500MS - MID TRANSITION:");
+              console.log("🔥 Opacity:", window.getComputedStyle(preloader).opacity);
+              console.log("🔥 Transform:", window.getComputedStyle(preloader).transform);
+            }, 500);
             
-            const whiteOvals = whiteOvalContainer.querySelectorAll('.oval-white-home-outro');
-            gsap.set(whiteOvals, {
-              scale: 1, // Keep at scale 1 - ready for navigation animations
-              opacity: 1, // Keep at opacity 1 - ready for navigation animations
-              transformOrigin: "center center"
-            });
-          }
-          
-          // Update state (3D animation already started)
-          setPreloaderState('finished');
-          sessionStorage.setItem('preloaderShown', 'true');
-          
-          console.log("🎯 PRELOADER SEQUENCE COMPLETED - 3D animation running");
-        }, 2000); // Estimated Lottie duration - adjust based on your animation length
-        
-      }, 100); // Start Lottie 0.1s into content animation (tight overlap!)
+            setTimeout(() => {
+              console.log("🔥 1.5S - SHOULD BE COMPLETE:");
+              console.log("🔥 Opacity:", window.getComputedStyle(preloader).opacity);
+              console.log("🔥 Transform:", window.getComputedStyle(preloader).transform);
+              console.log("🔥 Display:", window.getComputedStyle(preloader).display);
+            }, 1500);
+      
+      // Start 3D animation
+      const isContactPage = window.location.hash === '#contact';
+      if (isContactPage) {
+        console.log("🎬 Starting contact intro animation");
+        setShouldPlayContactIntro(true);
+      } else {
+        console.log("🎬 Starting portfolio-to-home animation");
+        setShouldPlayPortfolioToHome(true);
+        console.log("🎬 DEBUG: shouldPlayPortfolioToHome set to TRUE");
+      }
+      
+      // Start Lottie animation  
+      canPlayLottie.current = true;
+      setShouldPlayLottie(true);
+      console.log("🔥 STARTED LOTTIE");
+      
+      // Update state immediately - no race conditions
+      setPreloaderState('finished');
+      sessionStorage.setItem('preloaderShown', 'true');
+      
     } else {
-      console.warn("⚠️ No preloader content found, skipping animation");
+      console.log("🔥 NO PRELOADER FOUND!");
       setPreloaderState('finished');
     }
   };
@@ -1825,43 +1794,62 @@ function PageContent() {
         shouldPlayPortfolioToHome={shouldPlayPortfolioToHome}
       />
       
-      {/* Lottie Dark Ovals Animation Overlay - Only when explicitly allowed */}
+      {/* Lottie Dark Ovals Animation Overlay */}
       {shouldPlayLottie && canPlayLottie.current && (
         <div 
+          className="lottie-background-overlay"
           style={{
             position: 'fixed',
             top: 0,
             left: 0,
             width: '100vw',
             height: '100vh',
-            zIndex: 2147483647, // Same as preloader
+            zIndex: 2147483648, // Higher than preloader to ensure visibility
             pointerEvents: 'none',
+            overflow: 'hidden', // Crop anything outside the screen bounds
+            backgroundColor: 'transparent', // Clean background
             display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center'
+            alignItems: 'center',
+            justifyContent: 'center'
           }}
+
         >
-          <Lottie
-            ref={lottieRef}
-            animationData={darkOvalsAnimation}
-            loop={false}
-            autoplay={false} // Don't autoplay - we'll control it manually
-            style={{
-              width: '100%',
-              height: '100%',
-              maxWidth: '100vw',
-              maxHeight: '100vh'
-            }}
-            onComplete={() => {
-              console.log("🟣 Lottie animation completed via onComplete");
-              setShouldPlayLottie(false);
-            }}
-          />
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 'max(100vw, 100vh)',
+            height: 'max(100vw, 100vh)',
+            minWidth: '100vw',
+            minHeight: '100vh'
+          }}>
+                          <Lottie
+                animationData={darkOvalsAnimation}
+                loop={false}
+                autoplay={true}
+                style={{
+                  width: '100%',
+                  height: '100%'
+                }}
+                onComplete={() => {
+                  console.log("🟣 Lottie animation completed naturally (45 frames = 1.5 seconds)");
+                  setShouldPlayLottie(false);
+                  console.log("🟣 Lottie hidden immediately");
+                }}
+                onEnterFrame={(e) => {
+                  // Only log every 10 frames to reduce spam
+                  if (Math.floor(e.currentTime) % 10 === 0) {
+                    console.log(`🟣 Lottie frame: ${Math.floor(e.currentTime)} / ${Math.floor(e.totalTime)}`);
+                  }
+                }}
+                onDOMLoaded={() => {
+                  console.log("🟣 Lottie DOM loaded - animation is exactly 45 frames (1.5 seconds at 30fps)");
+                }}
+              />
+          </div>
         </div>
       )}
-      
-      {/* DEBUG: Show Lottie state */}
-      {console.log("🔍 shouldPlayLottie state:", shouldPlayLottie)}
     </>
   );
 }
