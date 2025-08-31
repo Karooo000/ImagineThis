@@ -3,6 +3,8 @@ import React, { useState, useEffect, useRef, Suspense } from "react"
 
 import {useProgress, Environment, OrbitControls, Sparkles, PerspectiveCamera} from "@react-three/drei";
 import { EffectComposer, Bloom, HueSaturation, DepthOfField } from '@react-three/postprocessing';
+import Lottie from 'lottie-react';
+import darkOvalsAnimation from '/dark-ovals.json';
 
 // React Router removed for Webflow compatibility - navigation handled via page detection
 
@@ -1022,16 +1024,27 @@ function PageContent() {
     }
   }, [preloaderState, modelLoaded, preloaderStartTime]);
 
-  // ROBUST: Preloader finish sequence - clean and simple
+  // State for Lottie animation - EXPLICITLY FALSE initially
+  const [shouldPlayLottie, setShouldPlayLottie] = useState(false);
+  const lottieRef = useRef(null);
+  
+  // Safety flag to prevent accidental Lottie triggering
+  const canPlayLottie = useRef(false);
+  
+  // DEBUG: Log any changes to shouldPlayLottie
+  useEffect(() => {
+    console.log("🔍 shouldPlayLottie changed to:", shouldPlayLottie);
+    console.log("🔍 canPlayLottie flag:", canPlayLottie.current);
+  }, [shouldPlayLottie]);
+
+  // UPDATED: Preloader finish sequence with Lottie animation
   const finishPreloader = () => {
     console.log("🎯 STARTING PRELOADER FINISH SEQUENCE");
+    console.log("🔍 Current preloaderState:", preloaderState);
+    console.log("🔍 Current shouldPlayLottie:", shouldPlayLottie);
     
     // Step 1: Animate preloader content up and fade out
     const preloaderContent = document.querySelector('.preloader-content');
-    
-    // Step 2: Prepare dark oval container and ovals (BEFORE content animation)
-    const darkOvalContainer = document.querySelector('.outro-anim-home-dark');
-    const darkOvals = darkOvalContainer?.querySelectorAll('.oval-white-home-outro');
     
     if (preloaderContent) {
       gsap.to(preloaderContent, {
@@ -1044,108 +1057,69 @@ function PageContent() {
         }
       });
       
-      // Start dark ovals animation with TIGHT OVERLAP (after 0.1s for minimal gap)
+      // Start Lottie animation with TIGHT OVERLAP (after 0.1s for minimal gap)
       setTimeout(() => {
-        if (darkOvals && darkOvals.length > 0) {
-            console.log("🟣 Starting dark ovals outro animation with", darkOvals.length, "ovals");
+        console.log("🟣 Starting Lottie dark ovals animation");
+        
+        // Step 2: Start 3D animation IMMEDIATELY (parallel with Lottie)
+        const isContactPage = window.location.hash === '#contact';
+        if (isContactPage) {
+          setShouldPlayContactIntro(true);
+          console.log("🎯 Triggered contact intro animation (parallel with Lottie)");
+        } else {
+          setShouldPlayPortfolioToHome(true);
+          console.log("🎯 Triggered home intro animation (parallel with Lottie)");
+        }
+        
+        // Step 3: Enable and trigger Lottie animation
+        canPlayLottie.current = true;
+        setShouldPlayLottie(true);
+        
+        // Manually start the Lottie animation after a brief delay
+        setTimeout(() => {
+          if (lottieRef.current) {
+            lottieRef.current.play();
+            console.log("🟣 Manually started Lottie animation");
+          }
+        }, 100);
+        
+        // Step 4: Clean up after Lottie animation completes (estimated duration)
+        setTimeout(() => {
+          console.log("🟣 Lottie animation completed");
+          
+          // Hide preloader PERMANENTLY
+          const preloader = document.querySelector('.pre-loader');
+          if (preloader) {
+            preloader.style.display = 'none';
+            preloader.setAttribute('data-permanently-hidden', 'true');
+            console.log("🚫 Preloader permanently hidden after animation");
+          }
+          
+          // Hide Lottie animation
+          setShouldPlayLottie(false);
+          
+          // Prepare white ovals for navigation (but keep container hidden)
+          const whiteOvalContainer = document.querySelector('.outro-anim-home');
+          if (whiteOvalContainer) {
+            whiteOvalContainer.style.display = 'none'; // Hidden by default - only show during navigation
+            whiteOvalContainer.style.visibility = 'visible';
             
-            // CRITICAL: Make dark oval container visible
-            darkOvalContainer.style.display = 'block';
-            darkOvalContainer.style.visibility = 'visible';
-            
-            // Ensure dark ovals are fully visible before animation
-            gsap.set(darkOvals, {
-              scale: 1,
-              opacity: 1,
+            const whiteOvals = whiteOvalContainer.querySelectorAll('.oval-white-home-outro');
+            gsap.set(whiteOvals, {
+              scale: 1, // Keep at scale 1 - ready for navigation animations
+              opacity: 1, // Keep at opacity 1 - ready for navigation animations
               transformOrigin: "center center"
             });
-            
-            console.log("🔍 Dark container now visible:", {
-              display: darkOvalContainer.style.display,
-              visibility: darkOvalContainer.style.visibility
-            });
-            
-            // Step 3: Start 3D animation IMMEDIATELY (parallel with oval animation)
-            const isContactPage = window.location.hash === '#contact';
-            if (isContactPage) {
-              setShouldPlayContactIntro(true);
-              console.log("🎯 Triggered contact intro animation (parallel with ovals)");
-            } else {
-              setShouldPlayPortfolioToHome(true);
-              console.log("🎯 Triggered home intro animation (parallel with ovals)");
-            }
-            
-            // Create timeline for dark ovals with scale starting before opacity
-            const darkTimeline = gsap.timeline({
-              onStart: () => {
-                console.log("🟣 Dark ovals animation STARTED");
-              },
-            });
-            
-            // Scale animation starts immediately
-            darkTimeline.to(darkOvals, {
-              scale: 0,
-              duration: 1.0, // Slightly faster: 1.0s instead of 1.2s
-              ease: "power2.in",
-              stagger: {
-                amount: 0.35, // Slightly faster stagger
-                from: "outside"
-              }
-            }, 0);
-            
-            // Opacity animation starts 0.2s later
-            darkTimeline.to(darkOvals, {
-              opacity: 0,
-              duration: 0.8, // Faster opacity
-              ease: "power2.in",
-              stagger: {
-                amount: 0.35,
-                from: "outside"
-              }
-            }, 0.2); // Start opacity 0.2s after scale
-            
-            // Add onComplete callback to the timeline
-            darkTimeline.call(() => {
-                console.log("🟣 Dark ovals animation completed");
-                
-              // Step 4: Clean up after oval animation finishes (shorter gap)
-              setTimeout(() => {
-                  // Hide preloader PERMANENTLY
-                const preloader = document.querySelector('.pre-loader');
-                if (preloader) {
-                  preloader.style.display = 'none';
-                    preloader.setAttribute('data-permanently-hidden', 'true');
-                    console.log("🚫 Preloader permanently hidden after animation");
-                  }
-                  
-                  // Hide dark oval container after animation
-                  darkOvalContainer.style.display = 'none';
-                  
-                  // Prepare white ovals for navigation (but keep container hidden)
-                  const whiteOvalContainer = document.querySelector('.outro-anim-home');
-                  if (whiteOvalContainer) {
-                    whiteOvalContainer.style.display = 'none'; // Hidden by default - only show during navigation
-                    whiteOvalContainer.style.visibility = 'visible';
-                    
-                    const whiteOvals = whiteOvalContainer.querySelectorAll('.oval-white-home-outro');
-                    gsap.set(whiteOvals, {
-                      scale: 1, // Keep at scale 1 - ready for navigation animations
-                      opacity: 1, // Keep at opacity 1 - ready for navigation animations
-                      transformOrigin: "center center"
-                    });
-                  }
-                  
-                  // Update state (3D animation already started)
-                  setPreloaderState('finished');
-                  sessionStorage.setItem('preloaderShown', 'true');
-                  
-                  console.log("🎯 PRELOADER SEQUENCE COMPLETED - 3D animation running");
-                }, 50); // Shorter gap between content and ovals
-            });
-          } else {
-            console.warn("⚠️ No dark ovals found for overlapped animation");
           }
-        }, 100); // Start ovals 0.1s into content animation (tight overlap!)
+          
+          // Update state (3D animation already started)
+          setPreloaderState('finished');
+          sessionStorage.setItem('preloaderShown', 'true');
+          
+          console.log("🎯 PRELOADER SEQUENCE COMPLETED - 3D animation running");
+        }, 2000); // Estimated Lottie duration - adjust based on your animation length
+        
+      }, 100); // Start Lottie 0.1s into content animation (tight overlap!)
     } else {
       console.warn("⚠️ No preloader content found, skipping animation");
       setPreloaderState('finished');
@@ -1195,40 +1169,9 @@ function PageContent() {
         }
       };
 
-      window.testDarkOvals = () => {
-        console.log("🧪 Testing dark oval visibility and animation");
-        const darkContainer = document.querySelector('.outro-anim-home-dark');
-        const darkOvals = darkContainer?.querySelectorAll('.oval-white-home-outro');
-        
-        console.log("🔍 Dark container:", darkContainer);
-        console.log("🔍 Dark ovals found:", darkOvals?.length);
-        console.log("🔍 Dark container styles:", {
-          display: darkContainer?.style.display,
-          visibility: darkContainer?.style.visibility,
-          zIndex: darkContainer?.style.zIndex
-        });
-        
-        if (darkOvals && darkOvals.length > 0) {
-          // Make them visible and animate
-          gsap.set(darkOvals, {
-            scale: 1,
-            opacity: 1,
-            transformOrigin: "center center"
-          });
-          
-          setTimeout(() => {
-            gsap.to(darkOvals, {
-              scale: 0,
-              opacity: 0,
-              duration: 2.0,
-              ease: "power2.in",
-              stagger: {
-                amount: 0.5,
-                from: "outside"
-              }
-            });
-          }, 1000);
-        }
+      window.testLottie = () => {
+        console.log("🧪 Testing Lottie animation");
+        setShouldPlayLottie(true);
       };
     }
   }, [preloaderState, modelLoaded, progress]);
@@ -1872,13 +1815,55 @@ function PageContent() {
     console.log("🎯 Updated prevPageState to:", to);
   }, [currentPageState]);
 
-  return <Scene 
-    shouldPlayContactIntro={shouldPlayContactIntro}
-    shouldPlayBackContact={shouldPlayBackContact}
-    shouldPlayHomeToPortfolio={shouldPlayHomeToPortfolio}
-    shouldPlayContactToPortfolio={shouldPlayContactToPortfolio}
-    shouldPlayPortfolioToHome={shouldPlayPortfolioToHome}
-  />;
+  return (
+    <>
+      <Scene 
+        shouldPlayContactIntro={shouldPlayContactIntro}
+        shouldPlayBackContact={shouldPlayBackContact}
+        shouldPlayHomeToPortfolio={shouldPlayHomeToPortfolio}
+        shouldPlayContactToPortfolio={shouldPlayContactToPortfolio}
+        shouldPlayPortfolioToHome={shouldPlayPortfolioToHome}
+      />
+      
+      {/* Lottie Dark Ovals Animation Overlay - Only when explicitly allowed */}
+      {shouldPlayLottie && canPlayLottie.current && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            zIndex: 2147483647, // Same as preloader
+            pointerEvents: 'none',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}
+        >
+          <Lottie
+            ref={lottieRef}
+            animationData={darkOvalsAnimation}
+            loop={false}
+            autoplay={false} // Don't autoplay - we'll control it manually
+            style={{
+              width: '100%',
+              height: '100%',
+              maxWidth: '100vw',
+              maxHeight: '100vh'
+            }}
+            onComplete={() => {
+              console.log("🟣 Lottie animation completed via onComplete");
+              setShouldPlayLottie(false);
+            }}
+          />
+        </div>
+      )}
+      
+      {/* DEBUG: Show Lottie state */}
+      {console.log("🔍 shouldPlayLottie state:", shouldPlayLottie)}
+    </>
+  );
 }
 
 // Simplified app content for Webflow embedding - no routing needed
