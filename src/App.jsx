@@ -1318,6 +1318,7 @@ function PageContent() {
   // Safety flags to prevent conflicts
   const canPlayLottie = useRef(false);
   const preloaderAnimating = useRef(false);
+  const darkOvalsStarted = useRef(false);
   
   // White ovals animations are now embedded - no loading needed
 
@@ -1452,12 +1453,13 @@ function PageContent() {
       console.log("  - sessionStorage.preloaderShown:", sessionStorage.getItem('preloaderShown'));
       console.log("  - wasPreloaderShown:", wasPreloaderShown);
       
-      if (wasPreloaderShown) {
+      if (wasPreloaderShown && !darkOvalsStarted.current) {
         canPlayLottie.current = true;
         setShouldPlayLottie(true);
+        darkOvalsStarted.current = true;
         console.log("🔥 STARTED DARK OVALS LOTTIE (initial preloader)");
       } else {
-        console.log("🚫 SKIPPED DARK OVALS LOTTIE (navigation scenario)");
+        console.log("🚫 SKIPPED DARK OVALS LOTTIE (navigation scenario or already started)");
       }
       
       // Update state immediately - no race conditions
@@ -2155,6 +2157,30 @@ function PageContent() {
       }
     }
   }, [currentPageState, shouldPlayWhiteLottie, shouldPlayWhiteIntroLottie]);
+
+  // Hide menu during Lottie animations - simple and effective approach
+  useEffect(() => {
+    const isLottieAnimationPlaying = shouldPlayWhiteLottie || shouldPlayWhiteIntroLottie || shouldPlayLottie;
+    
+    // Get the specific Webflow menu element
+    const menuWrap = document.querySelector('.menu-wrap.dopo');
+    
+    if (menuWrap) {
+      if (isLottieAnimationPlaying) {
+        // Hide menu during animation
+        menuWrap.style.visibility = 'hidden';
+        menuWrap.style.opacity = '0';
+        console.log("🎨 Menu hidden during Lottie animation");
+      } else {
+        // Show menu slightly before animation fully completes for smoother transition
+        setTimeout(() => {
+          menuWrap.style.visibility = 'visible';
+          menuWrap.style.opacity = '1';
+          console.log("🎨 Menu restored with faster timing");
+        }, 100); // 100ms early return for smoother feel
+      }
+    }
+  }, [shouldPlayWhiteLottie, shouldPlayWhiteIntroLottie, shouldPlayLottie]);
     
 
 
@@ -2259,19 +2285,26 @@ function PageContent() {
       {shouldPlayLottie && canPlayLottie.current && (
         <div 
           className="lottie-background-overlay"
+          ref={(el) => {
+            if (el) {
+              el.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 2147483647 !important; pointer-events: none !important; overflow: hidden !important; background-color: transparent !important; display: flex !important; align-items: center !important; justify-content: center !important; isolation: isolate !important; transform: translateZ(0) !important;';
+            }
+          }}
           style={{
             position: 'fixed',
             top: 0,
             left: 0,
             width: '100vw',
             height: '100vh',
-            zIndex: 2147483648, // Higher than preloader to ensure visibility
+            zIndex: 2147483647, // Higher than preloader to ensure visibility
             pointerEvents: 'none',
             overflow: 'hidden', // Crop anything outside the screen bounds
             backgroundColor: 'transparent', // Clean background
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            isolation: 'isolate',
+            transform: 'translateZ(0)'
           }}
         >
           <div style={{
@@ -2348,19 +2381,26 @@ function PageContent() {
       {shouldPlayWhiteLottie && (
         <div 
           className="white-lottie-overlay"
+          ref={(el) => {
+            if (el) {
+              el.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 2147483647 !important; pointer-events: none !important; overflow: hidden !important; background-color: transparent !important; display: flex !important; align-items: center !important; justify-content: center !important; isolation: isolate !important; transform: translateZ(0) !important;';
+            }
+          }}
           style={{
             position: 'fixed',
             top: 0,
             left: 0,
             width: '100vw',
             height: '100vh',
-            zIndex: '2147483647 !important', // Force maximum z-index above Webflow animations
+            zIndex: 2147483647, // Force maximum z-index above Webflow animations and menu
             pointerEvents: 'none',
             overflow: 'hidden',
             backgroundColor: 'transparent',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            isolation: 'isolate',
+            transform: 'translateZ(0)'
           }}
         >
           <div style={{
@@ -2409,19 +2449,26 @@ function PageContent() {
       {shouldPlayWhiteIntroLottie && (
         <div 
           className="white-intro-lottie-overlay"
+          ref={(el) => {
+            if (el) {
+              el.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 2147483647 !important; pointer-events: none !important; overflow: hidden !important; background-color: transparent !important; display: flex !important; align-items: center !important; justify-content: center !important; isolation: isolate !important; transform: translateZ(0) !important;';
+            }
+          }}
           style={{
             position: 'fixed',
             top: 0,
             left: 0,
             width: '100vw',
             height: '100vh',
-            zIndex: '2147483647 !important', // Force maximum z-index above Webflow animations
+            zIndex: 2147483647, // Force maximum z-index above Webflow animations and menu
             pointerEvents: 'none',
             overflow: 'hidden',
             backgroundColor: 'transparent',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            isolation: 'isolate',
+            transform: 'translateZ(0)'
           }}
         >
           <div style={{
