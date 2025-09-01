@@ -26,7 +26,7 @@ export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBack
   /** Play animations based on navigation */
   useEffect(() => {
     // Debug: Log all available animations
-    console.log("🎭 Available animations:", Object.keys(actions));
+
     
     const contractIntroAction = actions["ContractIntroAction"];
     const backwardsContactAction = actions["BackwardsContact"];
@@ -35,15 +35,9 @@ export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBack
     const contactToPortfolioAction = actions["ContactToPortfolioAction"];
 
     if (!contractIntroAction || !backwardsContactAction || !homeToPortfolioAction || !portfolioToHomeAction || !contactToPortfolioAction) {
-      console.warn("One or more animation actions not found");
-      console.warn("Available actions:", Object.keys(actions));
-      console.warn("Missing actions:", {
-        contractIntroAction: !!contractIntroAction,
-        backwardsContactAction: !!backwardsContactAction,
-        homeToPortfolioAction: !!homeToPortfolioAction,
-        portfolioToHomeAction: !!portfolioToHomeAction,
-        contactToPortfolioAction: !!contactToPortfolioAction
-      });
+
+
+
       return;
     }
 
@@ -69,13 +63,13 @@ export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBack
     };
 
     if (shouldPlayContactIntro && lastPlayedAnimation.current !== contractIntroAction) {
-      console.log("🎬 Playing ContractIntroAction animation");
-      console.log("🎬 Previous animation was:", lastPlayedAnimation.current?.getClip()?.name || "none");
+
+
       
       // If no previous animation was played (coming from external page), 
       // we might need to ensure the model is in the correct starting state
       if (!lastPlayedAnimation.current) {
-        console.log("🎬 No previous animation - resetting model state before contact intro");
+
         // Reset all actions to ensure clean state
         Object.values(actions).forEach(action => {
           action.stop();
@@ -86,15 +80,15 @@ export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBack
       
       playAnimation(contractIntroAction);
     } else if (shouldPlayBackContact && lastPlayedAnimation.current !== backwardsContactAction) {
-      console.log("🎬 Playing BackwardsContact animation");
+
       playAnimation(backwardsContactAction);
     } else if (shouldPlayHomeToPortfolio && lastPlayedAnimation.current !== homeToPortfolioAction) {
-      console.log("🎬 Playing HomeToPortfolioAction animation");
-      console.log("🎬 Previous animation was:", lastPlayedAnimation.current?.getClip()?.name || "none");
+
+
       
       // If no previous animation was played, reset to ensure clean state
       if (!lastPlayedAnimation.current) {
-        console.log("🎬 No previous animation - resetting model state before home to portfolio");
+
         Object.values(actions).forEach(action => {
           action.stop();
           action.reset();
@@ -104,15 +98,15 @@ export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBack
       
       playAnimation(homeToPortfolioAction);
     } else if (shouldPlayContactToPortfolio && lastPlayedAnimation.current !== contactToPortfolioAction) {
-      console.log("🎬 Playing ContactToPortfolioAction animation");
+
       playAnimation(contactToPortfolioAction);
     } else if (shouldPlayPortfolioToHome && lastPlayedAnimation.current !== portfolioToHomeAction) {
-      console.log("🎬 Playing PortfolioToHomeAction animation");
-      console.log("🎬 Previous animation was:", lastPlayedAnimation.current?.getClip()?.name || "none");
+
+
       
       // If no previous animation was played, reset to ensure clean state
       if (!lastPlayedAnimation.current) {
-        console.log("🎬 No previous animation - resetting model state before portfolio to home");
+
         Object.values(actions).forEach(action => {
           action.stop();
           action.reset();

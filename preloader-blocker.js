@@ -17,7 +17,7 @@
   
   // If coming from portfolio, immediately hide preloader
   if (isFromPortfolio) {
-    console.log('🚫 IMMEDIATE: Blocking preloader for portfolio navigation');
+
     
     // Inject CSS immediately
     const style = document.createElement('style');
@@ -48,7 +48,7 @@
       if (preloader) {
         preloader.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important;';
         preloader.setAttribute('data-blocked-by-script', 'true');
-        console.log('🚫 IMMEDIATE: Preloader hidden via DOM');
+
       }
     };
     
@@ -60,6 +60,6 @@
       document.addEventListener('DOMContentLoaded', hidePreloader);
     }
   } else {
-    console.log('✅ IMMEDIATE: Allowing preloader for hard reload');
+
   }
 })();

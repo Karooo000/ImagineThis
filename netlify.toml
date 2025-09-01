@@ -1,0 +1,18 @@
+[build]
+  publish = "build"
+
+[[redirects]]
+  from = "/contact-us"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/contact"
+  to = "/index.html"
+  status = 200
+
+# Catch-all for SPA routes
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

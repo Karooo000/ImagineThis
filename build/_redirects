@@ -1,0 +1,9 @@
+# Netlify redirects for SPA routing
+# Handle client-side routes - redirect all non-file requests to index.html
+
+# Specific routes that should go to index.html
+/contact-us /index.html 200
+/contact /index.html 200
+
+# Catch-all for other SPA routes (but don't interfere with actual files)
+/* /index.html 200

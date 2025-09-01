@@ -16,6 +16,7 @@ export default defineConfig({
     minify: true,
     manifest: true,
     outDir: 'build',
+    chunkSizeWarningLimit: 2000, // Suppress chunk size warnings for 3D apps
     rollupOptions: {
       input: './src/main.jsx',
       output: {
@@ -28,6 +29,11 @@ export default defineConfig({
         },
       },
       external: ['jquery'],
+      onwarn(warning, warn) {
+        // Suppress eval warnings from Lottie
+        if (warning.code === 'EVAL' && warning.id?.includes('lottie')) return;
+        warn(warning);
+      },
     },
   },
 })

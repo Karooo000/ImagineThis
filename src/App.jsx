@@ -2,6 +2,14 @@ import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import React, { useState, useEffect, useRef, Suspense } from "react"
 
 import {useProgress, Environment, OrbitControls, Sparkles, PerspectiveCamera} from "@react-three/drei";
+
+// Debug mode - set to false for production
+const DEBUG_MODE = false;
+const debugLog = (...args) => {
+  if (DEBUG_MODE) {
+    console.log(...args);
+  }
+};
 import { EffectComposer, Bloom, HueSaturation, DepthOfField } from '@react-three/postprocessing';
 import Lottie from 'lottie-react';
 
@@ -136,12 +144,12 @@ const safeQuerySelector = (selector, fallbackAction = null) => {
   try {
     const element = document.querySelector(selector);
     if (!element && fallbackAction) {
-      console.warn(`⚠️ Element not found: ${selector} - executing fallback`);
+
       fallbackAction();
     }
     return element;
   } catch (error) {
-    console.error(`❌ DOM query error for ${selector}:`, error);
+
     if (fallbackAction) fallbackAction();
     return null;
   }
@@ -152,12 +160,12 @@ const safeQuerySelectorAll = (selector, fallbackAction = null) => {
   try {
     const elements = document.querySelectorAll(selector);
     if (elements.length === 0 && fallbackAction) {
-      console.warn(`⚠️ No elements found: ${selector} - executing fallback`);
+
       fallbackAction();
     }
     return elements;
   } catch (error) {
-    console.error(`❌ DOM query error for ${selector}:`, error);
+
     if (fallbackAction) fallbackAction();
     return [];
   }
@@ -171,12 +179,12 @@ class ErrorBoundary3D extends React.Component {
   }
 
   static getDerivedStateFromError(error) {
-    console.error("❌ 3D Component Error:", error);
+
     return { hasError: true };
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error("❌ 3D Error Details:", error, errorInfo);
+
   }
 
   render() {
@@ -208,15 +216,22 @@ function CameraLayerSetup() {
 if (typeof window !== 'undefined') {
   window.goToPath = (path) => {
     // For Webflow embedding, we need to handle navigation differently
-    if (path === "/contact-us") {
+    if (path === "/contact-us" || path === "/contact") {
       // Handle contact navigation within the same page via DOM manipulation
       const contactContainer = document.querySelector(".container.contact");
       const homeContainer = document.querySelector(".container.home");
       
       if (contactContainer && homeContainer) {
         // Don't dispatch conflicting events - let React handle state management
-        console.log("🌐 goToPath - navigating to contact (React handles state)");
+
         window.currentPageState = 'contact';
+        
+        // Update URL to show /contact-us path
+        const currentPath = window.location.pathname;
+        if (currentPath !== '/contact-us') {
+          window.history.pushState(null, null, '/contact-us');
+
+        }
       }
     } else if (path === "/") {
       // Handle home navigation
@@ -225,8 +240,15 @@ if (typeof window !== 'undefined') {
       
       if (contactContainer && homeContainer) {
         // Don't dispatch conflicting events - let React handle state management
-        console.log("🌐 goToPath - navigating to home (React handles state)");
+
         window.currentPageState = 'home';
+        
+        // Update URL to home path (remove any contact path)
+        const currentPath = window.location.pathname;
+        if (currentPath !== '/' && currentPath !== '/index.html') {
+          window.history.pushState(null, null, '/');
+
+        }
       }
     } else if (path === "/portfolio") {
       // Handle portfolio navigation - this will trigger animation
@@ -251,7 +273,7 @@ if (typeof window !== 'undefined') {
     if (path.includes('oakley-casestudy.html') || url.includes('oakley-casestudy.html')) return 'casestudy';
     
     // Check for contact state via hash or path
-    if (path.includes('contact') || window.location.hash === '#contact') return 'contact';
+    if (path === '/contact-us' || path.includes('contact') || window.location.hash === '#contact') return 'contact';
     
     // For the main index page or any path that doesn't end with specific HTML files, assume home
     return 'home';
@@ -273,7 +295,8 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
                 currentPath !== "/index.html" && 
                 !currentPath.includes('/contact') &&
                 !currentPath.includes('/portfolio') &&
-                !currentPath.includes('/casestudy');
+                !currentPath.includes('/casestudy') &&
+                !currentPath.includes('/thank-you');
 
   /* Depth of field and blur */
   const focusRef = useRef();
@@ -437,19 +460,19 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
      */
     // OLD: Oval expand animation - DISABLED: Replaced with Lottie system
     window.playOvalExpandAnimation = (onComplete) => {
-      console.log("🚫 OLD playOvalExpandAnimation disabled - using Lottie system instead");
+
       onComplete && onComplete();
       return;
       const introAnimContainer = document.querySelector(".intro-anim-home");
       const introOvals = introAnimContainer?.querySelectorAll(".oval-white-home");
       
       if (!introAnimContainer || !introOvals || introOvals.length === 0) {
-        console.warn("⚠️ Intro animation container or ovals not found");
+
         onComplete && onComplete();
         return;
       }
       
-      console.log("🟣 Starting oval expand animation for portfolio navigation");
+
       
       // Make container visible
       // Don't use finished class - just control display directly
@@ -485,7 +508,7 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
       
       // Complete animation
       timeline.eventCallback("onComplete", () => {
-        console.log("🟣 Oval expand animation completed");
+
         
         // Set white background to prevent flicker during navigation
         document.body.style.backgroundColor = '#ffffff';
@@ -574,21 +597,21 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
         const isOnHome = homeContainer && homeContainer.style.display !== 'none' && 
                         (homeContainer.style.display === 'flex' || homeContainer.style.visibility === 'visible');
         
-        console.log("📞 Contact clicked - checking home state via DOM");
-        console.log("📞 Home container display:", homeContainer?.style.display);
-        console.log("📞 Home container visibility:", homeContainer?.style.visibility);
-        console.log("📞 Is on home:", isOnHome);
+
+
+
+
         
         if (isOnHome) {
-            console.log("📞 Contact clicked from home - triggering state change event");
+
             // Dispatch custom event to ensure proper state tracking
             const event = new CustomEvent('pageStateChange', {
                 detail: { from: 'home', to: 'contact' }
             });
-            console.log("📞 Dispatching event with detail:", event.detail);
+
             window.dispatchEvent(event);
         } else {
-            console.log("📞 Not on home page");
+
         }
         
         window.goToPath("/contact-us");
@@ -609,21 +632,21 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
         const isOnContact = contactContainer && contactContainer.style.display !== 'none' && 
                            (contactContainer.style.display === 'flex' || contactContainer.style.visibility === 'visible');
         
-        console.log("🏠 Home clicked - checking contact state via DOM");
-        console.log("🏠 Contact container display:", contactContainer?.style.display);
-        console.log("🏠 Contact container visibility:", contactContainer?.style.visibility);
-        console.log("🏠 Is on contact:", isOnContact);
+
+
+
+
         
         if (isOnContact) {
-            console.log("🏠 Home clicked from contact - triggering state change event");
+
             // Dispatch custom event to ensure proper state tracking
             const event = new CustomEvent('pageStateChange', {
                 detail: { from: 'contact', to: 'home' }
             });
-            console.log("🏠 Dispatching event with detail:", event.detail);
+
             window.dispatchEvent(event);
         } else {
-            console.log("🏠 Not on contact page");
+
         }
         
         // Always navigate to root path, not index.html
@@ -631,8 +654,8 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
     };
 
     const handleContactPortfolioClick = (e) => {
-        console.log("🎯 handleContactPortfolioClick called");
-        console.log("🎯 DEBUG: currentPageState in handler:", currentPageState);
+
+
         
         // Store the original href before preventing default
         const originalHref = e.currentTarget.href;
@@ -646,10 +669,10 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
         
         const startAnimation = () => {
             // Trigger contact to portfolio animation
-            console.log("🎯 DISPATCHING directContactPortfolioAnimation event");
+
             const animEvent = new CustomEvent('directContactPortfolioAnimation');
             window.dispatchEvent(animEvent);
-            console.log("🎯 Event dispatched successfully");
+
             
             // Start oval animation with same timing as home to portfolio
             setTimeout(() => {
@@ -661,7 +684,7 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
                     });
                 } else {
                     // Fallback navigation without oval animation
-                    console.log("🎯 Setting white background - fallback portfolio navigation");
+
                     document.body.style.backgroundColor = '#ffffff';
                     const fullUrl = originalHref.startsWith('http') ? originalHref : `${window.location.origin}${originalHref}`;
                     window.location.href = fullUrl;
@@ -693,15 +716,15 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
         // ROBUST: Check current page state using React state (more reliable than DOM)
         const isOnContactPage = currentPageState === 'contact';
         
-        console.log("🎯 Portfolio clicked - currentPageState:", currentPageState);
-        console.log("🎯 Portfolio clicked - isOnContactPage:", isOnContactPage);
+
+
         
         // Use appropriate handler based on current page
         if (isOnContactPage) {
-            console.log("🎯 CONTACT → PORTFOLIO: Using contact portfolio handler");
+
             handleContactPortfolioClick(e);
         } else {
-            console.log("🎯 HOME → PORTFOLIO: Using home portfolio handler");
+
             // Original home to portfolio logic
             // Check if we're clicking from mobile menu (check both possible menu containers)
             const mobileMenuContainer1 = document.querySelector('.menu-open-wrap-dopo');
@@ -727,7 +750,7 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
                     });
                 } else {
                     // Fallback navigation without oval animation
-                    console.log("🎯 Setting white background - fallback works navigation");
+
                     document.body.style.backgroundColor = '#ffffff';
                     window.location.href = originalHref;
                 }
@@ -758,7 +781,7 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
     const logoBtn = document.querySelector(".logo-btn");  // Add logo button selector
     
     // Mobile menu buttons (inside .menu-open-wrap-dopo)
-    const mobileContactBtn = document.querySelector(".menu-open-wrap-dopo .one-menu-item[data-path='/contact-us']");
+    const mobileContactBtn = document.querySelector(".menu-open-wrap-dopo .one-menu-item[data-path='/contact-us'], .menu-open-wrap-dopo .one-menu-item[data-path='/contact']");
     const mobileHomeBtn = document.querySelector(".menu-open-wrap-dopo .one-menu-item[data-path='/']");
     
     // Try alternative selectors for mobile home button
@@ -770,7 +793,7 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
     const finalMobileHomeBtn = mobileHomeBtn || mobileHomeBtnAlt1 || mobileHomeBtnAlt2;
 
     // Footer buttons (for case study pages)
-    const footerContactBtn = document.querySelector(".footer-contain .contactus-btn[data-path='/contact-us']");
+    const footerContactBtn = document.querySelector(".footer-contain .contactus-btn[data-path='/contact-us'], .footer-contain .contactus-btn[data-path='/contact']");
     const footerHomeBtn = document.querySelector(".footer-contain .home-btn[data-path='/']");
     const footerLogoBtn = document.querySelector(".footer-contain .logo-btn[data-path='/']");
     
@@ -884,7 +907,7 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
 
   return (
     <>
-     <Canvas shadows >
+     <Canvas shadows>
   
         <Environment files='https://imaginethiscode.netlify.app/hospital_room_2_1k.hdr' environmentIntensity={0.005}/>
 
@@ -984,7 +1007,7 @@ function PageContent() {
   // ROBUST: Global error handler to ensure website always works
   useEffect(() => {
     const handleGlobalError = (error) => {
-      console.error("❌ Global error caught:", error);
+
       // Ensure website remains functional
       document.body.style.overflow = 'auto';
       document.body.style.pointerEvents = 'auto';
@@ -997,7 +1020,7 @@ function PageContent() {
     };
 
     const handleUnhandledRejection = (event) => {
-      console.error("❌ Unhandled promise rejection:", event.reason);
+
       // Don't let promise rejections break the website
       event.preventDefault();
     };
@@ -1030,13 +1053,13 @@ function PageContent() {
     // ENHANCED: Consider it a "fresh load" if any of these conditions are met
     const isFreshLoad = isHardReload || isDirectAccess;
     
-    console.log("🔍 DEBUG: Load type detection:");
-    console.log("  - navigationType:", navigationType);
-    console.log("  - isHardReload:", isHardReload);
-    console.log("  - hasReferrer:", hasReferrer);
-    console.log("  - referrer:", document.referrer);
-    console.log("  - isDirectAccess:", isDirectAccess);
-    console.log("  - isFreshLoad:", isFreshLoad);
+
+
+
+
+
+
+          debugLog("  - isFreshLoad:", isFreshLoad);
     
     // Check if coming from portfolio pages (more comprehensive check)
     const referrer = document.referrer;
@@ -1064,23 +1087,29 @@ function PageContent() {
     let hasPreloaderShown = sessionStorage.getItem('preloaderShown') === 'true';
     
     // CRITICAL: Reset preloader session on fresh load (unless from portfolio)
-    console.log("🔍 DEBUG: Fresh load check - isFreshLoad:", isFreshLoad, "isFromPortfolio:", isFromPortfolio);
-    console.log("🔍 DEBUG: hasPreloaderShown before reset:", hasPreloaderShown);
+    debugLog("🔍 DEBUG: Fresh load check - isFreshLoad:", isFreshLoad, "isFromPortfolio:", isFromPortfolio);
+    debugLog("🔍 DEBUG: hasPreloaderShown before reset:", hasPreloaderShown);
     
     if (isFreshLoad && !isFromPortfolio) {
       sessionStorage.removeItem('preloaderShown');
       hasPreloaderShown = false;
-      console.log("🔄 Fresh load detected - reset preloader session");
-      console.log("🔍 DEBUG: hasPreloaderShown after reset:", hasPreloaderShown);
+      debugLog("🔄 Fresh load detected - reset preloader session");
+      debugLog("🔍 DEBUG: hasPreloaderShown after reset:", hasPreloaderShown);
     } else {
-      console.log("🔍 DEBUG: No session reset - conditions not met");
+      debugLog("🔍 DEBUG: No session reset - conditions not met");
+    }
+    
+    // Check if we should skip preloader (e.g., coming from 404 page)
+    const skipPreloader = sessionStorage.getItem('skipPreloader') === 'true';
+    if (skipPreloader) {
+      sessionStorage.removeItem('skipPreloader'); // Clear the flag
     }
     
     // Match the Webflow script logic exactly (enhanced with better detection)
     const shouldHidePreloader = isFromPortfolio && isOnHomePage && !isFreshLoad;
-    const shouldShowPreloader = isFreshLoad && isOnHomePage && !isFromPortfolio && !hasPreloaderShown;
+    const shouldShowPreloader = isFreshLoad && isOnHomePage && !isFromPortfolio && !hasPreloaderShown && !skipPreloader;
     
-    console.log("🔍 PRELOADER DECISION:", {
+    debugLog("🔍 PRELOADER DECISION:", {
       shouldShowPreloader,
       shouldHidePreloader,
       isFreshLoad,
@@ -1091,9 +1120,9 @@ function PageContent() {
     });
     
     // Simple approach: Trust the Webflow script for hiding, we only handle showing
-    console.log("🎯 WEBFLOW SCRIPT HANDLES HIDING - React handles showing and animations");
+    debugLog("🎯 WEBFLOW SCRIPT HANDLES HIDING - React handles showing and animations");
     
-    console.log("🎯 PRELOADER INIT:", {
+    debugLog("🎯 PRELOADER INIT:", {
       navigationType,
       isHardReload,
       isFromPortfolio,
@@ -1123,27 +1152,27 @@ function PageContent() {
     const path = window.location.pathname;
     const hash = window.location.hash;
     
-    console.log("🔍 Initial page detection - path:", path, "hash:", hash);
+    debugLog("🔍 Initial page detection - path:", path, "hash:", hash);
     
     // Portfolio/casestudy pages
     if (path.includes('portfolio') || path.includes('casestudy')) {
       return path.includes('portfolio') ? 'portfolio' : 'casestudy';
     }
     
-    // Contact via hash
-    if (hash === '#contact') {
-      console.log("🎯 DETECTED CONTACT PAGE from hash");
+    // Contact via hash or path
+    if (hash === '#contact' || path === '/contact-us') {
+      debugLog("🎯 DETECTED CONTACT PAGE from", hash === '#contact' ? 'hash' : 'path');
       return 'contact';
     }
     
     // Default to home
-    console.log("🎯 DEFAULTING TO HOME PAGE");
+    debugLog("🎯 DEFAULTING TO HOME PAGE");
     return 'home';
   });
 
   // DEBUG: Monitor page state changes
   useEffect(() => {
-    console.log("🎯 PAGE STATE CHANGED TO:", currentPageState);
+    debugLog("🎯 PAGE STATE CHANGED TO:", currentPageState);
   }, [currentPageState]);
   
   // ROBUST: Animation state management
@@ -1158,11 +1187,11 @@ function PageContent() {
   
   // SIMPLIFIED: Monitor 3D model loading progress
   useEffect(() => {
-    console.log("🔍 3D Model loading progress:", progress, "%");
+    debugLog("🔍 3D Model loading progress:", progress, "%");
     
     if (progress === 100 && !modelLoaded) {
-      console.log("🎯 3D Model fully loaded!");
-      console.log("🔍 DEBUG: About to set modelLoaded=true, current preloaderState:", preloaderState);
+      debugLog("🎯 3D Model fully loaded!");
+      debugLog("🔍 DEBUG: About to set modelLoaded=true, current preloaderState:", preloaderState);
       setModelLoaded(true);
     }
   }, [progress, modelLoaded]);
@@ -1174,23 +1203,23 @@ function PageContent() {
     const hasPreloaderBeenShown = sessionStorage.getItem('preloaderShown') === 'true';
     
     if (!preloaderExists || hasPreloaderBeenShown) {
-      console.log("🛡️ SKIPPING fallback system - no preloader or already shown");
+      debugLog("🛡️ SKIPPING fallback system - no preloader or already shown");
       return;
     }
     
-    console.log("🛡️ Setting up preloader fallback system (preloaderState:", preloaderState, ")");
+    debugLog("🛡️ Setting up preloader fallback system (preloaderState:", preloaderState, ")");
     
     // LEVEL 1: Quick fallback - if model doesn't load in 2s, assume it's loaded
     const quickFallback = setTimeout(() => {
       if (!modelLoaded) {
-        console.log("🎯 LEVEL 1 FALLBACK: Model loading timeout (2s) - assuming loaded");
+        debugLog("🎯 LEVEL 1 FALLBACK: Model loading timeout (2s) - assuming loaded");
         setModelLoaded(true);
       }
     }, 2000);
     
     // LEVEL 2: Medium fallback - force preloader finish after 5s regardless
     const mediumFallback = setTimeout(() => {
-      console.log("🚨 LEVEL 2 FALLBACK: Force preloader finish (5s) - ensuring website accessibility");
+      debugLog("🚨 LEVEL 2 FALLBACK: Force preloader finish (5s) - ensuring website accessibility");
       try {
         finishPreloader();
       } catch (error) {
@@ -1206,7 +1235,7 @@ function PageContent() {
     
     // LEVEL 3: Ultimate fallback - nuclear option after 10s
     const ultimateFallback = setTimeout(() => {
-      console.log("💥 LEVEL 3 FALLBACK: Nuclear option (10s) - customer must see website!");
+      debugLog("💥 LEVEL 3 FALLBACK: Nuclear option (10s) - customer must see website!");
       
       // Hide preloader by any means necessary
       const preloader = safeQuerySelector('.pre-loader');
@@ -1222,7 +1251,7 @@ function PageContent() {
       setPreloaderState('finished');
       setModelLoaded(true);
       
-      console.log("💥 NUCLEAR OPTION COMPLETE - Website should be accessible now");
+      debugLog("💥 NUCLEAR OPTION COMPLETE - Website should be accessible now");
     }, 10000);
     
     // Cleanup all timers
@@ -1235,25 +1264,49 @@ function PageContent() {
 
   // DEBUG: Monitor 3D animation state changes
   useEffect(() => {
-    console.log("🎬 3D Animation State Changed - shouldPlayPortfolioToHome:", shouldPlayPortfolioToHome);
+    debugLog("🎬 3D Animation State Changed - shouldPlayPortfolioToHome:", shouldPlayPortfolioToHome);
   }, [shouldPlayPortfolioToHome]);
 
   useEffect(() => {
-    console.log("🎬 3D Animation State Changed - shouldPlayContactToPortfolio:", shouldPlayContactToPortfolio);
+    debugLog("🎬 3D Animation State Changed - shouldPlayContactToPortfolio:", shouldPlayContactToPortfolio);
   }, [shouldPlayContactToPortfolio]);
 
   useEffect(() => {
-    console.log("🎬 3D Animation State Changed - shouldPlayHomeToPortfolio:", shouldPlayHomeToPortfolio);
+    debugLog("🎬 3D Animation State Changed - shouldPlayHomeToPortfolio:", shouldPlayHomeToPortfolio);
   }, [shouldPlayHomeToPortfolio]);
 
   // ROBUST: Handle preloader completion when model loads
   useEffect(() => {
-    console.log("🔍 DEBUG: Preloader completion useEffect triggered - preloaderState:", preloaderState, "modelLoaded:", modelLoaded);
+    debugLog("🔍 DEBUG: Preloader completion useEffect triggered - preloaderState:", preloaderState, "modelLoaded:", modelLoaded);
     
     // FIX: Also trigger if preloader is hidden but model loads (handles race condition)
     // BUT only if we haven't already shown the preloader (avoid navigation triggers)
     const hasPreloaderBeenShown = sessionStorage.getItem('preloaderShown') === 'true';
     const preloaderDOMExists = safeQuerySelector('.pre-loader');
+    
+    // EMERGENCY FALLBACK: If there's any JavaScript error or preloader gets stuck, force complete
+    const emergencyFallback = () => {
+      const preloader = safeQuerySelector('.pre-loader');
+      if (preloader) {
+        preloader.style.transition = 'opacity 0.3s ease';
+        preloader.style.opacity = '0';
+        setTimeout(() => {
+          if (preloader && preloader.parentNode) {
+            preloader.parentNode.removeChild(preloader);
+          }
+        }, 300);
+      }
+      setPreloaderState('finished');
+      sessionStorage.setItem('preloaderShown', 'true');
+    };
+    
+    // Set up emergency timeout - always force complete after 4 seconds
+    const emergencyTimeout = setTimeout(() => {
+      if (preloaderDOMExists && preloaderState !== 'finished') {
+        debugLog("🚨 EMERGENCY: Preloader stuck - forcing immediate completion");
+        emergencyFallback();
+      }
+    }, 4000);
     
     const shouldTriggerCompletion = modelLoaded && (
       // Normal case: preloader is visible and hasn't been shown
@@ -1262,12 +1315,12 @@ function PageContent() {
       (preloaderState === 'hidden' && preloaderDOMExists && !hasPreloaderBeenShown)
     );
     
-    console.log("🔍 DEBUG: Preloader completion check:");
-    console.log("  - modelLoaded:", modelLoaded);
-    console.log("  - preloaderState:", preloaderState);
-    console.log("  - hasPreloaderBeenShown:", hasPreloaderBeenShown);
-    console.log("  - preloaderDOMExists:", !!preloaderDOMExists);
-    console.log("  - shouldTriggerCompletion:", shouldTriggerCompletion);
+    debugLog("🔍 DEBUG: Preloader completion check:");
+    debugLog("  - modelLoaded:", modelLoaded);
+    debugLog("  - preloaderState:", preloaderState);
+    debugLog("  - hasPreloaderBeenShown:", hasPreloaderBeenShown);
+    debugLog("  - preloaderDOMExists:", !!preloaderDOMExists);
+    debugLog("  - shouldTriggerCompletion:", shouldTriggerCompletion);
     
     // EMERGENCY: Only trigger if preloader is still in a state that needs completion
     // Don't trigger emergency if preloader is already finished or being processed
@@ -1278,15 +1331,31 @@ function PageContent() {
                                   !hasPreloaderBeenShown;
     
     if (needsEmergencyFallback) {
-      console.log("🚨 EMERGENCY: Model loaded but completion not triggering - forcing in 1s");
+      debugLog("🚨 EMERGENCY: Model loaded but completion not triggering - forcing in 1s");
       setTimeout(() => {
-        console.log("🚨 EMERGENCY FALLBACK: Forcing preloader completion");
-        finishPreloader();
+        debugLog("🚨 EMERGENCY FALLBACK: Forcing preloader completion");
+        // Force preloader completion without relying on finishPreloader function
+        const preloader = safeQuerySelector('.pre-loader');
+        if (preloader) {
+          preloader.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+          preloader.style.opacity = '0';
+          preloader.style.transform = 'translateY(-100%)';
+          setTimeout(() => {
+            if (preloader && preloader.parentNode) {
+              preloader.parentNode.removeChild(preloader);
+            }
+            setPreloaderState('finished');
+            sessionStorage.setItem('preloaderShown', 'true');
+          }, 500);
+        } else {
+          setPreloaderState('finished');
+          sessionStorage.setItem('preloaderShown', 'true');
+        }
       }, 1000);
     }
     
     if (shouldTriggerCompletion) {
-      console.log("🎯 MODEL LOADED - Processing preloader completion (state:", preloaderState, ")");
+      debugLog("🎯 MODEL LOADED - Processing preloader completion (state:", preloaderState, ")");
       
       const elapsed = Date.now() - preloaderStartTime;
       const minDisplayTime = 2000; // 2 seconds minimum
@@ -1294,17 +1363,22 @@ function PageContent() {
       // Calculate delay to ensure minimum display time
       const delay = Math.max(0, minDisplayTime - elapsed);
       
-      console.log("🕐 Preloader timing:", {
+      debugLog("🕐 Preloader timing:", {
         elapsed: elapsed + "ms",
         delay: delay + "ms",
         decision: delay > 0 ? "Wait for minimum 2s" : "Finish immediately"
       });
       
       setTimeout(() => {
-        console.log("🎯 Starting preloader finish sequence");
+        debugLog("🎯 Starting preloader finish sequence");
         finishPreloader();
       }, delay);
     }
+    
+    // Cleanup function
+    return () => {
+      clearTimeout(emergencyTimeout);
+    };
   }, [preloaderState, modelLoaded, preloaderStartTime]);
 
   // State for Lottie animation - EXPLICITLY FALSE initially
@@ -1327,11 +1401,11 @@ function PageContent() {
 
   // ROBUST PRELOADER FINISH - with comprehensive error handling
   const finishPreloader = () => {
-    console.log("🔥 FINISHPRELOADER CALLED");
+    debugLog("🔥 FINISHPRELOADER CALLED");
     
     try {
       const preloader = safeQuerySelector('.pre-loader', () => {
-        console.log("🔥 NO PRELOADER FOUND - probably already removed");
+        debugLog("🔥 NO PRELOADER FOUND - probably already removed");
         setPreloaderState('finished');
       });
       
@@ -1339,11 +1413,11 @@ function PageContent() {
         return; // Fallback already executed
       }
       
-      console.log("🔥 FOUND PRELOADER, CURRENT CLASSES:", preloader.className);
-      console.log("🔥 CURRENT COMPUTED STYLE:", window.getComputedStyle(preloader).transition);
+      debugLog("🔥 FOUND PRELOADER, CURRENT CLASSES:", preloader.className);
+      debugLog("🔥 CURRENT COMPUTED STYLE:", window.getComputedStyle(preloader).transition);
       
       // ROBUST: Try GSAP animation first, fallback to direct removal
-      console.log("🔥 ATTEMPTING GSAP ANIMATION");
+      debugLog("🔥 ATTEMPTING GSAP ANIMATION");
       
       // Clear all CSS classes and transitions
       preloader.className = 'pre-loader';
@@ -1361,7 +1435,7 @@ function PageContent() {
       
       // Set up fallback timer in case GSAP fails
       const gsapFallback = setTimeout(() => {
-        console.log("⚠️ GSAP TIMEOUT - Using direct removal fallback");
+        debugLog("⚠️ GSAP TIMEOUT - Using direct removal fallback");
         if (preloader && preloader.parentNode) {
           preloader.remove();
           setPreloaderState('finished');
@@ -1376,11 +1450,11 @@ function PageContent() {
         ease: "power2.out",
         onComplete: () => {
           clearTimeout(gsapFallback);
-          console.log("🔥 GSAP ANIMATION COMPLETE");
+          debugLog("🔥 GSAP ANIMATION COMPLETE");
           try {
             if (preloader && preloader.parentNode) {
               preloader.parentNode.removeChild(preloader);
-              console.log("🔥 PRELOADER REMOVED FROM DOM");
+              debugLog("🔥 PRELOADER REMOVED FROM DOM");
             }
           } catch (removeError) {
             console.error("❌ Error removing preloader:", removeError);
@@ -1398,20 +1472,20 @@ function PageContent() {
         }
       });
       
-      console.log("🔥 GSAP ANIMATION STARTED");
+      debugLog("🔥 GSAP ANIMATION STARTED");
       
                   // Check transition progress at different intervals
       setTimeout(() => {
-              console.log("🔥 500MS - MID TRANSITION:");
-              console.log("🔥 Opacity:", window.getComputedStyle(preloader).opacity);
-              console.log("🔥 Transform:", window.getComputedStyle(preloader).transform);
+              debugLog("🔥 500MS - MID TRANSITION:");
+              debugLog("🔥 Opacity:", window.getComputedStyle(preloader).opacity);
+              debugLog("🔥 Transform:", window.getComputedStyle(preloader).transform);
             }, 500);
             
             setTimeout(() => {
-              console.log("🔥 1.5S - SHOULD BE COMPLETE:");
-              console.log("🔥 Opacity:", window.getComputedStyle(preloader).opacity);
-              console.log("🔥 Transform:", window.getComputedStyle(preloader).transform);
-              console.log("🔥 Display:", window.getComputedStyle(preloader).display);
+              debugLog("🔥 1.5S - SHOULD BE COMPLETE:");
+              debugLog("🔥 Opacity:", window.getComputedStyle(preloader).opacity);
+              debugLog("🔥 Transform:", window.getComputedStyle(preloader).transform);
+              debugLog("🔥 Display:", window.getComputedStyle(preloader).display);
             }, 1500);
       
       // Start 3D animation ONLY if this is the initial preloader sequence
@@ -1433,33 +1507,33 @@ function PageContent() {
         const isContactPage = window.location.hash === '#contact';
         
         if (isContactPage && isFromPortfolio) {
-          console.log("🎬 Starting contact intro animation (portfolio → contact)");
+          debugLog("🎬 Starting contact intro animation (portfolio → contact)");
           setShouldPlayContactIntro(true);
         } else if (!isContactPage && isFromPortfolio) {
-          console.log("🎬 Starting portfolio-to-home animation (portfolio → home)");
+          debugLog("🎬 Starting portfolio-to-home animation (portfolio → home)");
           setShouldPlayPortfolioToHome(true);
-          console.log("🎬 DEBUG: shouldPlayPortfolioToHome set to TRUE");
+          debugLog("🎬 DEBUG: shouldPlayPortfolioToHome set to TRUE");
         } else {
-          console.log("🚫 No 3D animation needed - not from portfolio or direct load");
+          debugLog("🚫 No 3D animation needed - not from portfolio or direct load");
         }
       } else {
-        console.log("🚫 SKIPPED 3D animation in finishPreloader (navigation scenario)");
+        debugLog("🚫 SKIPPED 3D animation in finishPreloader (navigation scenario)");
       }
         
       // Start Lottie animation ONLY if this is the initial preloader sequence
       // (reuse the same wasPreloaderShown check from above)
       
-      console.log("🔍 DEBUG: Dark ovals Lottie check:");
-      console.log("  - sessionStorage.preloaderShown:", sessionStorage.getItem('preloaderShown'));
-      console.log("  - wasPreloaderShown:", wasPreloaderShown);
+      debugLog("🔍 DEBUG: Dark ovals Lottie check:");
+      debugLog("  - sessionStorage.preloaderShown:", sessionStorage.getItem('preloaderShown'));
+      debugLog("  - wasPreloaderShown:", wasPreloaderShown);
       
       if (wasPreloaderShown && !darkOvalsStarted.current) {
         canPlayLottie.current = true;
         setShouldPlayLottie(true);
         darkOvalsStarted.current = true;
-        console.log("🔥 STARTED DARK OVALS LOTTIE (initial preloader)");
+        debugLog("🔥 STARTED DARK OVALS LOTTIE (initial preloader)");
       } else {
-        console.log("🚫 SKIPPED DARK OVALS LOTTIE (navigation scenario or already started)");
+        debugLog("🚫 SKIPPED DARK OVALS LOTTIE (navigation scenario or already started)");
       }
       
       // Update state immediately - no race conditions
@@ -1482,7 +1556,7 @@ function PageContent() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.debugPreloader = () => {
-        console.log("🔍 Preloader debug:", {
+        debugLog("🔍 Preloader debug:", {
           preloaderState,
           modelLoaded,
           progress,
@@ -1493,13 +1567,13 @@ function PageContent() {
       };
       
       window.forceFinishPreloader = () => {
-        console.log("🎯 Manually finishing preloader");
+        debugLog("🎯 Manually finishing preloader");
         finishPreloader();
       };
       
       // DEBUG: Check preloader state
       window.debugPreloader = () => {
-        console.log("🔍 PRELOADER DEBUG:", {
+        debugLog("🔍 PRELOADER DEBUG:", {
           preloaderState,
           modelLoaded,
           progress,
@@ -1508,31 +1582,31 @@ function PageContent() {
       };
 
       window.resetPreloader = () => {
-        console.log("🔄 Resetting preloader state");
+        debugLog("🔄 Resetting preloader state");
         sessionStorage.removeItem('preloaderShown');
         setPreloaderState('visible');
         setModelLoaded(false);
-        console.log("🔄 State reset - reload page to see preloader");
+        debugLog("🔄 State reset - reload page to see preloader");
       };
 
       window.testNavigationOvals = () => {
-        console.log("🧪 Testing navigation oval animation");
+        debugLog("🧪 Testing navigation oval animation");
         playNavigationOvalAnimation(() => {
-          console.log("🧪 Navigation oval test completed");
+          debugLog("🧪 Navigation oval test completed");
         });
       };
 
       window.testExpandOvals = () => {
-        console.log("🧪 Testing expand oval animation");
+        debugLog("🧪 Testing expand oval animation");
         if (window.playOvalExpandAnimation) {
           window.playOvalExpandAnimation(() => {
-            console.log("🧪 Expand oval test completed");
+            debugLog("🧪 Expand oval test completed");
           });
         }
       };
 
       window.testLottie = () => {
-        console.log("🧪 Testing Lottie animation");
+        debugLog("🧪 Testing Lottie animation");
         setShouldPlayLottie(true);
       };
     }
@@ -1544,10 +1618,10 @@ function PageContent() {
   // OLD: White oval animation for navigation FROM portfolio TO home/contact
   // DISABLED: Replaced with Lottie animation system
   const playNavigationOvalAnimation = (onComplete) => {
-    console.log("🚫 OLD white ovals DOM animation disabled - using Lottie instead");
+    debugLog("🚫 OLD white ovals DOM animation disabled - using Lottie instead");
     onComplete && onComplete();
     return;
-    console.log("🔍 playNavigationOvalAnimation CALLED - this should appear when navigating from portfolio");
+    debugLog("🔍 playNavigationOvalAnimation CALLED - this should appear when navigating from portfolio");
     
     // Prevent multiple simultaneous animations
     if (isWhiteOvalAnimating.current) {
@@ -1655,7 +1729,7 @@ function PageContent() {
           // Stop protection after setup period
           if (setupChecks >= maxSetupChecks) {
             clearInterval(protectionInterval);
-            console.log("🛡️ Setup protection completed - ready for flicker-free animation");
+            debugLog("🛡️ Setup protection completed - ready for flicker-free animation");
           }
         }, 50); // Fast checks during setup only
       };
@@ -1665,17 +1739,17 @@ function PageContent() {
 
       // Delay animation start until after setup protection completes
       setTimeout(() => {
-        console.log("🎬 Starting flicker-free GSAP animation");
+        debugLog("🎬 Starting flicker-free GSAP animation");
         
         // Use GSAP timeline for smooth animation
         const timeline = gsap.timeline({
           onStart: () => {
             // Reset body background as soon as animation starts (brief white flash only)
         document.body.style.backgroundColor = '';
-            console.log("🎬 Animation started - body background reset");
+            debugLog("🎬 Animation started - body background reset");
           },
           onComplete: () => {
-            console.log("🟣 TIMELINE COMPLETED - animation finished");
+            debugLog("🟣 TIMELINE COMPLETED - animation finished");
             
             // Hide the container
             whiteContainer.style.display = 'none';
@@ -1696,7 +1770,7 @@ function PageContent() {
         stagger: 0.12, // Visible stagger: 0.12s
 
         onStart: () => {
-          console.log("🟣 White ovals scale animation STARTED");
+          debugLog("🟣 White ovals scale animation STARTED");
         }
       }, 0); // Start at time 0
       
@@ -1708,7 +1782,7 @@ function PageContent() {
         stagger: 0.12, // Visible stagger: 0.12s
   
         onStart: () => {
-          console.log("🟣 White ovals opacity animation STARTED");
+          debugLog("🟣 White ovals opacity animation STARTED");
         }
       }, 0.3); // Start 0.3 seconds after timeline begins
       
@@ -1720,7 +1794,7 @@ function PageContent() {
   // OLD: Contact-specific oval animation for navigation FROM portfolio TO contact  
   // DISABLED: Replaced with Lottie animation system
   const playContactNavigationOvalAnimation = (onComplete) => {
-    console.log("🚫 OLD contact white ovals DOM animation disabled - using Lottie instead");
+    debugLog("🚫 OLD contact white ovals DOM animation disabled - using Lottie instead");
     onComplete && onComplete();
     return;
     
@@ -1742,7 +1816,7 @@ function PageContent() {
       return;
     }
 
-    console.log("🟣 Found", whiteOvals.length, "white ovals for contact navigation");
+    debugLog("🟣 Found", whiteOvals.length, "white ovals for contact navigation");
 
     // Ensure dark container is hidden
     const darkContainer = document.querySelector('.outro-anim-home-dark');
@@ -1804,7 +1878,7 @@ function PageContent() {
       onStart: () => {
         // Reset body background as soon as animation starts (brief white flash only)
         document.body.style.backgroundColor = '';
-        console.log("🎬 Contact animation started - body background reset");
+        debugLog("🎬 Contact animation started - body background reset");
       }
     });
     
@@ -1840,8 +1914,8 @@ function PageContent() {
       const referrer = document.referrer;
       const currentUrl = window.location.href;
     
-      console.log("🔍 Navigation intro logic - path:", path, "hash:", hash);
-      console.log("🔍 Referrer:", referrer);
+      debugLog("🔍 Navigation intro logic - path:", path, "hash:", hash);
+      debugLog("🔍 Referrer:", referrer);
     
       // ROBUST: Check if this is navigation from portfolio
       // CRITICAL: Only consider it navigation from portfolio if it's NOT a hard reload
@@ -1862,34 +1936,42 @@ function PageContent() {
       
       // Handle different navigation scenarios
       if (isNavigationFromPortfolio && isOnHomePage) {
-        console.log("🔍 Navigation FROM portfolio TO home detected - using NEW Lottie system");
+        debugLog("🔍 Navigation FROM portfolio TO home detected - using NEW Lottie system");
         
-        // NEW: Use Lottie-based white intro animation system
-        setShouldPlayWhiteIntroLottie(true);
-        console.log("⚪ Started white intro Lottie animation (portfolio → home)");
-        
-        setShouldPlayPortfolioToHome(true);
-        console.log("🎬 Started PortfolioToHome 3D animation");
+        // Check if animation is already playing to prevent duplicates
+        if (!shouldPlayWhiteIntroLottie && !shouldPlayPortfolioToHome && !isAnimating.current) {
+          // NEW: Use Lottie-based white intro animation system
+          setShouldPlayWhiteIntroLottie(true);
+          debugLog("⚪ Started white intro Lottie animation (portfolio → home)");
+          
+          setShouldPlayPortfolioToHome(true);
+          debugLog("🎬 Started PortfolioToHome 3D animation");
+          
+          isAnimating.current = true;
+          setTimeout(() => { isAnimating.current = false; }, 2000);
+        } else {
+          debugLog("🚫 SKIPPED: Portfolio→Home animation already playing");
+        }
         
         return; // Skip the old DOM-based system below
       }
       
       if (isNavigationFromPortfolio && !isOnHomePage) {
-        console.log("🔍 Navigation from portfolio detected but not to home page - skipping oval animation");
+        debugLog("🔍 Navigation from portfolio detected but not to home page - skipping oval animation");
         return;
       }
       
       if (!isNavigationFromPortfolio) {
-        console.log("🔍 Not navigation from portfolio - no oval animation needed");
+        debugLog("🔍 Not navigation from portfolio - no oval animation needed");
         return;
       }
       
       // If we reach here, handle the old DOM-based system (fallback)
-      console.log("🔍 Navigation not handled by new Lottie system - checking old system");
+      debugLog("🔍 Navigation not handled by new Lottie system - checking old system");
         
       const whiteContainer = document.querySelector(".outro-anim-home");
       if (whiteContainer) {
-        console.log("⚠️ White oval container found - but this should use Lottie system");
+        debugLog("⚠️ White oval container found - but this should use Lottie system");
         // CRITICAL: Set body background to white immediately to prevent dark flash
         document.body.style.backgroundColor = 'white';
         
@@ -1910,10 +1992,10 @@ function PageContent() {
         // CRITICAL: Set ovals to FULL visibility initially (scale 1, opacity 1)
         const whiteOvals = whiteContainer.querySelectorAll(".oval-white-home-outro");
         if (whiteOvals.length > 0) {
-          console.log("🟣 Setting up", whiteOvals.length, "white ovals for outro animation");
+          debugLog("🟣 Setting up", whiteOvals.length, "white ovals for outro animation");
           
           // DEBUG: Check initial oval state
-          console.log("🔍 INITIAL WHITE OVAL STATE:", {
+          debugLog("🔍 INITIAL WHITE OVAL STATE:", {
             containerFound: !!whiteContainer,
             containerClasses: whiteContainer.className,
             ovalCount: whiteOvals.length,
@@ -1945,34 +2027,42 @@ function PageContent() {
           // Determine destination and play appropriate animation
           // ROBUST: Check both hash and intended route for contact detection
           const intendedRoute = sessionStorage.getItem('intendedRoute');
-          const isContactPage = hash === '#contact' || intendedRoute === '/contact-us';
-          const isHomePage = (path === '/' || path === '/index.html') && hash !== '#contact' && intendedRoute !== '/contact-us';
+          const isContactPage = hash === '#contact' || intendedRoute === '/contact-us' || intendedRoute === '/contact';
+          const isHomePage = (path === '/' || path === '/index.html') && hash !== '#contact' && intendedRoute !== '/contact-us' && intendedRoute !== '/contact';
           
-          console.log("🔍 DEBUG: Navigation destination check:");
-          console.log("  - hash:", hash);
-          console.log("  - intendedRoute:", intendedRoute);
-          console.log("  - isContactPage:", isContactPage);
-          console.log("  - isHomePage:", isHomePage);
+          debugLog("🔍 DEBUG: Navigation destination check:");
+          debugLog("  - hash:", hash);
+          debugLog("  - intendedRoute:", intendedRoute);
+          debugLog("  - isContactPage:", isContactPage);
+          debugLog("  - isHomePage:", isHomePage);
           
           if (isContactPage) {
             // NEW: Start white intro Lottie + 3D animation (portfolio → contact)
-            console.log("🎯 PORTFOLIO TO CONTACT: Starting white intro Lottie + 3D animation");
+            debugLog("🎯 PORTFOLIO TO CONTACT: Starting white intro Lottie + 3D animation");
             
             setShouldPlayWhiteIntroLottie(true);
-            console.log("⚪ Started white intro Lottie animation");
+            debugLog("⚪ Started white intro Lottie animation");
             
             setShouldPlayContactIntro(true);
-            console.log("🎬 Started PortfolioToContact 3D animation");
+            debugLog("🎬 Started PortfolioToContact 3D animation");
             
           } else if (isHomePage) {
-            // NEW: Start white intro Lottie + 3D animation (portfolio → home)
-            console.log("🎯 PORTFOLIO TO HOME: Starting white intro Lottie + 3D animation");
-            
-            setShouldPlayWhiteIntroLottie(true);
-            console.log("⚪ Started white intro Lottie animation");
-            
-            setShouldPlayPortfolioToHome(true);
-            console.log("🎬 Started PortfolioToHome 3D animation");
+            // Check if animation is already playing to prevent duplicates
+            if (!shouldPlayWhiteIntroLottie && !shouldPlayPortfolioToHome && !isAnimating.current) {
+              // NEW: Start white intro Lottie + 3D animation (portfolio → home)
+              debugLog("🎯 PORTFOLIO TO HOME: Starting white intro Lottie + 3D animation");
+              
+              setShouldPlayWhiteIntroLottie(true);
+              debugLog("⚪ Started white intro Lottie animation");
+              
+              setShouldPlayPortfolioToHome(true);
+              debugLog("🎬 Started PortfolioToHome 3D animation");
+              
+              isAnimating.current = true;
+              setTimeout(() => { isAnimating.current = false; }, 2000);
+            } else {
+              debugLog("🚫 SKIPPED: Portfolio→Home animation already playing (old system)");
+            }
           }
         } else {
           console.warn("⚠️ No white ovals found for navigation animation");
@@ -1996,11 +2086,11 @@ function PageContent() {
 
     // Listen for direct animation trigger - NEW: Play white Lottie + 3D animation
     const handleDirectPortfolioAnimation = () => {
-      console.log("🎯 HOME TO PORTFOLIO: Starting white Lottie + 3D animation");
+      debugLog("🎯 HOME TO PORTFOLIO: Starting white Lottie + 3D animation");
       
       // Start white ovals Lottie animation (now embedded)
       setShouldPlayWhiteLottie(true);
-      console.log("🟣 Started white ovals outro Lottie animation");
+      debugLog("🟣 Started white ovals outro Lottie animation");
       
       // Start 3D animation simultaneously
       setShouldPlayHomeToPortfolio(true);
@@ -2008,27 +2098,27 @@ function PageContent() {
       setShouldPlayBackContact(false);
       setShouldPlayPortfolioToHome(false);
       
-      console.log("🎬 Started HomeToPortfolio 3D animation");
+      debugLog("🎬 Started HomeToPortfolio 3D animation");
     };
 
     window.addEventListener('directPortfolioAnimation', handleDirectPortfolioAnimation);
 
     // Handle contact to portfolio animation trigger - NEW: Play white Lottie + 3D animation
     const handleDirectContactPortfolioAnimation = () => {
-      console.log("🎯 CONTACT TO PORTFOLIO: Starting white Lottie + 3D animation");
-      console.log("🎯 DEBUG: Current page state when contact→portfolio triggered:", currentPageState);
-      console.log("🎯 DEBUG: Event handler called successfully");
+      debugLog("🎯 CONTACT TO PORTFOLIO: Starting white Lottie + 3D animation");
+      debugLog("🎯 DEBUG: Current page state when contact→portfolio triggered:", currentPageState);
+      debugLog("🎯 DEBUG: Event handler called successfully");
       
       // Start white ovals Lottie animation (now embedded)
       setShouldPlayWhiteLottie(true);
-      console.log("🟣 Started white ovals outro Lottie animation");
+      debugLog("🟣 Started white ovals outro Lottie animation");
       
       // Start 3D animation simultaneously
       setShouldPlayContactToPortfolio(true);
       setTimeout(() => setShouldPlayContactToPortfolio(false), 2000);
       
-      console.log("🎬 Started ContactToPortfolio 3D animation");
-      console.log("🎬 DEBUG: shouldPlayContactToPortfolio set to TRUE");
+      debugLog("🎬 Started ContactToPortfolio 3D animation");
+      debugLog("🎬 DEBUG: shouldPlayContactToPortfolio set to TRUE");
     };
 
     window.addEventListener('directContactPortfolioAnimation', handleDirectContactPortfolioAnimation);
@@ -2037,11 +2127,11 @@ function PageContent() {
     const handleIntendedRoute = () => {
       const intendedRoute = sessionStorage.getItem('intendedRoute');
       
-      if (intendedRoute === '/contact-us') {
+      if (intendedRoute === '/contact-us' || intendedRoute === '/contact') {
         setCurrentPageState('contact');
         setShouldPlayContactIntro(true);
         sessionStorage.removeItem('intendedRoute');
-        console.log("🎯 Handled intended contact route");
+        debugLog("🎯 Handled intended contact route");
       }
     };
 
@@ -2051,17 +2141,17 @@ function PageContent() {
     const handleHashChange = () => {
       const newHash = window.location.hash;
       const path = window.location.pathname;
-      console.log("🔧 Hash changed to:", newHash, "path:", path, "current state:", currentPageState);
+      debugLog("🔧 Hash/URL changed to:", newHash, "path:", path, "current state:", currentPageState);
       
-      if (newHash === '#contact') {
-        console.log("🔧 Setting state to contact");
+      if (newHash === '#contact' || path === '/contact-us') {
+        debugLog("🔧 Setting state to contact");
         setCurrentPageState('contact');
-      } else if (newHash === '' && (path === '/' || path === '/index.html')) {
+      } else if ((newHash === '' || !newHash) && (path === '/' || path === '/index.html')) {
         // Going back to home (either from contact or direct navigation)
-        console.log("🏠 Detected navigation to home from state:", currentPageState);
+        debugLog("🏠 Detected navigation to home from state:", currentPageState);
         // Manually update prevPageState to ensure proper transition detection
         if (currentPageState === 'contact') {
-          console.log("🏠 Manually setting prevPageState to contact for proper transition");
+          debugLog("🏠 Manually setting prevPageState to contact for proper transition");
           prevPageState.current = 'contact';
         }
         setCurrentPageState('home');
@@ -2070,7 +2160,7 @@ function PageContent() {
     
     // Also listen for popstate events (back/forward navigation)
     const handlePopState = () => {
-      console.log("🔧 Popstate event - checking current state");
+      debugLog("🔧 Popstate event - checking current state");
       handleHashChange();
     };
     
@@ -2090,14 +2180,14 @@ function PageContent() {
   useEffect(() => {
     const handlePageStateChange = (event) => {
       const { from, to } = event.detail;
-      console.log("🔄 Page state change event received:", from, "→", to);
-      console.log("🔄 Event detail:", event.detail);
-      console.log("🔄 Current prevPageState before update:", prevPageState.current);
+      debugLog("🔄 Page state change event received:", from, "→", to);
+      debugLog("🔄 Event detail:", event.detail);
+      debugLog("🔄 Current prevPageState before update:", prevPageState.current);
       
       prevPageState.current = from;
       setCurrentPageState(to);
       
-      console.log("🔄 Set prevPageState to:", from, "and currentPageState to:", to);
+      debugLog("🔄 Set prevPageState to:", from, "and currentPageState to:", to);
     };
 
     window.addEventListener('pageStateChange', handlePageStateChange);
@@ -2120,28 +2210,48 @@ function PageContent() {
     const showContact = currentPageState === "contact";
     
     // ROBUST: Hide containers when white ovals are playing to prevent z-index conflicts
+    // IMPORTANT: Only hide content containers, NOT the 3D canvas
     const isWhiteOvalsPlaying = shouldPlayWhiteLottie || shouldPlayWhiteIntroLottie;
     
     // Debug container visibility
-    console.log("🎨 Container visibility - showHome:", showHome, "showContact:", showContact, "pageState:", currentPageState);
-    console.log("🎨 White ovals playing:", isWhiteOvalsPlaying);
+    debugLog("🎨 Container visibility - showHome:", showHome, "showContact:", showContact, "pageState:", currentPageState);
+    debugLog("🎨 White ovals playing:", isWhiteOvalsPlaying);
     
     // Container management with smooth animation for contact
+    // CRITICAL: Only hide content containers (.container.home/.container.contact), preserve 3D canvas
     if (homeContainer && contactContainer) {
       if (isWhiteOvalsPlaying) {
-        // CRITICAL: Hide all containers when white ovals are playing to prevent z-index conflicts
-        homeContainer.style.visibility = 'hidden';
-        homeContainer.style.zIndex = '-1';
-        contactContainer.style.visibility = 'hidden';
-        contactContainer.style.zIndex = '-1';
-        console.log("🎨 HIDDEN containers for white ovals animation");
+        // SMOOTH: Gradually hide CONTENT containers only to prevent glitch when white ovals start
+        // Do NOT hide the main page wrapper or canvas
+        homeContainer.style.transition = 'opacity 0.2s ease-out';
+        contactContainer.style.transition = 'opacity 0.2s ease-out';
+        
+        // Use opacity for smoother transition - keep 3D canvas visible
+        homeContainer.style.opacity = '0';
+        contactContainer.style.opacity = '0';
+        
+        // Delay the z-index change but keep 3D canvas unaffected
+        setTimeout(() => {
+          homeContainer.style.zIndex = '-1';
+          contactContainer.style.zIndex = '-1';
+          // Use display instead of visibility to ensure 3D canvas stays visible
+          homeContainer.style.display = 'none';
+          contactContainer.style.display = 'none';
+        }, 200);
+        
+        debugLog("🎨 SMOOTHLY HIDDEN content containers (3D canvas preserved)");
       } else if (showHome) {
+        // Clear any transition and restore home container properly
+        homeContainer.style.transition = '';
         homeContainer.style.display = 'flex';
         homeContainer.style.visibility = 'visible';
         homeContainer.style.opacity = '1';
         homeContainer.style.zIndex = '25'; // Restore original z-index
         contactContainer.style.display = 'none';
+        contactContainer.style.opacity = '1'; // Reset for next time
       } else if (showContact) {
+        // Clear any transition and restore contact container  
+        contactContainer.style.transition = '';
         // Smooth animation for contact container
         contactContainer.style.display = 'flex';
         contactContainer.style.visibility = 'visible';
@@ -2170,13 +2280,13 @@ function PageContent() {
         // Hide menu during animation
         menuWrap.style.visibility = 'hidden';
         menuWrap.style.opacity = '0';
-        console.log("🎨 Menu hidden during Lottie animation");
+        debugLog("🎨 Menu hidden during Lottie animation");
       } else {
         // Show menu slightly before animation fully completes for smoother transition
         setTimeout(() => {
           menuWrap.style.visibility = 'visible';
           menuWrap.style.opacity = '1';
-          console.log("🎨 Menu restored with faster timing");
+          debugLog("🎨 Menu restored with faster timing");
         }, 100); // 100ms early return for smoother feel
       }
     }
@@ -2196,12 +2306,12 @@ function PageContent() {
       return state === 'portfolio' || state === 'casestudy';
     };
     
-    console.log("🎯 ANIMATION TRIGGER - from:", from, "to:", to);
-    console.log("🎯 URL:", window.location.pathname + window.location.hash);
-    console.log("🎯 prevPageState.current:", prevPageState.current);
-    console.log("🎯 DEBUG - isPortfolioOrCasestudy(from):", isPortfolioOrCasestudy(from));
-    console.log("🎯 DEBUG - to === 'home':", to === 'home');
-    console.log("🎯 DEBUG - Should trigger portfolio→home:", to === "home" && isPortfolioOrCasestudy(from));
+    debugLog("🎯 ANIMATION TRIGGER - from:", from, "to:", to);
+    debugLog("🎯 URL:", window.location.pathname + window.location.hash);
+    debugLog("🎯 prevPageState.current:", prevPageState.current);
+    debugLog("🎯 DEBUG - isPortfolioOrCasestudy(from):", isPortfolioOrCasestudy(from));
+    debugLog("🎯 DEBUG - to === 'home':", to === 'home');
+    debugLog("🎯 DEBUG - Should trigger portfolio→home:", to === "home" && isPortfolioOrCasestudy(from));
 
     // Initialize properly on first run
     if (!hasInitialized.current) {
@@ -2227,59 +2337,80 @@ function PageContent() {
 
     // ROBUST: Handle page transitions with appropriate animations
     if (to === "contact" && from !== "contact") {
-      console.log("🎯 Transitioning TO contact");
+      debugLog("🎯 Transitioning TO contact");
       isAnimating.current = true;
       resetAnimations();
       setShouldPlayContactIntro(true);
       setTimeout(() => { isAnimating.current = false; }, 1000);
       
     } else if (from === "contact" && to === "home") {
-      console.log("🎯 Transitioning FROM contact TO home");
+      debugLog("🎯 Transitioning FROM contact TO home");
       isAnimating.current = true;
       resetAnimations();
       setShouldPlayBackContact(true);
       setTimeout(() => { isAnimating.current = false; }, 1000);
       
     } else if (to === "home" && isPortfolioOrCasestudy(from)) {
-      console.log("🎯 Transitioning FROM portfolio TO home");
-      isAnimating.current = true;
-      resetAnimations();
-      setShouldPlayPortfolioToHome(true);
-      setTimeout(() => { isAnimating.current = false; }, 1000);
+      debugLog("🎯 Transitioning FROM portfolio TO home");
+      
+      // Check if animation is already playing to prevent duplicates  
+      if (!shouldPlayPortfolioToHome && !shouldPlayWhiteIntroLottie && !isAnimating.current) {
+        isAnimating.current = true;
+        resetAnimations();
+        setShouldPlayPortfolioToHome(true);
+        setTimeout(() => { isAnimating.current = false; }, 1000);
+      } else {
+        debugLog("🚫 SKIPPED: Portfolio→Home animation already playing (transition system)");
+      }
       
     } else if (isPortfolioOrCasestudy(to) && from === "home") {
-      console.log("🎯 Transitioning FROM home TO portfolio");
+      debugLog("🎯 Transitioning FROM home TO portfolio");
       isAnimating.current = true;
       resetAnimations();
       setShouldPlayHomeToPortfolio(true);
       setTimeout(() => { isAnimating.current = false; }, 1000);
       
     } else if (isPortfolioOrCasestudy(to) && from === "contact") {
-      console.log("🎯 Transitioning FROM contact TO portfolio");
+      debugLog("🎯 Transitioning FROM contact TO portfolio");
       isAnimating.current = true;
       resetAnimations();
       setShouldPlayContactToPortfolio(true);
       setTimeout(() => { isAnimating.current = false; }, 1000);
       
     } else {
-      console.log("🎯 No animation needed for:", from, "→", to);
+      debugLog("🎯 No animation needed for:", from, "→", to);
       resetAnimations();
     }
 
     // ALWAYS update prevPageState at the end
     prevPageState.current = to;
-    console.log("🎯 Updated prevPageState to:", to);
+    debugLog("🎯 Updated prevPageState to:", to);
   }, [currentPageState]);
+
+  
 
   return (
     <>
-      <Scene 
-        shouldPlayContactIntro={shouldPlayContactIntro}
-        shouldPlayBackContact={shouldPlayBackContact}
-        shouldPlayHomeToPortfolio={shouldPlayHomeToPortfolio}
-        shouldPlayContactToPortfolio={shouldPlayContactToPortfolio}
-        shouldPlayPortfolioToHome={shouldPlayPortfolioToHome}
-      />
+      {/* CRITICAL: Always render 3D Scene - never hide this */}
+      <div 
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 10, // Higher z-index to ensure visibility above content
+          pointerEvents: 'none'
+        }}
+      >
+        <Scene 
+          shouldPlayContactIntro={shouldPlayContactIntro}
+          shouldPlayBackContact={shouldPlayBackContact}
+          shouldPlayHomeToPortfolio={shouldPlayHomeToPortfolio}
+          shouldPlayContactToPortfolio={shouldPlayContactToPortfolio}
+          shouldPlayPortfolioToHome={shouldPlayPortfolioToHome}
+        />
+      </div>
       
       {/* Lottie Dark Ovals Animation Overlay - ROBUST with error handling */}
       {shouldPlayLottie && canPlayLottie.current && (
@@ -2330,21 +2461,21 @@ function PageContent() {
                       height: '100%'
             }}
             onComplete={() => {
-                      console.log("🟣 Lottie animation completed naturally (45 frames = 1.5 seconds)");
+                      debugLog("🟣 Lottie animation completed naturally (45 frames = 1.5 seconds)");
                       setShouldPlayLottie(false);
-                      console.log("🟣 Lottie hidden immediately");
+                      debugLog("🟣 Lottie hidden immediately");
                     }}
                     onEnterFrame={(e) => {
                       // Only log every 10 frames to reduce spam
                       if (Math.floor(e.currentTime) % 10 === 0) {
-                        console.log(`🟣 Lottie frame: ${Math.floor(e.currentTime)} / ${Math.floor(e.totalTime)}`);
+                        debugLog(`🟣 Lottie frame: ${Math.floor(e.currentTime)} / ${Math.floor(e.totalTime)}`);
                       }
                     }}
                     onDOMLoaded={() => {
-                      console.log("🟣 Lottie DOM loaded - animation is exactly 45 frames (1.5 seconds at 30fps)");
+                      debugLog("🟣 Lottie DOM loaded - animation is exactly 45 frames (1.5 seconds at 30fps)");
                     }}
                     onLoadedData={() => {
-                      console.log("🟣 Lottie data loaded successfully");
+                      debugLog("🟣 Lottie data loaded successfully");
                     }}
                     onError={(error) => {
                       console.error("❌ Lottie animation error:", error);
@@ -2422,9 +2553,9 @@ function PageContent() {
                 height: '100%'
               }}
               onComplete={() => {
-                console.log("⚪ White ovals Lottie animation completed (45 frames = 1.5 seconds)");
+                debugLog("⚪ White ovals Lottie animation completed (45 frames = 1.5 seconds)");
                 setShouldPlayWhiteLottie(false);
-                console.log("⚪ White Lottie hidden - navigation to portfolio should complete");
+                debugLog("⚪ White Lottie hidden - navigation to portfolio should complete");
                 
                 // After 1.5s animation, navigate to portfolio
                 setTimeout(() => {
@@ -2434,11 +2565,11 @@ function PageContent() {
               onEnterFrame={(e) => {
                 // Only log every 10 frames to reduce spam
                 if (Math.floor(e.currentTime) % 10 === 0) {
-                  console.log(`⚪ White Lottie frame: ${Math.floor(e.currentTime)} / ${Math.floor(e.totalTime)}`);
+                  debugLog(`⚪ White Lottie frame: ${Math.floor(e.currentTime)} / ${Math.floor(e.totalTime)}`);
                 }
               }}
               onDOMLoaded={() => {
-                console.log("⚪ White Lottie DOM loaded - building up white ovals (1.5 seconds)");
+                debugLog("⚪ White Lottie DOM loaded - building up white ovals (1.5 seconds)");
               }}
             />
           </div>
@@ -2490,18 +2621,18 @@ function PageContent() {
                 height: '100%'
               }}
               onComplete={() => {
-                console.log("⚪ White intro Lottie animation completed (45 frames = 1.5 seconds)");
+                debugLog("⚪ White intro Lottie animation completed (45 frames = 1.5 seconds)");
                 setShouldPlayWhiteIntroLottie(false);
-                console.log("⚪ White intro Lottie hidden - navigation from portfolio complete");
+                debugLog("⚪ White intro Lottie hidden - navigation from portfolio complete");
               }}
               onEnterFrame={(e) => {
                 // Only log every 10 frames to reduce spam
                 if (Math.floor(e.currentTime) % 10 === 0) {
-                  console.log(`⚪ White intro frame: ${Math.floor(e.currentTime)} / ${Math.floor(e.totalTime)}`);
+                  debugLog(`⚪ White intro frame: ${Math.floor(e.currentTime)} / ${Math.floor(e.totalTime)}`);
                 }
               }}
               onDOMLoaded={() => {
-                console.log("⚪ White intro Lottie DOM loaded - shrinking white ovals (1.5 seconds)");
+                debugLog("⚪ White intro Lottie DOM loaded - shrinking white ovals (1.5 seconds)");
               }}
             />
           </div>
@@ -2522,7 +2653,7 @@ function AppContent() {
       sessionStorage.removeItem('intendedRoute');
       // Small delay to ensure DOM is ready
       setTimeout(() => {
-        if (intendedRoute === '/contact-us') {
+        if (intendedRoute === '/contact-us' || intendedRoute === '/contact') {
           window.goToPath('/contact-us');
         }
       }, 200);
