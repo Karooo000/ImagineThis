@@ -6,8 +6,8 @@ import * as THREE from 'three'
 
 import gsap from 'gsap'
 
-//const modelURL = 'https://imaginethiscode.netlify.app/fractalNEWV4.glb'
-const modelURL = "http://localhost:5173/FractalNeurals.glb"
+const modelURL = 'https://imaginethiscode.netlify.app/FractalNeurals.glb'
+//const modelURL = "http://localhost:5173/FractalNeurals.glb"
 
 
 export default function Model({ focusRef, shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeToPortfolio, shouldPlayPortfolioToHome, shouldPlayContactToPortfolio, ...props }) {
