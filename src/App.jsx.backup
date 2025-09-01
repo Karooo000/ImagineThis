@@ -1269,15 +1269,8 @@ function PageContent() {
     console.log("  - preloaderDOMExists:", !!preloaderDOMExists);
     console.log("  - shouldTriggerCompletion:", shouldTriggerCompletion);
     
-    // EMERGENCY: Only trigger if preloader is still in a state that needs completion
-    // Don't trigger emergency if preloader is already finished or being processed
-    const needsEmergencyFallback = modelLoaded && 
-                                  !shouldTriggerCompletion && 
-                                  preloaderDOMExists && 
-                                  preloaderState !== 'finished' &&
-                                  !hasPreloaderBeenShown;
-    
-    if (needsEmergencyFallback) {
+    // EMERGENCY: If model is loaded but completion isn't triggering, force it after 1 second
+    if (modelLoaded && !shouldTriggerCompletion && preloaderDOMExists) {
       console.log("🚨 EMERGENCY: Model loaded but completion not triggering - forcing in 1s");
       setTimeout(() => {
         console.log("🚨 EMERGENCY FALLBACK: Forcing preloader completion");
@@ -1348,16 +1341,6 @@ function PageContent() {
       preloader.className = 'pre-loader';
       preloader.style.transition = 'none';
       
-      // Ensure proper positioning for GSAP animation
-      gsap.set(preloader, {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        transformOrigin: 'center center'
-      });
-      
       // Set up fallback timer in case GSAP fails
       const gsapFallback = setTimeout(() => {
         console.log("⚠️ GSAP TIMEOUT - Using direct removal fallback");
@@ -1370,7 +1353,7 @@ function PageContent() {
       // Use GSAP to animate with error handling
       gsap.to(preloader, {
         opacity: 0,
-        y: '-100%',
+        y: '-110%',
         duration: 1,
         ease: "power2.out",
         onComplete: () => {
@@ -1417,29 +1400,15 @@ function PageContent() {
       const wasPreloaderShown = sessionStorage.getItem('preloaderShown') !== 'true';
       
       if (wasPreloaderShown) {
-        // This is the initial preloader - check if we're actually coming from portfolio
-        const referrer = document.referrer;
-        const navigationType = performance.getEntriesByType('navigation')[0]?.type;
-        const isHardReload = navigationType === 'reload';
-        
-        const isFromPortfolio = !isHardReload && referrer && (
-          referrer.includes('portfolio') || 
-          referrer.includes('casestudy') ||
-          referrer.includes('oakley') ||
-          referrer.includes('dopo')
-        );
-        
+        // This is the initial preloader - start appropriate 3D animation
         const isContactPage = window.location.hash === '#contact';
-        
-        if (isContactPage && isFromPortfolio) {
-          console.log("🎬 Starting contact intro animation (portfolio → contact)");
+        if (isContactPage) {
+          console.log("🎬 Starting contact intro animation (initial preloader)");
           setShouldPlayContactIntro(true);
-        } else if (!isContactPage && isFromPortfolio) {
-          console.log("🎬 Starting portfolio-to-home animation (portfolio → home)");
+        } else {
+          console.log("🎬 Starting portfolio-to-home animation (initial preloader)");
           setShouldPlayPortfolioToHome(true);
           console.log("🎬 DEBUG: shouldPlayPortfolioToHome set to TRUE");
-        } else {
-          console.log("🚫 No 3D animation needed - not from portfolio or direct load");
         }
       } else {
         console.log("🚫 SKIPPED 3D animation in finishPreloader (navigation scenario)");
@@ -1829,36 +1798,34 @@ function PageContent() {
   };
 
   
-  // ROBUST: Handle navigation from portfolio pages
+  // ROBUST: Handle navigation from portfolio pages (SIMPLIFIED)
   useEffect(() => {
-    // Only run this logic if NOT showing preloader (i.e., navigation scenario)
+        // Only run this logic if NOT showing preloader (i.e., navigation scenario)
     if (preloaderState !== 'visible') {
       const path = window.location.pathname;
       const hash = window.location.hash;
       const referrer = document.referrer;
       const currentUrl = window.location.href;
-    
+      
       console.log("🔍 Navigation intro logic - path:", path, "hash:", hash);
       console.log("🔍 Referrer:", referrer);
-    
-      // ROBUST: Check if this is navigation from portfolio
-      // CRITICAL: Only consider it navigation from portfolio if it's NOT a hard reload
+      
+      // Check if this is navigation from portfolio
       const navigationType = performance.getEntriesByType('navigation')[0]?.type;
       const isHardReload = navigationType === 'reload';
-    
+      
       const isNavigationFromPortfolio = !isHardReload && referrer && (
         referrer.includes('portfolio') || 
         referrer.includes('casestudy') ||
         referrer.includes('oakley') ||
         referrer.includes('dopo')
       );
-    
-      // Ensure we're on the home page (not on portfolio pages)
+      
+      // Check if we're on the home page
       const isOnHomePage = currentUrl.includes('index.html') || 
                           currentUrl.endsWith('/') || 
                           (!currentUrl.includes('portfolio') && !currentUrl.includes('casestudy'));
       
-      // Handle different navigation scenarios
       if (isNavigationFromPortfolio && isOnHomePage) {
         console.log("🔍 Navigation FROM portfolio TO home detected - using NEW Lottie system");
         
@@ -1869,116 +1836,106 @@ function PageContent() {
         setShouldPlayPortfolioToHome(true);
         console.log("🎬 Started PortfolioToHome 3D animation");
         
-        return; // Skip the old DOM-based system below
-      }
-      
-      if (isNavigationFromPortfolio && !isOnHomePage) {
+      } else if (isNavigationFromPortfolio && !isOnHomePage) {
         console.log("🔍 Navigation from portfolio detected but not to home page - skipping oval animation");
-        return;
-      }
-      
-      if (!isNavigationFromPortfolio) {
+      } else if (!isNavigationFromPortfolio) {
         console.log("🔍 Not navigation from portfolio - no oval animation needed");
-        return;
-      }
-      
-      // If we reach here, handle the old DOM-based system (fallback)
-      console.log("🔍 Navigation not handled by new Lottie system - checking old system");
-        
-      const whiteContainer = document.querySelector(".outro-anim-home");
-      if (whiteContainer) {
-        console.log("⚠️ White oval container found - but this should use Lottie system");
-        // CRITICAL: Set body background to white immediately to prevent dark flash
-        document.body.style.backgroundColor = 'white';
-        
-        // Set up immediate outro overlay (covers screen during navigation)
-        whiteContainer.style.display = 'block';
-        whiteContainer.style.visibility = 'visible';
-        whiteContainer.style.position = 'fixed';
-        whiteContainer.style.top = '0';
-        whiteContainer.style.left = '0';
-        // FIX: Use window dimensions instead of viewport units to prevent flicker
-        whiteContainer.style.width = window.innerWidth + 'px';
-        whiteContainer.style.height = window.innerHeight + 'px';
-        whiteContainer.style.zIndex = '9999';
-        whiteContainer.style.pointerEvents = 'none';
-        // CRITICAL: Override Webflow's 'overflow: clip' with cssText
-        whiteContainer.style.cssText += 'overflow: visible !important;';
-        
-        // CRITICAL: Set ovals to FULL visibility initially (scale 1, opacity 1)
-        const whiteOvals = whiteContainer.querySelectorAll(".oval-white-home-outro");
-        if (whiteOvals.length > 0) {
-          console.log("🟣 Setting up", whiteOvals.length, "white ovals for outro animation");
-          
-          // DEBUG: Check initial oval state
-          console.log("🔍 INITIAL WHITE OVAL STATE:", {
-            containerFound: !!whiteContainer,
-            containerClasses: whiteContainer.className,
-            ovalCount: whiteOvals.length,
-            firstOvalClasses: whiteOvals[0]?.className,
-            containerRect: whiteContainer.getBoundingClientRect(),
-            firstOvalRect: whiteOvals[0]?.getBoundingClientRect()
-          });
-          
-          // Set up ovals for animation
-          whiteOvals.forEach((oval, index) => {
-            oval.classList.add('visible');
-            
-            // FIX Z-FIGHTING: Give each oval a distinct z-index to prevent layering conflicts
-            oval.style.zIndex = 100 + index; // Each oval gets a unique z-index
-            oval.style.position = 'relative'; // Ensure z-index takes effect
-            
-            // Restore original radial gradient background
-            oval.style.backgroundImage = ''; // Reset to CSS default
-            oval.style.backgroundColor = '';
-            oval.style.borderRadius = '50%';
-          });
-
-          gsap.set(whiteOvals, {
-            scale: 1,
-            opacity: 1,
-            transformOrigin: "center center"
-          });
-          
-          // Determine destination and play appropriate animation
-          // ROBUST: Check both hash and intended route for contact detection
-          const intendedRoute = sessionStorage.getItem('intendedRoute');
-          const isContactPage = hash === '#contact' || intendedRoute === '/contact-us';
-          const isHomePage = (path === '/' || path === '/index.html') && hash !== '#contact' && intendedRoute !== '/contact-us';
-          
-          console.log("🔍 DEBUG: Navigation destination check:");
-          console.log("  - hash:", hash);
-          console.log("  - intendedRoute:", intendedRoute);
-          console.log("  - isContactPage:", isContactPage);
-          console.log("  - isHomePage:", isHomePage);
-          
-          if (isContactPage) {
-            // NEW: Start white intro Lottie + 3D animation (portfolio → contact)
-            console.log("🎯 PORTFOLIO TO CONTACT: Starting white intro Lottie + 3D animation");
-            
-            setShouldPlayWhiteIntroLottie(true);
-            console.log("⚪ Started white intro Lottie animation");
-            
-            setShouldPlayContactIntro(true);
-            console.log("🎬 Started PortfolioToContact 3D animation");
-            
-          } else if (isHomePage) {
-            // NEW: Start white intro Lottie + 3D animation (portfolio → home)
-            console.log("🎯 PORTFOLIO TO HOME: Starting white intro Lottie + 3D animation");
-            
-            setShouldPlayWhiteIntroLottie(true);
-            console.log("⚪ Started white intro Lottie animation");
-            
-            setShouldPlayPortfolioToHome(true);
-            console.log("🎬 Started PortfolioToHome 3D animation");
-          }
-        } else {
-          console.warn("⚠️ No white ovals found for navigation animation");
-        }
-      } else {
-        console.warn("⚠️ White oval container not found");
       }
     }
+          
+          // Set up immediate outro overlay (covers screen during navigation)
+          whiteContainer.style.display = 'block';
+          whiteContainer.style.visibility = 'visible';
+          whiteContainer.style.position = 'fixed';
+          whiteContainer.style.top = '0';
+          whiteContainer.style.left = '0';
+          // FIX: Use window dimensions instead of viewport units to prevent flicker
+          whiteContainer.style.width = window.innerWidth + 'px';
+          whiteContainer.style.height = window.innerHeight + 'px';
+          whiteContainer.style.zIndex = '9999';
+          whiteContainer.style.pointerEvents = 'none';
+          // CRITICAL: Override Webflow's 'overflow: clip' with cssText
+          whiteContainer.style.cssText += 'overflow: visible !important;';
+          
+          // CRITICAL: Set ovals to FULL visibility initially (scale 1, opacity 1)
+          const whiteOvals = whiteContainer.querySelectorAll(".oval-white-home-outro");
+          if (whiteOvals.length > 0) {
+            console.log("🟣 Setting up", whiteOvals.length, "white ovals for outro animation");
+            
+            // DEBUG: Check initial oval state
+            console.log("🔍 INITIAL WHITE OVAL STATE:", {
+              containerFound: !!whiteContainer,
+              containerClasses: whiteContainer.className,
+              ovalCount: whiteOvals.length,
+              firstOvalClasses: whiteOvals[0]?.className,
+              containerRect: whiteContainer.getBoundingClientRect(),
+              firstOvalRect: whiteOvals[0]?.getBoundingClientRect()
+            });
+            
+                // Set up ovals for animation
+    whiteOvals.forEach((oval, index) => {
+      oval.classList.add('visible');
+      
+      // FIX Z-FIGHTING: Give each oval a distinct z-index to prevent layering conflicts
+      oval.style.zIndex = 100 + index; // Each oval gets a unique z-index
+      oval.style.position = 'relative'; // Ensure z-index takes effect
+      
+      // Restore original radial gradient background
+      oval.style.backgroundImage = ''; // Reset to CSS default
+      oval.style.backgroundColor = '';
+      oval.style.borderRadius = '50%';
+    });
+
+            gsap.set(whiteOvals, {
+          scale: 1,
+          opacity: 1,
+          transformOrigin: "center center"
+        });
+        
+            // Determine destination and play appropriate animation
+        // ROBUST: Check both hash and intended route for contact detection
+        const intendedRoute = sessionStorage.getItem('intendedRoute');
+        const isContactPage = hash === '#contact' || intendedRoute === '/contact-us';
+        const isHomePage = (path === '/' || path === '/index.html') && hash !== '#contact' && intendedRoute !== '/contact-us';
+        
+        console.log("🔍 DEBUG: Navigation destination check:");
+        console.log("  - hash:", hash);
+        console.log("  - intendedRoute:", intendedRoute);
+        console.log("  - isContactPage:", isContactPage);
+        console.log("  - isHomePage:", isHomePage);
+        
+        if (isContactPage) {
+              // NEW: Start white intro Lottie + 3D animation (portfolio → contact)
+              console.log("🎯 PORTFOLIO TO CONTACT: Starting white intro Lottie + 3D animation");
+              
+              setShouldPlayWhiteIntroLottie(true);
+              console.log("⚪ Started white intro Lottie animation");
+              
+              setShouldPlayContactIntro(true);
+              console.log("🎬 Started PortfolioToContact 3D animation");
+              
+            } else if (isHomePage) {
+              // NEW: Start white intro Lottie + 3D animation (portfolio → home)
+              console.log("🎯 PORTFOLIO TO HOME: Starting white intro Lottie + 3D animation");
+              
+              setShouldPlayWhiteIntroLottie(true);
+              console.log("⚪ Started white intro Lottie animation");
+              
+              setShouldPlayPortfolioToHome(true);
+              console.log("🎬 Started PortfolioToHome 3D animation");
+            }
+            } else {
+            console.warn("⚠️ No white ovals found for navigation animation");
+        }
+      } else {
+          console.warn("⚠️ White oval container not found");
+      }
+      } else if (isNavigationFromPortfolio && !isOnHomePage) {
+        console.log("🔍 Navigation from portfolio detected but not to home page - skipping oval animation");
+      } else if (!isNavigationFromPortfolio) {
+        console.log("🔍 Not navigation from portfolio - no oval animation needed");
+      }
+    } // Close the if (preloaderState !== 'visible') block
   }, [preloaderState]); // Only depend on preloader state
 
   // Background flicker prevention is handled in oval animations
