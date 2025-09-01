@@ -907,76 +907,84 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
 
   return (
     <>
-     <Canvas shadows>
-  
+      <Canvas 
+        shadows
+        onCreated={({ gl }) => {
+          // Handle WebGL context loss
+          gl.domElement.addEventListener('webglcontextlost', (event) => {
+            event.preventDefault();
+            console.warn('WebGL context lost. Attempting to restore...');
+          });
+          
+          gl.domElement.addEventListener('webglcontextrestored', () => {
+            console.log('WebGL context restored successfully');
+          });
+        }}
+      >
         <Environment files='https://imaginethiscode.netlify.app/hospital_room_2_1k.hdr' environmentIntensity={0.005}/>
-
         <CameraLayerSetup />
         <Suspense fallback={null}>
-
-        <group>
-          {!is404 ? (
-            <ErrorBoundary3D>
-            <Model 
-              focusRef={focusRef} 
-              shouldPlayContactIntro={shouldPlayContactIntro}
-              shouldPlayBackContact={shouldPlayBackContact}
-              shouldPlayHomeToPortfolio={shouldPlayHomeToPortfolio}
-              shouldPlayContactToPortfolio={shouldPlayContactToPortfolio}
-              shouldPlayPortfolioToHome={shouldPlayPortfolioToHome}
+          <group>
+            {!is404 ? (
+              <ErrorBoundary3D>
+                <Model 
+                  focusRef={focusRef} 
+                  shouldPlayContactIntro={shouldPlayContactIntro}
+                  shouldPlayBackContact={shouldPlayBackContact}
+                  shouldPlayHomeToPortfolio={shouldPlayHomeToPortfolio}
+                  shouldPlayContactToPortfolio={shouldPlayContactToPortfolio}
+                  shouldPlayPortfolioToHome={shouldPlayPortfolioToHome}
+                />
+              </ErrorBoundary3D>
+            ) : (
+              <group name="Empty_-_Camera" position={[-0.008, 0.823, -0.033]} scale={0.14}>
+                <PerspectiveCamera
+                  name="Camera"
+                  makeDefault={true}
+                  far={100}
+                  near={0.1}
+                  fov={22.895}
+                  position={[-0.217, 5.606, 12.792]}
+                  rotation={[-0.442, 0.068, 0.032]}
+                  scale={7.146}
+                />
+              </group>
+            )}
+            <Sparkles
+              count={30}
+              color="#34ebe8"
+              scale={[1.15, 1.15, 1.15]}
+              position={[0, 1, 0]}
+              speed={0.1}
+              baseNoise={40}
             />
-            </ErrorBoundary3D>
-          ) : (
-            <group name="Empty_-_Camera" position={[-0.008, 0.823, -0.033]} scale={0.14}>
-              <PerspectiveCamera
-                name="Camera"
-                makeDefault={true}
-                far={100}
-                near={0.1}
-                fov={22.895}
-                position={[-0.217, 5.606, 12.792]}
-                rotation={[-0.442, 0.068, 0.032]}
-                scale={7.146}
-              />
-            </group>
-          )}
-          <Sparkles
-            count={30}
-            color="#34ebe8"
-            scale={[1.15, 1.15, 1.15]}
-            position={[0, 1, 0]}
-            speed={0.1}
-            baseNoise={40}
-          />
-          <Sparkles
-            count={30}
-            color="#365f9c"
-            scale={[1.15, 1.15, 1.15]}
-            position={[0, 1, 0]}
-            speed={0.1}
-            baseNoise={40}
-          />
-          <Sparkles
-            count={30}
-            color="#f7f389"
-            scale={[1.15, 1.15, 1.15]}
-            position={[0, 1, 0]}
-            speed={0.1}
-            baseNoise={40}
-          />
-          <Sparkles
-            count={30}
-            color="#ffffff"
-            scale={[1.15, 1.15, 1.15]}
-            position={[0, 1, 0]}
-            speed={0.1}
-            baseNoise={40}
-          /> 
-
-        </group>
-       </Suspense>
-
-       <EffectComposer multisampling={4}>
+            <Sparkles
+              count={30}
+              color="#365f9c"
+              scale={[1.15, 1.15, 1.15]}
+              position={[0, 1, 0]}
+              speed={0.1}
+              baseNoise={40}
+            />
+            <Sparkles
+              count={30}
+              color="#f7f389"
+              scale={[1.15, 1.15, 1.15]}
+              position={[0, 1, 0]}
+              speed={0.1}
+              baseNoise={40}
+            />
+            <Sparkles
+              count={30}
+              color="#ffffff"
+              scale={[1.15, 1.15, 1.15]}
+              position={[0, 1, 0]}
+              speed={0.1}
+              baseNoise={40}
+            />
+          </group>
+        </Suspense>
+        <EffectComposer multisampling={4}>
           <Bloom
             mipmapBlur
             intensity={0.8}              // Adjust to your taste
@@ -995,8 +1003,6 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
             />
           )}
         </EffectComposer>
-
-        
       </Canvas>
     </>
 
@@ -1938,6 +1944,7 @@ function PageContent() {
       if (isNavigationFromPortfolio && isOnHomePage) {
         debugLog("🔍 Navigation FROM portfolio TO home detected - using NEW Lottie system");
         
+
         // Check if animation is already playing to prevent duplicates
         if (!shouldPlayWhiteIntroLottie && !shouldPlayPortfolioToHome && !isAnimating.current) {
           // NEW: Use Lottie-based white intro animation system
