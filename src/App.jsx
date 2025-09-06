@@ -10,6 +10,52 @@ const debugLog = (...args) => {
     console.log(...args);
   }
 };
+
+// Mobile viewport height helper - handles iOS Safari address bar
+const getMobileViewportHeight = () => {
+  // Use the newer dynamic viewport height if available, fallback to window.innerHeight
+  if (CSS.supports('height', '100dvh')) {
+    return '100dvh';
+  } else if (CSS.supports('height', '100svh')) {
+    return '100svh';
+  } else {
+    // Fallback for older browsers - use window.innerHeight
+    return `${window.innerHeight}px`;
+  }
+};
+
+const getMobileViewportCSS = () => {
+  const height = getMobileViewportHeight();
+  return `position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: ${height} !important;`;
+};
+
+// Handle mobile viewport changes (orientation, browser UI)
+const setupMobileViewportHandler = () => {
+  if (typeof window === 'undefined') return;
+  
+  let resizeTimeout;
+  const handleViewportChange = () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      // Update CSS custom property for dynamic height
+      document.documentElement.style.setProperty('--mobile-vh', `${window.innerHeight * 0.01}px`);
+      debugLog("📱 Mobile viewport updated:", window.innerHeight, "px");
+    }, 100);
+  };
+  
+  // Set initial value
+  document.documentElement.style.setProperty('--mobile-vh', `${window.innerHeight * 0.01}px`);
+  
+  // Listen for viewport changes
+  window.addEventListener('resize', handleViewportChange);
+  window.addEventListener('orientationchange', handleViewportChange);
+  
+  return () => {
+    window.removeEventListener('resize', handleViewportChange);
+    window.removeEventListener('orientationchange', handleViewportChange);
+    clearTimeout(resizeTimeout);
+  };
+};
 import { EffectComposer, Bloom, HueSaturation, DepthOfField } from '@react-three/postprocessing';
 import Lottie from 'lottie-react';
 
@@ -215,6 +261,7 @@ function CameraLayerSetup() {
 // Webflow-compatible navigation system
 if (typeof window !== 'undefined') {
   window.goToPath = (path) => {
+    debugLog("🔧 goToPath called with:", path, "current URL:", window.location.href);
     // For Webflow embedding, we need to handle navigation differently
     if (path === "/contact-us" || path === "/contact") {
       // Handle contact navigation within the same page via DOM manipulation
@@ -226,11 +273,28 @@ if (typeof window !== 'undefined') {
 
         window.currentPageState = 'contact';
         
-        // Update URL to show /contact-us path
+        // Update URL to show /contact-us path (no hash needed)
         const currentPath = window.location.pathname;
+        debugLog("🔧 goToPath: Current path:", currentPath, "Target: /contact-us");
         if (currentPath !== '/contact-us') {
+          debugLog("🔧 goToPath: Updating URL to /contact-us");
           window.history.pushState(null, null, '/contact-us');
-
+          debugLog("🔧 goToPath: URL updated, new URL:", window.location.href);
+          
+          // Send Google Analytics page view for Contact page
+          if (typeof gtag !== 'undefined') {
+            gtag('config', 'G-TK60C3SWSH', {
+              page_title: 'Contact Us - Imagine This',
+              page_location: window.location.href
+            });
+            debugLog("📊 GA: Contact page view sent");
+          }
+        }
+        // Clear any existing hash
+        if (window.location.hash) {
+          debugLog("🔧 goToPath: Clearing hash:", window.location.hash);
+          window.history.replaceState(null, null, '/contact-us');
+          debugLog("🔧 goToPath: Hash cleared, final URL:", window.location.href);
         }
       }
     } else if (path === "/") {
@@ -247,7 +311,15 @@ if (typeof window !== 'undefined') {
         const currentPath = window.location.pathname;
         if (currentPath !== '/' && currentPath !== '/index.html') {
           window.history.pushState(null, null, '/');
-
+          
+          // Send Google Analytics page view for Home page
+          if (typeof gtag !== 'undefined') {
+            gtag('config', 'G-TK60C3SWSH', {
+              page_title: '3D Interactive Web Design Studio | Immersive Websites by Imagine This LLC',
+              page_location: window.location.href
+            });
+            debugLog("📊 GA: Home page view sent");
+          }
         }
       }
     } else if (path === "/portfolio") {
@@ -272,8 +344,8 @@ if (typeof window !== 'undefined') {
     if (path.includes('dopo-casestudy.html') || url.includes('dopo-casestudy.html')) return 'casestudy';
     if (path.includes('oakley-casestudy.html') || url.includes('oakley-casestudy.html')) return 'casestudy';
     
-    // Check for contact state via hash or path
-    if (path === '/contact-us' || path.includes('contact') || window.location.hash === '#contact') return 'contact';
+    // Check for contact state via path only
+    if (path === '/contact-us' || path.includes('contact')) return 'contact';
     
     // For the main index page or any path that doesn't end with specific HTML files, assume home
     return 'home';
@@ -283,7 +355,7 @@ if (typeof window !== 'undefined') {
   window.currentPageState = window.getCurrentPageState();
 }
 
-function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeToPortfolio, shouldPlayContactToPortfolio, shouldPlayPortfolioToHome }) {
+function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeToPortfolio, shouldPlayContactToPortfolio, shouldPlayPortfolioToHome, isAnimating }) {
   // In Webflow embedding context, detect page type from URL and DOM
   const getCurrentPath = () => {
     if (typeof window === 'undefined') return '/';
@@ -586,40 +658,43 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
         e.preventDefault();
         e.stopPropagation();
         
+        // Prevent clicking during animations to avoid conflicts
+        if (isAnimating.current) {
+            debugLog("🚫 Menu click blocked - animation in progress");
+            return;
+        }
+        
         // Close mobile menu if clicking from mobile menu
         const mobileMenuContainer = document.querySelector('.menu-open-wrap-dopo');
         if (mobileMenuContainer && mobileMenuContainer.classList.contains('menu-open')) {
             mobileMenuContainer.classList.remove('menu-open');
         }
         
-        // Check if we're currently on home and trigger proper state change
-        const homeContainer = document.querySelector('.container.home');
-        const isOnHome = homeContainer && homeContainer.style.display !== 'none' && 
-                        (homeContainer.style.display === 'flex' || homeContainer.style.visibility === 'visible');
+        // Check current page state and trigger proper state change
+        const currentPage = window.getCurrentPageState();
+        debugLog("🔧 handleContactClick: Current page state:", currentPage);
         
-
-
-
-
+        // Always dispatch the page state change event for proper tracking
+        const event = new CustomEvent('pageStateChange', {
+            detail: { from: currentPage, to: 'contact' }
+        });
+        debugLog("🔧 handleContactClick: Dispatching pageStateChange event:", event.detail);
+        window.dispatchEvent(event);
         
-        if (isOnHome) {
-
-            // Dispatch custom event to ensure proper state tracking
-            const event = new CustomEvent('pageStateChange', {
-                detail: { from: 'home', to: 'contact' }
-            });
-
-            window.dispatchEvent(event);
-        } else {
-
-        }
-        
+        debugLog("🔧 handleContactClick: About to call goToPath('/contact-us')");
         window.goToPath("/contact-us");
+        debugLog("🔧 handleContactClick: goToPath called, current URL:", window.location.href);
     };
 
     const handleHomeClick = (e) => {
         e.preventDefault();
         e.stopPropagation();
+        
+        // Prevent clicking during animations to avoid conflicts
+        if (isAnimating.current) {
+            debugLog("🚫 Menu click blocked - animation in progress");
+            return;
+        }
         
         // Close mobile menu if clicking from mobile menu
         const mobileMenuContainer = document.querySelector('.menu-open-wrap-dopo');
@@ -654,14 +729,17 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
     };
 
     const handleContactPortfolioClick = (e) => {
-
-
-        
         // Store the original href before preventing default
         const originalHref = e.currentTarget.href;
         
         e.preventDefault();
         e.stopPropagation();
+        
+        // Prevent clicking during animations to avoid conflicts
+        if (isAnimating.current) {
+            debugLog("🚫 Contact to Portfolio click blocked - animation in progress");
+            return;
+        }
         
         // Check if clicking from mobile menu
         const isFromMobileMenu = e.currentTarget.closest('.menu-open-wrap-dopo') !== null;
@@ -712,6 +790,12 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
         // Prevent default navigation temporarily
         e.preventDefault();
         e.stopPropagation();
+        
+        // Prevent clicking during animations to avoid conflicts
+        if (isAnimating.current) {
+            debugLog("🚫 Works/Portfolio click blocked - animation in progress");
+            return;
+        }
         
         // ROBUST: Check current page state using React state (more reliable than DOM)
         const isOnContactPage = currentPageState === 'contact';
@@ -1190,6 +1274,9 @@ function PageContent() {
   const [shouldPlayPortfolioToHome, setShouldPlayPortfolioToHome] = useState(false);
   const isAnimating = useRef(false);
   const hasInitialized = useRef(false);
+  const contactAnimationTriggered = useRef(false);
+  const lastContactTriggerTime = useRef(0);
+  const whiteIntroBlocked = useRef(false);
   
   // SIMPLIFIED: Monitor 3D model loading progress
   useEffect(() => {
@@ -1201,6 +1288,53 @@ function PageContent() {
       setModelLoaded(true);
     }
   }, [progress, modelLoaded]);
+
+  // Setup mobile viewport handler
+  useEffect(() => {
+    const cleanup = setupMobileViewportHandler();
+    return cleanup;
+  }, []);
+
+  // Block white intro animations after user has been on page for a while
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      whiteIntroBlocked.current = true;
+      debugLog("🚫 White intro animations blocked - user settled on page");
+    }, 3000); // Block after 3 seconds
+
+    return () => {
+      clearTimeout(timer);
+      whiteIntroBlocked.current = false;
+    };
+  }, [currentPageState]); // Reset timer when page changes
+
+  // Additional mobile white flash prevention
+  useEffect(() => {
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+      // More aggressive white flash prevention on mobile
+      const mobileTimer = setTimeout(() => {
+        whiteIntroBlocked.current = true;
+        debugLog("📱 Mobile white intro animations blocked - preventing mobile flashes");
+      }, 800); // Block after 0.8 seconds on mobile (more aggressive)
+
+      return () => clearTimeout(mobileTimer);
+    }
+  }, [currentPageState]);
+
+  // Extra aggressive mobile white flash prevention on page load
+  useEffect(() => {
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+      // Immediately block white flashes on mobile after any navigation
+      const immediateTimer = setTimeout(() => {
+        whiteIntroBlocked.current = true;
+        debugLog("📱 Immediate mobile white flash block activated");
+      }, 500); // Very quick block
+
+      return () => clearTimeout(immediateTimer);
+    }
+  }, []);
 
   // ROBUST FALLBACK SYSTEM: Multiple safety nets to ensure website always loads
   useEffect(() => {
@@ -1394,6 +1528,7 @@ function PageContent() {
   // White ovals Lottie animation states (animations now embedded)
   const [shouldPlayWhiteLottie, setShouldPlayWhiteLottie] = useState(false); // Outro: going TO portfolio
   const [shouldPlayWhiteIntroLottie, setShouldPlayWhiteIntroLottie] = useState(false); // Intro: coming FROM portfolio
+  const [showWhiteOverlay, setShowWhiteOverlay] = useState(false); // White overlay to cover glitches
   
   // Safety flags to prevent conflicts
   const canPlayLottie = useRef(false);
@@ -1510,11 +1645,26 @@ function PageContent() {
           referrer.includes('dopo')
         );
         
-        const isContactPage = window.location.hash === '#contact';
+        const isContactPage = window.location.pathname === '/contact-us';
         
         if (isContactPage && isFromPortfolio) {
-          debugLog("🎬 Starting contact intro animation (portfolio → contact)");
-          setShouldPlayContactIntro(true);
+          // Check if contact animation is already playing to prevent duplicates
+          if (!shouldPlayContactIntro && !contactAnimationTriggered.current) {
+            debugLog("🎬 Starting contact intro animation (portfolio → contact)");
+            contactAnimationTriggered.current = true;
+            // Reset conflicting animations first
+            setShouldPlayPortfolioToHome(false);
+            setShouldPlayHomeToPortfolio(false);
+            setShouldPlayContactToPortfolio(false);
+            setShouldPlayContactIntro(true);
+            // Reset after animation completes
+            setTimeout(() => {
+              setShouldPlayContactIntro(false);
+              contactAnimationTriggered.current = false;
+            }, 2000);
+          } else {
+            debugLog("🚫 SKIPPED: Contact intro animation already playing (finishPreloader)");
+          }
         } else if (!isContactPage && isFromPortfolio) {
           debugLog("🎬 Starting portfolio-to-home animation (portfolio → home)");
           setShouldPlayPortfolioToHome(true);
@@ -1667,7 +1817,7 @@ function PageContent() {
     whiteContainer.style.top = '0';
     whiteContainer.style.left = '0';
     whiteContainer.style.width = '100vw';
-    whiteContainer.style.height = '100vh';
+    whiteContainer.style.height = getMobileViewportHeight();
     whiteContainer.style.zIndex = '999999'; // Much higher z-index
     whiteContainer.style.pointerEvents = 'none';
     // CRITICAL: Override Webflow's 'overflow: clip' with cssText
@@ -1843,7 +1993,7 @@ function PageContent() {
     whiteContainer.style.top = '0';
     whiteContainer.style.left = '0';
     whiteContainer.style.width = '100vw';
-    whiteContainer.style.height = '100vh';
+    whiteContainer.style.height = getMobileViewportHeight();
     whiteContainer.style.zIndex = '9999';
     whiteContainer.style.pointerEvents = 'none';
     // CRITICAL: Override Webflow's 'overflow: clip' with cssText
@@ -1942,11 +2092,21 @@ function PageContent() {
       
       // Handle different navigation scenarios
       if (isNavigationFromPortfolio && isOnHomePage) {
+        // Check if this is actually going to contact (intended route scenario)
+        const intendedRoute = sessionStorage.getItem('intendedRoute');
+        const isActuallyGoingToContact = intendedRoute === '/contact-us' || intendedRoute === '/contact' || currentPageState === 'contact';
+        
+        if (isActuallyGoingToContact) {
+          debugLog("🔍 Navigation FROM portfolio TO contact detected (via intended route)");
+          // This will be handled by handleIntendedRoute, don't start home animation
+          return;
+        }
+        
         debugLog("🔍 Navigation FROM portfolio TO home detected - using NEW Lottie system");
         
 
         // Check if animation is already playing to prevent duplicates
-        if (!shouldPlayWhiteIntroLottie && !shouldPlayPortfolioToHome && !isAnimating.current) {
+        if (!shouldPlayWhiteIntroLottie && !shouldPlayPortfolioToHome && !isAnimating.current && !whiteIntroBlocked.current) {
           // NEW: Use Lottie-based white intro animation system
           setShouldPlayWhiteIntroLottie(true);
           debugLog("⚪ Started white intro Lottie animation (portfolio → home)");
@@ -1990,7 +2150,7 @@ function PageContent() {
         whiteContainer.style.left = '0';
         // FIX: Use window dimensions instead of viewport units to prevent flicker
         whiteContainer.style.width = window.innerWidth + 'px';
-        whiteContainer.style.height = window.innerHeight + 'px';
+        whiteContainer.style.height = getMobileViewportHeight();
         whiteContainer.style.zIndex = '9999';
         whiteContainer.style.pointerEvents = 'none';
         // CRITICAL: Override Webflow's 'overflow: clip' with cssText
@@ -2032,10 +2192,10 @@ function PageContent() {
           });
           
           // Determine destination and play appropriate animation
-          // ROBUST: Check both hash and intended route for contact detection
+          // ROBUST: Check path and intended route for contact detection (no hash needed)
           const intendedRoute = sessionStorage.getItem('intendedRoute');
-          const isContactPage = hash === '#contact' || intendedRoute === '/contact-us' || intendedRoute === '/contact';
-          const isHomePage = (path === '/' || path === '/index.html') && hash !== '#contact' && intendedRoute !== '/contact-us' && intendedRoute !== '/contact';
+          const isContactPage = path === '/contact-us' || intendedRoute === '/contact-us' || intendedRoute === '/contact' || currentPageState === 'contact';
+          const isHomePage = (path === '/' || path === '/index.html') && path !== '/contact-us' && intendedRoute !== '/contact-us' && intendedRoute !== '/contact' && currentPageState !== 'contact';
           
           debugLog("🔍 DEBUG: Navigation destination check:");
           debugLog("  - hash:", hash);
@@ -2044,18 +2204,43 @@ function PageContent() {
           debugLog("  - isHomePage:", isHomePage);
           
           if (isContactPage) {
-            // NEW: Start white intro Lottie + 3D animation (portfolio → contact)
-            debugLog("🎯 PORTFOLIO TO CONTACT: Starting white intro Lottie + 3D animation");
+            // Check if contact animation is already playing to prevent duplicates
+            const now = Date.now();
+            const timeSinceLastTrigger = now - lastContactTriggerTime.current;
             
-            setShouldPlayWhiteIntroLottie(true);
-            debugLog("⚪ Started white intro Lottie animation");
-            
-            setShouldPlayContactIntro(true);
-            debugLog("🎬 Started PortfolioToContact 3D animation");
+            if (!shouldPlayContactIntro && !contactAnimationTriggered.current && timeSinceLastTrigger > 500) {
+              // NEW: Start white intro Lottie + 3D animation (portfolio → contact)
+              debugLog("🎯 PORTFOLIO TO CONTACT: Starting white intro Lottie + 3D animation");
+              
+              contactAnimationTriggered.current = true;
+              lastContactTriggerTime.current = now;
+              
+              // Reset conflicting animations first
+              setShouldPlayPortfolioToHome(false);
+              setShouldPlayHomeToPortfolio(false);
+              setShouldPlayContactToPortfolio(false);
+              
+              setShouldPlayWhiteIntroLottie(true);
+              debugLog("⚪ Started white intro Lottie animation");
+              
+              setShouldPlayContactIntro(true);
+              // Reset after animation completes
+              setTimeout(() => {
+                setShouldPlayContactIntro(false);
+                contactAnimationTriggered.current = false;
+              }, 2000);
+              debugLog("🎬 Started PortfolioToContact 3D animation");
+            } else {
+              debugLog("🚫 SKIPPED: Portfolio→Contact animation already playing or too soon (hash change)", {
+                shouldPlayContactIntro,
+                contactAnimationTriggered: contactAnimationTriggered.current,
+                timeSinceLastTrigger
+              });
+            }
             
           } else if (isHomePage) {
             // Check if animation is already playing to prevent duplicates
-            if (!shouldPlayWhiteIntroLottie && !shouldPlayPortfolioToHome && !isAnimating.current) {
+            if (!shouldPlayWhiteIntroLottie && !shouldPlayPortfolioToHome && !isAnimating.current && !whiteIntroBlocked.current) {
               // NEW: Start white intro Lottie + 3D animation (portfolio → home)
               debugLog("🎯 PORTFOLIO TO HOME: Starting white intro Lottie + 3D animation");
               
@@ -2095,15 +2280,20 @@ function PageContent() {
     const handleDirectPortfolioAnimation = () => {
       debugLog("🎯 HOME TO PORTFOLIO: Starting white Lottie + 3D animation");
       
+      // Reset all animation states first to prevent conflicts
+      setShouldPlayContactIntro(false);
+      setShouldPlayBackContact(false);
+      setShouldPlayPortfolioToHome(false);
+      setShouldPlayContactToPortfolio(false);
+      setShouldPlayWhiteIntroLottie(false);
+      setShowWhiteOverlay(false);
+      
       // Start white ovals Lottie animation (now embedded)
       setShouldPlayWhiteLottie(true);
       debugLog("🟣 Started white ovals outro Lottie animation");
       
       // Start 3D animation simultaneously
       setShouldPlayHomeToPortfolio(true);
-      setShouldPlayContactIntro(false);
-      setShouldPlayBackContact(false);
-      setShouldPlayPortfolioToHome(false);
       
       debugLog("🎬 Started HomeToPortfolio 3D animation");
     };
@@ -2115,6 +2305,14 @@ function PageContent() {
       debugLog("🎯 CONTACT TO PORTFOLIO: Starting white Lottie + 3D animation");
       debugLog("🎯 DEBUG: Current page state when contact→portfolio triggered:", currentPageState);
       debugLog("🎯 DEBUG: Event handler called successfully");
+      
+      // Reset all animation states first to prevent conflicts
+      setShouldPlayContactIntro(false);
+      setShouldPlayBackContact(false);
+      setShouldPlayHomeToPortfolio(false);
+      setShouldPlayPortfolioToHome(false);
+      setShouldPlayWhiteIntroLottie(false);
+      setShowWhiteOverlay(false);
       
       // Start white ovals Lottie animation (now embedded)
       setShouldPlayWhiteLottie(true);
@@ -2135,10 +2333,35 @@ function PageContent() {
       const intendedRoute = sessionStorage.getItem('intendedRoute');
       
       if (intendedRoute === '/contact-us' || intendedRoute === '/contact') {
+        debugLog("🎯 handleIntendedRoute: Processing contact route, current URL:", window.location.href);
+        
+        // Update URL first to ensure consistency
+        if (window.location.pathname !== '/contact-us') {
+          debugLog("🎯 handleIntendedRoute: Updating URL to /contact-us");
+          window.history.pushState(null, null, '/contact-us');
+        }
+        
         setCurrentPageState('contact');
-        setShouldPlayContactIntro(true);
+        
+        // Check if contact animation is already playing to prevent duplicates
+        if (!shouldPlayContactIntro && !contactAnimationTriggered.current) {
+          contactAnimationTriggered.current = true;
+          
+          // Start both white intro Lottie and 3D contact animation
+          setShouldPlayWhiteIntroLottie(true);
+          debugLog("⚪ Started white intro Lottie animation (portfolio → contact)");
+          
+          setShouldPlayContactIntro(true);
+          // Reset after animation completes
+          setTimeout(() => {
+            setShouldPlayContactIntro(false);
+            contactAnimationTriggered.current = false;
+          }, 2000);
+          debugLog("🎯 Handled intended contact route - URL:", window.location.href);
+        } else {
+          debugLog("🚫 SKIPPED: Contact intro animation already playing (intended route)");
+        }
         sessionStorage.removeItem('intendedRoute');
-        debugLog("🎯 Handled intended contact route");
       }
     };
 
@@ -2150,10 +2373,10 @@ function PageContent() {
       const path = window.location.pathname;
       debugLog("🔧 Hash/URL changed to:", newHash, "path:", path, "current state:", currentPageState);
       
-      if (newHash === '#contact' || path === '/contact-us') {
+      if (path === '/contact-us') {
         debugLog("🔧 Setting state to contact");
         setCurrentPageState('contact');
-      } else if ((newHash === '' || !newHash) && (path === '/' || path === '/index.html')) {
+      } else if (path === '/' || path === '/index.html') {
         // Going back to home (either from contact or direct navigation)
         debugLog("🏠 Detected navigation to home from state:", currentPageState);
         // Manually update prevPageState to ensure proper transition detection
@@ -2338,6 +2561,14 @@ function PageContent() {
       setShouldPlayHomeToPortfolio(false);
       setShouldPlayContactToPortfolio(false);
       setShouldPlayPortfolioToHome(false);
+      // Also reset Lottie animation states to prevent glitches
+      setShouldPlayWhiteLottie(false);
+      setShouldPlayWhiteIntroLottie(false);
+      setShowWhiteOverlay(false);
+      // Reset animation flags
+      contactAnimationTriggered.current = false;
+      lastContactTriggerTime.current = 0;
+      whiteIntroBlocked.current = false;
     };
 
 
@@ -2345,10 +2576,19 @@ function PageContent() {
     // ROBUST: Handle page transitions with appropriate animations
     if (to === "contact" && from !== "contact") {
       debugLog("🎯 Transitioning TO contact");
-      isAnimating.current = true;
-      resetAnimations();
-      setShouldPlayContactIntro(true);
-      setTimeout(() => { isAnimating.current = false; }, 1000);
+      // Check if contact animation is already playing to prevent duplicates
+      if (!shouldPlayContactIntro && !contactAnimationTriggered.current) {
+        isAnimating.current = true;
+        contactAnimationTriggered.current = true;
+        resetAnimations();
+        setShouldPlayContactIntro(true);
+        setTimeout(() => { 
+          isAnimating.current = false;
+          contactAnimationTriggered.current = false;
+        }, 1000);
+      } else {
+        debugLog("🚫 SKIPPED: Contact intro animation already playing (page transition)");
+      }
       
     } else if (from === "contact" && to === "home") {
       debugLog("🎯 Transitioning FROM contact TO home");
@@ -2405,7 +2645,7 @@ function PageContent() {
           top: 0,
           left: 0,
           width: '100%',
-          height: '100%',
+          height: getMobileViewportHeight(),
           zIndex: 10, // Higher z-index to ensure visibility above content
           pointerEvents: 'none'
         }}
@@ -2416,6 +2656,7 @@ function PageContent() {
           shouldPlayHomeToPortfolio={shouldPlayHomeToPortfolio}
           shouldPlayContactToPortfolio={shouldPlayContactToPortfolio}
           shouldPlayPortfolioToHome={shouldPlayPortfolioToHome}
+          isAnimating={isAnimating}
         />
       </div>
       
@@ -2425,7 +2666,8 @@ function PageContent() {
           className="lottie-background-overlay"
           ref={(el) => {
             if (el) {
-              el.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 2147483647 !important; pointer-events: none !important; overflow: hidden !important; background-color: transparent !important; display: flex !important; align-items: center !important; justify-content: center !important; isolation: isolate !important; transform: translateZ(0) !important;';
+              const mobileCSS = getMobileViewportCSS();
+              el.style.cssText = `${mobileCSS} z-index: 2147483647 !important; pointer-events: none !important; overflow: hidden !important; background-color: transparent !important; display: flex !important; align-items: center !important; justify-content: center !important; isolation: isolate !important; transform: translateZ(0) !important;`;
             }
           }}
           style={{
@@ -2433,7 +2675,7 @@ function PageContent() {
             top: 0,
             left: 0,
             width: '100vw',
-            height: '100vh',
+            height: getMobileViewportHeight(),
             zIndex: 2147483647, // Higher than preloader to ensure visibility
             pointerEvents: 'none',
             overflow: 'hidden', // Crop anything outside the screen bounds
@@ -2450,10 +2692,10 @@ function PageContent() {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 'max(100vw, 100vh)',
-            height: 'max(100vw, 100vh)',
+            width: `max(100vw, ${getMobileViewportHeight()})`,
+            height: `max(100vw, ${getMobileViewportHeight()})`,
             minWidth: '100vw',
-            minHeight: '100vh'
+            minHeight: getMobileViewportHeight()
           }}>
             {/* ROBUST: Try-catch wrapper for Lottie with fallback */}
             {(() => {
@@ -2521,7 +2763,8 @@ function PageContent() {
           className="white-lottie-overlay"
           ref={(el) => {
             if (el) {
-              el.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 2147483647 !important; pointer-events: none !important; overflow: hidden !important; background-color: transparent !important; display: flex !important; align-items: center !important; justify-content: center !important; isolation: isolate !important; transform: translateZ(0) !important;';
+              const mobileCSS = getMobileViewportCSS();
+              el.style.cssText = `${mobileCSS} z-index: 2147483647 !important; pointer-events: none !important; overflow: hidden !important; background-color: transparent !important; display: flex !important; align-items: center !important; justify-content: center !important; isolation: isolate !important; transform: translateZ(0) !important;`;
             }
           }}
           style={{
@@ -2529,7 +2772,7 @@ function PageContent() {
             top: 0,
             left: 0,
             width: '100vw',
-            height: '100vh',
+            height: getMobileViewportHeight(),
             zIndex: 2147483647, // Force maximum z-index above Webflow animations and menu
             pointerEvents: 'none',
             overflow: 'hidden',
@@ -2546,10 +2789,10 @@ function PageContent() {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 'max(100vw, 100vh)',
-            height: 'max(100vw, 100vh)',
+            width: `max(100vw, ${getMobileViewportHeight()})`,
+            height: `max(100vw, ${getMobileViewportHeight()})`,
             minWidth: '100vw',
-            minHeight: '100vh'
+            minHeight: getMobileViewportHeight()
           }}>
             <Lottie
               animationData={whiteOvalsOutroAnimation}
@@ -2562,7 +2805,12 @@ function PageContent() {
               onComplete={() => {
                 debugLog("⚪ White ovals Lottie animation completed (45 frames = 1.5 seconds)");
                 setShouldPlayWhiteLottie(false);
-                debugLog("⚪ White Lottie hidden - navigation to portfolio should complete");
+                // Also reset 3D animation states to prevent conflicts
+                setShouldPlayHomeToPortfolio(false);
+                setShouldPlayContactToPortfolio(false);
+                // Show white overlay to cover any glitches
+                setShowWhiteOverlay(true);
+                debugLog("⚪ White Lottie hidden - showing white overlay and navigating to portfolio");
                 
                 // After 1.5s animation, navigate to portfolio
                 setTimeout(() => {
@@ -2589,7 +2837,8 @@ function PageContent() {
           className="white-intro-lottie-overlay"
           ref={(el) => {
             if (el) {
-              el.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 2147483647 !important; pointer-events: none !important; overflow: hidden !important; background-color: transparent !important; display: flex !important; align-items: center !important; justify-content: center !important; isolation: isolate !important; transform: translateZ(0) !important;';
+              const mobileCSS = getMobileViewportCSS();
+              el.style.cssText = `${mobileCSS} z-index: 2147483647 !important; pointer-events: none !important; overflow: hidden !important; background-color: transparent !important; display: flex !important; align-items: center !important; justify-content: center !important; isolation: isolate !important; transform: translateZ(0) !important;`;
             }
           }}
           style={{
@@ -2597,7 +2846,7 @@ function PageContent() {
             top: 0,
             left: 0,
             width: '100vw',
-            height: '100vh',
+            height: getMobileViewportHeight(),
             zIndex: 2147483647, // Force maximum z-index above Webflow animations and menu
             pointerEvents: 'none',
             overflow: 'hidden',
@@ -2614,10 +2863,10 @@ function PageContent() {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 'max(100vw, 100vh)',
-            height: 'max(100vw, 100vh)',
+            width: `max(100vw, ${getMobileViewportHeight()})`,
+            height: `max(100vw, ${getMobileViewportHeight()})`,
             minWidth: '100vw',
-            minHeight: '100vh'
+            minHeight: getMobileViewportHeight()
           }}>
             <Lottie
               animationData={whiteOvalsIntroAnimation}
@@ -2630,7 +2879,12 @@ function PageContent() {
               onComplete={() => {
                 debugLog("⚪ White intro Lottie animation completed (45 frames = 1.5 seconds)");
                 setShouldPlayWhiteIntroLottie(false);
+                // Also reset 3D animation states to prevent conflicts
+                setShouldPlayPortfolioToHome(false);
+                // Block further white intro animations for a while
+                whiteIntroBlocked.current = true;
                 debugLog("⚪ White intro Lottie hidden - navigation from portfolio complete");
+                debugLog("🚫 White intro blocked to prevent flashes");
               }}
               onEnterFrame={(e) => {
                 // Only log every 10 frames to reduce spam
@@ -2645,6 +2899,19 @@ function PageContent() {
           </div>
         </div>
       )}
+      
+      {/* White Overlay to Cover Glitches After Lottie Completes */}
+      {showWhiteOverlay && (
+        <div 
+          className="white-overlay-cover"
+          ref={(el) => {
+            if (el) {
+              const mobileCSS = getMobileViewportCSS();
+              el.style.cssText = `${mobileCSS} z-index: 2147483647 !important; pointer-events: none !important; overflow: hidden !important; background-color: white !important; display: block !important; isolation: isolate !important; transform: translateZ(0) !important;`;
+            }
+          }}
+        />
+      )}
     </>
   );
 }
@@ -2654,6 +2921,24 @@ function PageContent() {
 // Simplified app content for Webflow embedding - no routing needed
 function AppContent() {
   useEffect(() => {
+    // Send initial page view to Google Analytics
+    const currentPath = window.location.pathname;
+    if (typeof gtag !== 'undefined') {
+      if (currentPath === '/contact-us' || currentPath.includes('contact')) {
+        gtag('config', 'G-TK60C3SWSH', {
+          page_title: 'Contact Us - Imagine This',
+          page_location: window.location.href
+        });
+        debugLog("📊 GA: Initial Contact page view sent");
+      } else {
+        gtag('config', 'G-TK60C3SWSH', {
+          page_title: '3D Interactive Web Design Studio | Immersive Websites by Imagine This LLC',
+          page_location: window.location.href
+        });
+        debugLog("📊 GA: Initial Home page view sent");
+      }
+    }
+    
     // Check for intended route from sessionStorage (for navigation from standalone pages)
     const intendedRoute = sessionStorage.getItem('intendedRoute');
     if (intendedRoute) {

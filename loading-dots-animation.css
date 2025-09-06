@@ -97,6 +97,23 @@
 */
 
 /* Responsive adjustments */
+@media (max-width: 991px) {
+    .dots-container {
+        gap: 0.2em;
+    }
+    
+    @keyframes dotBounce {
+        0%, 80%, 100% {
+            transform: translateY(0);
+            opacity: 0.7;
+        }
+        40% {
+            transform: translateY(-0.5em);
+            opacity: 1;
+        }
+    }
+}
+
 @media (max-width: 768px) {
     .dots-container {
         gap: 0.15em;
@@ -108,7 +125,24 @@
             opacity: 0.7;
         }
         40% {
-            transform: translateY(-0.4em); /* Less movement on mobile */
+            transform: translateY(-0.4em);
+            opacity: 1;
+        }
+    }
+}
+
+@media (max-width: 479px) {
+    .dots-container {
+        gap: 0.1em;
+    }
+    
+    @keyframes dotBounce {
+        0%, 80%, 100% {
+            transform: translateY(0);
+            opacity: 0.7;
+        }
+        40% {
+            transform: translateY(-0.3em);
             opacity: 1;
         }
     }
