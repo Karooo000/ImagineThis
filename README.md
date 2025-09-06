@@ -2,6 +2,8 @@
 
 ![ImagineThis Preview](src/assets/Screenshot%202025-09-06%20at%2017.07.27.png)
 
+🌐 **[View Live Website](https://www.imaginethis.agency/)**
+
 ## About ImagineThis
 
 ImagineThis is a creative agency that believes no website should be boring or just a website - it should be a memorable experience. We specialize in creating cutting-edge interactive 3D web experiences that push the boundaries of what's possible on the web. This project showcases our approach to combining the beauty of neural networks with fractal geometry, creating immersive digital experiences that captivate and engage users through stunning visual storytelling.
