@@ -1034,38 +1034,57 @@ function Scene({ shouldPlayContactIntro, shouldPlayBackContact, shouldPlayHomeTo
                 />
               </group>
             )}
-            <Sparkles
-              count={30}
-              color="#34ebe8"
-              scale={[1.15, 1.15, 1.15]}
-              position={[0, 1, 0]}
-              speed={0.1}
-              baseNoise={40}
-            />
-            <Sparkles
-              count={30}
-              color="#365f9c"
-              scale={[1.15, 1.15, 1.15]}
-              position={[0, 1, 0]}
-              speed={0.1}
-              baseNoise={40}
-            />
-            <Sparkles
-              count={30}
-              color="#f7f389"
-              scale={[1.15, 1.15, 1.15]}
-              position={[0, 1, 0]}
-              speed={0.1}
-              baseNoise={40}
-            />
-            <Sparkles
-              count={30}
-              color="#ffffff"
-              scale={[1.15, 1.15, 1.15]}
-              position={[0, 1, 0]}
-              speed={0.1}
-              baseNoise={40}
-            />
+            {(() => {
+              // Device detection for responsive sparkles
+              const isMobileOrTablet = (() => {
+                if (typeof window === 'undefined') return false;
+                const userAgent = navigator.userAgent;
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+                const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+                const isSmallScreen = window.innerWidth <= 1024;
+                return isMobile || (hasTouch && isSmallScreen);
+              })();
+              
+              // Smaller scale = bigger visual appearance (due to camera FOV)
+              const sparkleScale = isMobileOrTablet ? [1.0, 1.0, 1.0] : [1.15, 1.15, 1.15];
+              
+              return (
+                <>
+                  <Sparkles
+                    count={30}
+                    color="#34ebe8"
+                    scale={sparkleScale}
+                    position={[0, 1, 0]}
+                    speed={0.1}
+                    baseNoise={40}
+                  />
+                  <Sparkles
+                    count={30}
+                    color="#365f9c"
+                    scale={sparkleScale}
+                    position={[0, 1, 0]}
+                    speed={0.1}
+                    baseNoise={40}
+                  />
+                  <Sparkles
+                    count={30}
+                    color="#f7f389"
+                    scale={sparkleScale}
+                    position={[0, 1, 0]}
+                    speed={0.1}
+                    baseNoise={40}
+                  />
+                  <Sparkles
+                    count={30}
+                    color="#ffffff"
+                    scale={sparkleScale}
+                    position={[0, 1, 0]}
+                    speed={0.1}
+                    baseNoise={40}
+                  />
+                </>
+              );
+            })()}
           </group>
         </Suspense>
         <EffectComposer multisampling={4}>
